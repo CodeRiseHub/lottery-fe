@@ -1,0 +1,12 @@
+/* Import all styles from the original project */
+@import './styles/css/bootstrap.css';
+@import './styles/css/main.css';
+@import './styles/css/modal.css';
+@import './styles/css/modal_new.css';
+@import './styles/css/animation.css';
+@import './styles/css/user_account.css';
+@import './styles/css/instruction.css';
+@import './assets/styles/style.css';
+@import './styles/style/styles.css';
+@import './styles/styles/styles.css';
+
