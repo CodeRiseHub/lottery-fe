@@ -1,0 +1,582 @@
+@import url("https://fonts.googleapis.com/css?family=Nunito:400,600,700");
+@keyframes pulse-white {
+  0% {
+    -moz-box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  }
+  70% {
+    -moz-box-shadow: 0 0 0 20px rgba(204, 169, 44, 0);
+    box-shadow: 0 0 0 20px rgba(204, 169, 44, 0);
+  }
+  100% {
+    -moz-box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
+    box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
+  }
+}
+body {
+  background: #4b4b4b;
+  font-family: "Roboto", serif;
+}
+
+.modal {
+  font-family: "Nunito", sans-serif;
+}
+
+@media screen and (max-width: 991px) {
+  .strong-server {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    overflow: hidden;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+    height: 700px;
+    background: linear-gradient(100deg, #781EE1, #5940EE);
+    box-shadow: 0 7px 49px rgba(89, 75, 255, 0.4);
+    z-index: 0;
+  }
+  .strong-server > .background {
+    position: absolute;
+    top: -8px;
+    right: -9px;
+    margin: 0.5em 10px 0.5em 0;
+    overflow: hidden;
+    width: 640px;
+    height: 640px;
+    z-index: 1;
+    opacity: 0.4;
+  }
+  .strong-server > .background > img {
+    position: relative;
+    float: right;
+    top: -10px;
+    left: 150px;
+    transform: rotate(38deg);
+  }
+  .strong-server > .info {
+    position: absolute;
+    bottom: 5%;
+    right: 45%;
+    z-index: 10;
+  }
+  .strong-server > .info > .icon {
+    position: relative;
+    border: 2px solid #ffff;
+    background-color: transparent;
+    border-radius: 100%;
+    width: 45px;
+    height: 45px;
+  }
+  .strong-server > .info > .icon:hover {
+    animation: pulse-white 1s infinite;
+    cursor: pointer;
+  }
+  .strong-server > .info > .icon > i {
+    position: absolute;
+    left: 42%;
+    top: 26%;
+    color: #ffff;
+  }
+  .strong-server > .lock {
+    position: absolute;
+    width: 100%;
+    height: 700px;
+    visibility: hidden;
+  }
+  .strong-server > .lock.active {
+    position: absolute;
+    visibility: visible;
+    background-color: #B6B6B6;
+    z-index: 9;
+    opacity: 0.98;
+  }
+  .strong-server > .lock.active.active > .star-header {
+    position: absolute;
+    top: 7px;
+    left: 20px;
+  }
+  .strong-server > .lock.active.active > .star-header > .star-img {
+    height: 20px;
+    width: 20px;
+  }
+  .strong-server > .lock.active.active > .star-header > .title {
+    position: relative;
+    top: -17.5px;
+    left: 24px;
+    color: #ffff;
+    font-weight: 500;
+    letter-spacing: 5px;
+    font-size: 13px;
+    font-family: "Roboto", serif;
+  }
+  .strong-server > .lock.active.active > .lock-header {
+    position: absolute;
+    top: 40%;
+  }
+  .strong-server > .lock.active.active > .lock-header > .title {
+    position: relative;
+    top: -30px;
+    left: 0;
+    text-align: center;
+    word-wrap: break-word;
+    width: 100%;
+    font-weight: bold;
+    font-size: 22px;
+    color: #594BFF;
+    opacity: 0.97;
+  }
+  .strong-server > .lock.active.active > .lock-header > .lock-img {
+    position: relative;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    height: 140px;
+    width: 120px;
+  }
+  .strong-server > .card {
+    position: relative;
+    width: 100vw;
+    background-color: transparent;
+    border: none;
+    z-index: 2;
+  }
+  .strong-server > .card > .header {
+    position: relative;
+  }
+  .strong-server > .card > .header > .data-storage {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+  }
+  .strong-server > .card > .header > .data-storage > img {
+    position: absolute;
+    float: right;
+    top: 39px;
+    right: 15px;
+    width: 100px;
+    height: 100px;
+    z-index: 1;
+  }
+  .strong-server > .card > .header > .title {
+    position: relative;
+    top: 40px;
+    left: 20px;
+    color: #FFD300;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 3;
+  }
+  .strong-server > .card > .header > .description {
+    position: relative;
+    font-size: 16px;
+    left: 20px;
+    top: 40px;
+    color: #fff;
+    word-wrap: break-word;
+    width: 220px;
+  }
+  .strong-server > .card > .header > .profit {
+    position: relative;
+    top: 35px;
+    left: 20px;
+    font-size: 16px;
+    color: #4EFF00;
+  }
+  .strong-server > .card > .footer {
+    position: relative;
+    width: 100%;
+    background-color: #fff;
+    height: 100px;
+    top: 60px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+  .strong-server > .card > .footer > ul {
+    position: relative;
+    left: 70px;
+    top: 15px;
+    font-size: 15px;
+    padding: 0px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .strong-server > .card > .footer > ul > li {
+    width: 40%;
+  }
+  .strong-server > .connect-now {
+    position: relative;
+    border: none;
+    height: 100px;
+    top: -80px;
+    z-index: 3;
+  }
+  .strong-server > .connect-now > .title {
+    position: relative;
+    text-align: center;
+    color: #FFD300;
+    font-size: 35px;
+    font-weight: bold;
+  }
+  .strong-server > .connect-now > button {
+    position: absolute;
+    top: 90px;
+    left: 10%;
+    border: none;
+    border-radius: 2px;
+    background-color: #FFD300;
+    color: #6730E8;
+    font-weight: bold;
+    height: 40px;
+    width: 80%;
+  }
+  .strong-server > .connect-now > .description {
+    position: relative;
+    text-align: center;
+    top: 80%;
+    color: white;
+  }
+  .strong-server > .connect-now > .footer {
+    position: relative;
+    top: 150px;
+  }
+  .strong-server > .connect-now > .footer > .h-line {
+    position: relative;
+    width: 100%;
+    height: 1px;
+    background-color: white;
+  }
+  .strong-server > .connect-now > .footer > .text {
+    position: relative;
+    top: 5px;
+    color: #fff;
+    font-size: 13px;
+    text-align: center;
+  }
+}
+@media screen and (min-width: 992px) and (max-width: 3000px) {
+  .strong-server {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 20px;
+    display: inline-block;
+    background: linear-gradient(100deg, #781EE1, #5940EE);
+    box-shadow: 0 7px 49px rgba(89, 75, 255, 0.4);
+    z-index: 0;
+  }
+  .strong-server > .background {
+    position: relative;
+    float: right;
+    top: -8px;
+    right: -9.5px;
+    margin: 0.5em 10px 0.5em 0;
+    overflow: hidden;
+    width: 340px;
+    height: 200px;
+    border-bottom-right-radius: 20px;
+    border-top-right-radius: 20px;
+    z-index: 1;
+  }
+  .strong-server > .background > img {
+    position: relative;
+    top: -180px;
+    left: 70px;
+    transform: rotate(38deg);
+  }
+  .strong-server > .info {
+    position: absolute;
+    float: right;
+    top: 10px;
+    right: 15px;
+    z-index: 9999;
+  }
+  .strong-server > .info > .icon {
+    position: relative;
+    border: 2px solid #ffff;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+  }
+  .strong-server > .info > .icon:hover {
+    animation: pulse-white 1s infinite;
+    cursor: pointer;
+  }
+  .strong-server > .info > .icon > i {
+    position: absolute;
+    left: 8px;
+    top: 2px;
+    color: #ffff;
+  }
+  .strong-server > .lock {
+    position: absolute;
+    width: 100%;
+    height: 200px;
+    visibility: hidden;
+    z-index: 2;
+  }
+  .strong-server > .lock.active {
+    position: absolute;
+    visibility: visible;
+    background-color: #B6B6B6;
+    z-index: 9;
+    opacity: 0.98;
+    border-radius: 20px;
+  }
+  .strong-server > .lock.active.active > .star-header {
+    position: absolute;
+    top: 7px;
+    left: 20px;
+  }
+  .strong-server > .lock.active.active > .star-header > .star-img {
+    height: 20px;
+    width: 20px;
+  }
+  .strong-server > .lock.active.active > .star-header > .title {
+    position: relative;
+    top: -17.5px;
+    left: 24px;
+    color: #ffff;
+    font-weight: bold;
+    letter-spacing: 5px;
+    font-size: 13px;
+    font-family: "Roboto", serif;
+  }
+  .strong-server > .lock.active.active > .lock-header {
+    position: absolute;
+    top: 70%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    z-index: 2;
+  }
+  .strong-server > .lock.active.active > .lock-header > .title {
+    position: relative;
+    top: -60px;
+    left: 60px;
+    word-wrap: break-word;
+    width: 500px;
+    font-weight: bold;
+    font-size: 22px;
+    color: #594BFF;
+    opacity: 0.97;
+  }
+  .strong-server > .lock.active.active > .lock-header > .lock-img {
+    height: 60px;
+    width: 50px;
+  }
+  .strong-server > .card {
+    position: absolute;
+    background: transparent;
+    border: transparent;
+    width: 320px;
+    height: 160px;
+    border-radius: 20px;
+    top: 18px;
+    left: 40px;
+    animation: pulse-white 2s infinite, moves 1s infinite alternate;
+    z-index: 2;
+  }
+  .strong-server > .card > .header {
+    width: 100%;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+    background: linear-gradient(100deg, #781EE1, #5940EE);
+    z-index: 3;
+    height: 55%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+  .strong-server > .card > .header > .data-storage {
+    position: relative;
+    float: right;
+    top: -8px;
+    left: 10px;
+    margin: 0.5em 10px 0.5em 0;
+    overflow: hidden;
+    width: 120px;
+    height: 100px;
+    border-bottom-right-radius: 20px;
+    border-top-right-radius: 20px;
+    z-index: 3;
+  }
+  .strong-server > .card > .header > .data-storage > img {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    top: -45px;
+    left: 10px;
+  }
+  .strong-server > .card > .header > .title {
+    position: relative;
+    top: 4%;
+    left: 20px;
+    color: #E6D65E;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .strong-server > .card > .header > .description {
+    position: relative;
+    top: -1%;
+    left: 20px;
+    color: #ffff;
+    font-size: 14px;
+    word-wrap: break-word;
+    width: 200px;
+  }
+  .strong-server > .card > .header > .profit {
+    position: relative;
+    left: 20px;
+    top: -4%;
+    color: #4EFF00;
+    font-size: 14px;
+  }
+  .strong-server > .card > .footer {
+    width: 100%;
+    float: bottom;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    background: #ffff;
+    z-index: 3;
+    height: 45%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+  .strong-server > .card > .footer > ul {
+    position: relative;
+    top: 10%;
+    left: 30px;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 0px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .strong-server > .card > .footer > ul > li {
+    width: 50%;
+    word-wrap: break-word;
+  }
+  .strong-server > .connect-now {
+    position: absolute;
+    float: right;
+    right: 14%;
+    top: 13%;
+    z-index: 3;
+  }
+  .strong-server > .connect-now > .title {
+    position: relative;
+    color: #FFD300;
+    font-weight: bold;
+    font-size: 30px;
+  }
+  .strong-server > .connect-now > .description {
+    position: relative;
+    top: 3%;
+    left: 36%;
+    font-size: 12px;
+    color: #fff;
+  }
+  .strong-server > .connect-now > button {
+    position: relative;
+    right: 5%;
+    border: transparent;
+    background-color: #FFD300;
+    color: #6730E8;
+    font-weight: bold;
+    border-radius: 5px;
+    width: 110%;
+    height: 40px;
+  }
+  .strong-server > .connect-now > button:hover {
+    cursor: pointer;
+  }
+  .strong-server > .connect-now > button::before, .strong-server > .connect-now > button::after {
+    box-sizing: inherit;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+  }
+  .strong-server > .connect-now .draw {
+    transition: color 0.25s;
+  }
+  .strong-server > .connect-now .draw::before, .strong-server > .connect-now .draw::after {
+    border: 2px solid transparent;
+    border-radius: 5px;
+    width: 0;
+    height: 0;
+  }
+  .strong-server > .connect-now .draw::before {
+    top: 0;
+    left: 0;
+  }
+  .strong-server > .connect-now .draw::after {
+    bottom: 0;
+    right: 0;
+  }
+  .strong-server > .connect-now .draw:hover {
+    color: #000;
+  }
+  .strong-server > .connect-now .draw:hover::before, .strong-server > .connect-now .draw:hover::after {
+    width: 100%;
+    height: 100%;
+  }
+  .strong-server > .connect-now .draw:hover::before {
+    border-top-color: #000;
+    border-right-color: #000;
+    transition: width 0.25s ease-out, height 0.25s ease-out 0.25s;
+  }
+  .strong-server > .connect-now .draw:hover::after {
+    border-bottom-color: #000;
+    border-left-color: #000;
+    transition: border-color 0s ease-out 0.5s, width 0.25s ease-out 0.5s, height 0.25s ease-out 0.75s;
+  }
+  .strong-server > .connect-now .meet:hover {
+    color: #ffff;
+  }
+  .strong-server > .connect-now .meet::after {
+    top: 0;
+    left: 0;
+    border-radius: 5px;
+  }
+  .strong-server > .connect-now .meet:hover::before {
+    border-top-color: #ffff;
+    border-right-color: #ffff;
+  }
+  .strong-server > .connect-now .meet:hover::after {
+    border-bottom-color: #ffff;
+    border-left-color: #ffff;
+    transition: height 0.25s ease-out, width 0.25s ease-out 0.25s;
+  }
+  .strong-server > .connect-now > .footer {
+    position: absolute;
+    bottom: -15px;
+  }
+  .strong-server > .connect-now > .footer > .h-line {
+    position: relative;
+    top: 30px;
+    right: 40%;
+    background-color: #fff;
+    border-radius: 15px;
+    height: 2px;
+    width: 180%;
+  }
+  .strong-server > .connect-now > .footer > .text {
+    position: relative;
+    top: 30px;
+    right: 35%;
+    color: #fff;
+    font-size: 10px;
+    width: 170%;
+    text-align: center;
+  }
+}
+
+/*# sourceMappingURL=style.css.map */
+
+
+
+.container {
+	margin-top: -5px !important;
+}
+
+

@@ -1,0 +1,95 @@
+body {
+  background: #000;
+}
+
+h1 {
+  font-weight: 600;
+}
+
+
+
+.btn-primary {
+  background: #5b4dfe;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background: rgba(91, 77, 254, 0.84) !important;
+}
+
+
+.modal-window {
+  position: fixed;
+  top: 50px;
+  left: 15px;
+  right: 15px;
+  max-width: 400px;
+  margin: 0 auto;
+  background: #FFF;
+  z-index: 2002;
+  border-radius: 8px;
+  overflow: hidden;
+  display: none;
+}
+
+
+.black-drop {
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2001;
+  display: none;
+}
+
+.modal-window .top {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 15px;
+}
+
+.modal-window .header img {
+  width: 100%;
+  height: auto;
+}
+
+.modal-window .body {
+  padding: 30px;
+}
+
+.modal-window .body .headline {
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  display: block;
+  margin-bottom: 15px;
+}
+.modal-window .body .headline .large {
+  font-size: 28px;
+}
+
+.modal-window .body p {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.modal-window .body .btn {
+  display: block;
+}
+
+.modal-window .top button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+
+
+
+.visible {
+  display: block;
+}

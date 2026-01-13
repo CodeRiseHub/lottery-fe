@@ -1,0 +1,28 @@
+@keyframes animate {
+  0% {
+    width: 0;
+    height: 0;
+    border-top-color: #262626;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    border-right-color: transparent;
+  }
+  50% {
+    width: 100%;
+    height: 0;
+    border-top-color: #262626;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    border-right-color: #262626;
+  }
+  100% {
+    width: 100%;
+    height: 100%;
+    border-top-color: #262626;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    border-right-color: #262626;
+  }
+}
+
+/*# sourceMappingURL=animation.css.map */

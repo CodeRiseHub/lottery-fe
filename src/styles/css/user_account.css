@@ -1,0 +1,112 @@
+.window_serv_1 {
+	background: linear-gradient(140deg, #858585, #24262f);
+}
+
+.window_serv_1 .block-info__header:after {
+    background: -webkit-linear-gradient(left, #fff, #000);
+    background: linear-gradient(to right, #fff, #000);
+}
+
+.window_serv_1 .bal-wrap__btn {
+	color: #000;
+	background: #ffca10;
+}
+.window_serv_1 .bal-wrap__btn:hover {
+	background: #ffe400;
+}
+
+#bonus_confirm .prm-background {
+	background: #333;
+	border: 2px solid #fff;
+}
+
+
+.serv_1_static .static-list {
+	background: #000; 
+}
+.serv_1_static .static-list__item:after {
+    background: -webkit-linear-gradient(left, #808081, #fff, #808081);
+    background: linear-gradient(to right, #808081, #fff, #808081);
+}
+.serv_1_static .block-static__title--info {
+   color: #000;
+}
+
+
+
+
+
+
+
+
+
+.window_serv_2 {
+	background: linear-gradient(140deg, #a324f9, #821ad3);
+}
+
+.window_serv_2 .block-info__header:after {
+    background: -webkit-linear-gradient(left, #fff, #000);
+    background: linear-gradient(to right, #fff, #000);
+}
+
+.window_serv_2 .bal-wrap__btn {
+	color: #000;
+	background: #ffca10;
+}
+.window_serv_2 .bal-wrap__btn:hover {
+	background: #ffe400;
+}
+
+#bonus_confirm_2 .prm-background {
+	background: #7a23bd;
+	border: 2px solid #eee;
+}
+.serv_2_static .static-list {
+	background: #821ad3; 
+}
+.serv_2_static .static-list__item:after {
+    background: -webkit-linear-gradient(left, #9f23f5, #fff, #9f23f5);
+    background: linear-gradient(to right, #9f23f5, #fff, #9f23f5);
+}
+.serv_2_static .block-static__title--info {
+   color: #000;
+}
+
+
+
+
+
+
+
+
+.window_serv_3 {
+	background: linear-gradient(140deg, #ffb203, #fd8418);
+}
+
+.window_serv_3 .block-info__header:after {
+    background: -webkit-linear-gradient(left, #fff, #fee737);
+    background: linear-gradient(to right, #fff, #fee737);
+}
+
+.window_serv_3 .bal-wrap__btn {
+	color: #000;
+	background: #ffca10;
+}
+.window_serv_3 .bal-wrap__btn:hover {
+	background: #ffe400;
+}
+
+#bonus_confirm_3 .prm-background {
+	background: #7a23bd;
+	border: 2px solid #eee;
+}
+.serv_3_static .static-list {
+	background: #ffa504; 
+}
+.serv_3_static .static-list__item:after {
+    background: -webkit-linear-gradient(left, #ffa504, #fff, #ffa504);
+    background: linear-gradient(to right, #ffa504, #fff, #ffa504);
+}
+.serv_3_static .block-static__title--info {
+   color: #000;
+}
