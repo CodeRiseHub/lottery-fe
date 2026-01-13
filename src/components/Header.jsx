@@ -36,33 +36,48 @@ export default function Header() {
   const currentLangData = languages.find(l => l.code === currentLang) || languages[0]
 
   const openModal = (modalName) => {
-    if (modalName === 'langModal') {
-      setShowLangModal(true)
-      document.body.style.overflow = 'hidden'
-    } else if (modalName === 'headerMenu') {
-      setShowHeaderMenu(true)
-      document.body.style.overflow = 'hidden'
+    if (typeof window.openModal === 'function') {
+      window.openModal(modalName)
+    } else {
+      // Fallback
+      if (modalName === 'langModal') {
+        setShowLangModal(true)
+        document.body.style.overflow = 'hidden'
+      } else if (modalName === 'headerMenu') {
+        setShowHeaderMenu(true)
+        document.body.style.overflow = 'hidden'
+      }
     }
   }
 
   const closeModal = (modalName) => {
-    if (modalName === 'langModal') {
-      setShowLangModal(false)
-    } else if (modalName === 'headerMenu') {
-      setShowHeaderMenu(false)
-    } else if (modalName === 'accountDetail') {
-      setShowAccountDetail(false)
+    if (typeof window.closeModal === 'function') {
+      window.closeModal(modalName)
+    } else {
+      // Fallback
+      if (modalName === 'langModal') {
+        setShowLangModal(false)
+      } else if (modalName === 'headerMenu') {
+        setShowHeaderMenu(false)
+      } else if (modalName === 'accountDetail') {
+        setShowAccountDetail(false)
+      }
+      document.body.style.overflow = 'auto'
     }
-    document.body.style.overflow = 'auto'
   }
 
   const switchModal = (fromModal, toModal) => {
-    closeModal(fromModal)
-    if (toModal === 'accountDetail') {
-      setShowAccountDetail(true)
-      document.body.style.overflow = 'hidden'
+    if (typeof window.switchModal === 'function') {
+      window.switchModal(fromModal, toModal)
     } else {
-      openModal(toModal)
+      // Fallback
+      closeModal(fromModal)
+      if (toModal === 'accountDetail') {
+        setShowAccountDetail(true)
+        document.body.style.overflow = 'hidden'
+      } else {
+        openModal(toModal)
+      }
     }
   }
 
@@ -121,16 +136,15 @@ export default function Header() {
       </header>
 
       {/* Language Modal */}
-      {showLangModal && (
-        <div
-          className="layout active"
-          data-modal="langModal"
-          onClick={(e) => {
-            if (e.target.classList.contains('layout')) {
-              closeModal('langModal')
-            }
-          }}
-        >
+      <div
+        className="layout"
+        data-modal="langModal"
+        onClick={(e) => {
+          if (e.target.classList.contains('layout')) {
+            closeModal('langModal')
+          }
+        }}
+      >
           <div className="modal modal--language-menu">
             <p className="modal__title">Interface language:</p>
             <ul className="modal__language-list" id="setLangQ">
@@ -154,19 +168,17 @@ export default function Header() {
             </ul>
           </div>
         </div>
-      )}
 
       {/* Header Menu Modal */}
-      {showHeaderMenu && (
-        <div
-          className="layout active"
-          data-modal="headerMenu"
-          onClick={(e) => {
-            if (e.target.classList.contains('layout')) {
-              closeModal('headerMenu')
-            }
-          }}
-        >
+      <div
+        className="layout"
+        data-modal="headerMenu"
+        onClick={(e) => {
+          if (e.target.classList.contains('layout')) {
+            closeModal('headerMenu')
+          }
+        }}
+      >
           <div className="modal modal__header--menu">
             <ul className="modal__header--menu__list">
               <li>
@@ -195,19 +207,17 @@ export default function Header() {
             </ul>
           </div>
         </div>
-      )}
 
       {/* Account Detail Modal */}
-      {showAccountDetail && (
-        <div
-          className="layout active"
-          data-modal="accountDetail"
-          onClick={(e) => {
-            if (e.target.classList.contains('layout')) {
-              closeModal('accountDetail')
-            }
-          }}
-        >
+      <div
+        className="layout"
+        data-modal="accountDetail"
+        onClick={(e) => {
+          if (e.target.classList.contains('layout')) {
+            closeModal('accountDetail')
+          }
+        }}
+      >
           <div className="modal modal__account-detail">
             <p className="modal__account-detail-title">Information about account</p>
             <div className="relative">
@@ -239,7 +249,6 @@ export default function Header() {
             </div>
           </div>
         </div>
-      )}
     </>
   )
 }

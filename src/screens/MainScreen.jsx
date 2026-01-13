@@ -3,6 +3,8 @@ import infoIcon from '../assets/images/tasks/info.png'
 import historyIcon from '../assets/images/tasks/history.png'
 import arrowDownIcon from '../assets/images/tasks/arrow-down.png'
 import defaultAvatar from '../assets/images/default.png'
+import { initTabs } from '../utils/tabs'
+import '../utils/modals'
 import './MainScreen.css'
 
 export default function MainScreen() {
@@ -18,37 +20,24 @@ export default function MainScreen() {
     { id: 3, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', win: 51573, factor: 'X3' },
     { id: 4, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', win: 0, factor: 'X0' },
   ])
-  const [lineContainer, setLineContainer] = useState('')
   const lineContainerRef = useRef(null)
   const minBet = 100
   const maxBet = 1000000
   const realMod = 0 // Demo mode
 
-  // Initial roulette items
-  const initialRouletteItems = [
-    'X3', 'X10', 'X10', 'X3', 'X10', 'X0', 'X10', 'X3', 'X3', 'X50',
-    'X1.5', 'X0', 'X3', 'X3', 'X1.5', 'X0', 'X3', 'X0', 'X10', 'X3',
-    'X3', 'X50', 'X3', 'X0', 'X1.5', 'X50', 'X1.5', 'X3', 'X1.5', 'X3',
-    'X3', 'X1.5', 'X1.5', 'X0', 'X10', 'X10', 'X0', 'X3', 'X10', 'X3',
-    'X0', 'X1.5', 'X100', 'X3', 'X0', 'X1.5', 'X0', 'X10', 'X50', 'X1.5',
-    'X3', 'X1.5', 'X50', 'X1.5', 'X10', 'X3', 'X1.5', 'X1.5', 'X3', 'X3',
-    'X1.5', 'X50', 'X3', 'X0', 'X1.5', 'X1.5', 'X10', 'X1.5', 'X3', 'X3',
-    'X1.5', 'X1.5', 'X3', 'X1.5', 'X0', 'X1.5', 'X10', 'X10', 'X10', 'X10',
-    'X50', 'X1.5', 'X50', 'X0', 'X10', 'X50', 'X3', 'X100', 'X0', 'X3',
-    'X1.5', 'X1.5', 'X3', 'X1.5', 'X1.5', 'X3', 'X3', 'X1.5', 'X0', 'X3'
-  ]
+  // Exact roulette items from original HTML
+  const initialRouletteHTML = `<div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:red'>X100</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:red'>X100</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' id='middleQ'>X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div>`
 
   useEffect(() => {
-    // Initialize line container with initial items
-    const items = initialRouletteItems.map((item, idx) => {
-      let color = ''
-      if (item === 'X10') color = 'yellow'
-      else if (item === 'X50') color = '#336699'
-      else if (item === 'X100') color = 'red'
-      
-      return `<div class='spin__game-item' ${idx === 82 ? "id='middleQ'" : ''} ${color ? `style='color:${color}'` : ''}>${item}</div>`
-    }).join('')
-    setLineContainer(items)
+    // Initialize tabs functionality
+    if (typeof window.$ !== 'undefined') {
+      initTabs()
+    }
+
+    // Initialize line container with exact HTML from original
+    if (lineContainerRef.current) {
+      lineContainerRef.current.innerHTML = initialRouletteHTML
+    }
   }, [])
 
   const changeBet = (newBet) => {
@@ -70,54 +59,89 @@ export default function MainScreen() {
     }
   }
 
+  const scrollToCenter = ($container, $element) => {
+    if (typeof window.$ === 'undefined') return
+    
+    const container = $container[0]
+    const element = $element[0]
+    if (!container || !element) return
+
+    const offset = element.offsetLeft - (container.clientWidth / 2) + (element.clientWidth / 2)
+    $container.animate({ scrollLeft: offset }, 3000, "swing")
+  }
+
   const handleSpin = () => {
     if (gameStarted) return
+    if (typeof window.$ === 'undefined') {
+      console.error('jQuery not loaded')
+      return
+    }
+
     setGameStarted(true)
 
     // TODO: Implement actual API call
     // For now, simulate the game
     setTimeout(() => {
-      // Simulate game result
-      const result = initialRouletteItems[82] // Middle item
-      const factor = parseFloat(result.replace('X', ''))
-      const win = realMod ? Math.floor(currentBet * factor) : 0
-
-      // Add new bet to list
-      const newBet = {
-        id: Date.now(),
-        avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg',
-        name: 'You 👑',
-        win: win,
-        factor: result
+      // Simulate game result - in real implementation, this would come from API
+      // The API would return new HTML for lineContainer
+      const $lineContainer = window.$('#lineContainer')
+      if ($lineContainer.length) {
+        $lineContainer.scrollLeft(0)
+        // In real implementation: $lineContainer.html(response["lineContainer"])
+        // For now, keep the same HTML
       }
-      setUserBets(prev => [newBet, ...prev.slice(0, 14)])
 
-      // Scroll animation
-      if (lineContainerRef.current) {
-        const middleElement = lineContainerRef.current.querySelector('#middleQ')
-        if (middleElement) {
-          const container = lineContainerRef.current
-          const offset = middleElement.offsetLeft - (container.clientWidth / 2) + (middleElement.clientWidth / 2)
-          container.scrollTo({ left: offset, behavior: 'smooth' })
+      // Animate to center using jQuery (exact same as original)
+      const $container = window.$('.noScrolQ')
+      const $middleElement = window.$('#middleQ')
+      if ($container.length && $middleElement.length) {
+        scrollToCenter($container, $middleElement)
+      }
+
+      setTimeout(() => {
+        // Add blink animation
+        const $middle = window.$('#middleQ')
+        if ($middle.length) {
+          $middle.addClass('blinkWinX')
         }
-      }
 
-      setGameStarted(false)
-    }, 3500)
+        // Simulate adding user bet
+        const newBet = {
+          id: Date.now(),
+          avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg',
+          name: 'You 👑',
+          win: 0,
+          factor: 'X0'
+        }
+        setUserBets(prev => [newBet, ...prev.slice(0, 14)])
+
+        setGameStarted(false)
+      }, 3500)
+    }, 100)
   }
 
   const openModal = (modalName) => {
-    if (modalName === 'spinModal') setShowSpinModal(true)
-    else if (modalName === 'realModal') setShowRealModal(true)
-    else if (modalName === 'errorModal') setShowErrorModal(true)
-    document.body.style.overflow = 'hidden'
+    if (typeof window.openModal === 'function') {
+      window.openModal(modalName)
+    } else {
+      // Fallback
+      if (modalName === 'spinModal') setShowSpinModal(true)
+      else if (modalName === 'realModal') setShowRealModal(true)
+      else if (modalName === 'errorModal') setShowErrorModal(true)
+      document.body.style.overflow = 'hidden'
+    }
   }
 
   const closeModal = (modalName) => {
-    if (modalName === 'spinModal') setShowSpinModal(false)
-    else if (modalName === 'realModal') setShowRealModal(false)
-    else if (modalName === 'errorModal') setShowErrorModal(false)
-    document.body.style.overflow = 'auto'
+    if (typeof window.closeModal === 'function') {
+      window.closeModal(modalName)
+    } else {
+      // Fallback
+      if (modalName === 'spinModal') setShowSpinModal(false)
+      else if (modalName === 'realModal') setShowRealModal(false)
+      else if (modalName === 'errorModal') setShowErrorModal(false)
+      document.body.style.overflow = 'auto'
+    }
   }
 
   const formatNumber = (number) => {
@@ -167,7 +191,6 @@ export default function MainScreen() {
                     className="spin__game scroll-block noScrolQ"
                     id="lineContainer"
                     ref={lineContainerRef}
-                    dangerouslySetInnerHTML={{ __html: lineContainer }}
                   />
                 </div>
 
@@ -188,24 +211,28 @@ export default function MainScreen() {
                   <div className="spin__controls">
                     <button
                       className="spin__control-btn changeBetBT"
+                      data-id="1"
                       onClick={() => handleBetChange('min')}
                     >
                       <span>min</span>
                     </button>
                     <button
                       className="spin__control-btn changeBetBT"
+                      data-id="2"
                       onClick={() => handleBetChange('half')}
                     >
                       <span>1/2</span>
                     </button>
                     <button
                       className="spin__control-btn changeBetBT"
+                      data-id="3"
                       onClick={() => handleBetChange('double')}
                     >
                       <span>X2</span>
                     </button>
                     <button
                       className="spin__control-btn changeBetBT"
+                      data-id="4"
                       onClick={() => handleBetChange('max')}
                     >
                       <span>max</span>
@@ -251,6 +278,9 @@ export default function MainScreen() {
                   ))}
                 </div>
               </div>
+            </div>
+            <div className="tabs__content" data-tab-content="real" hidden>
+              <div></div>
             </div>
           </div>
         </div>
@@ -326,4 +356,3 @@ export default function MainScreen() {
     </>
   )
 }
-
