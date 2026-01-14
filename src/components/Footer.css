@@ -1,0 +1,7 @@
+/* Footer specific styles */
+.footer__icon {
+  width: 33px !important;
+  height: 33px !important;
+  object-fit: contain;
+}
+

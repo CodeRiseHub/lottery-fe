@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import usdIcon from '../assets/images/header/usd.png'
+import { useState, useEffect } from 'react'
+import ticketIcon from '../assets/images/header/ticket.png'
 import gearIcon from '../assets/images/header/gear-icon.png'
 import enLangIcon from '../assets/images/lang/en.png'
 import ruLangIcon from '../assets/images/lang/ru.png'
@@ -26,12 +26,18 @@ const languages = [
   { code: 'TR', icon: trLangIcon, name: 'Türkçe' }
 ]
 
-export default function Header({ onNavigate }) {
+export default function Header({ onNavigate, balance: balanceProp, onBalanceUpdate }) {
   const [showLangModal, setShowLangModal] = useState(false)
   const [showHeaderMenu, setShowHeaderMenu] = useState(false)
   const [showAccountDetail, setShowAccountDetail] = useState(false)
   const [currentLang, setCurrentLang] = useState('EN')
-  const [balance, setBalance] = useState('0.0000')
+  const [balance, setBalance] = useState(balanceProp || '0.000000')
+
+  useEffect(() => {
+    if (balanceProp !== undefined) {
+      setBalance(balanceProp)
+    }
+  }, [balanceProp])
 
   const currentLangData = languages.find(l => l.code === currentLang) || languages[0]
 
@@ -93,16 +99,21 @@ export default function Header({ onNavigate }) {
         <div className="header__container container">
           <div className="header__balance">
             <img
-              src={usdIcon}
-              alt="USD"
+              src={ticketIcon}
+              alt="Ticket"
               className="header__icon"
               width="35"
               height="34"
             />
-            <a href="#">
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault()
+                if (onNavigate) onNavigate('store')
+              }}
+            >
               <p className="header__value">
-                <span id="balance_top">{balance}</span>{' '}
-                <span className="header__currency">USD</span>
+                <span id="balance_top">{balance}</span>
               </p>
             </a>
           </div>

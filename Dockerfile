@@ -2,10 +2,14 @@
 FROM node:20-alpine AS build
 
 WORKDIR /app
+
+# Copy package files first for better caching
 COPY package.json package-lock.json ./
 
-RUN npm ci
+# Install dependencies
+RUN npm ci --only=production=false
 
+# Copy source code (node_modules and dist are excluded by .dockerignore)
 COPY . .
 
 # accept Vite environment variable from Railway

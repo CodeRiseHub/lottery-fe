@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import upgradeIcon from '../assets/images/nav/upgrade.png'
+import storeIcon from '../assets/images/nav/store.png'
 import earnIcon from '../assets/images/nav/earn.png'
-import minerIcon from '../assets/images/nav/miner.png'
+import lotteryIcon from '../assets/images/nav/lottery.png'
 import taskIcon from '../assets/images/nav/task.png'
 import payoutIcon from '../assets/images/nav/payout.png'
+import './Footer.css'
 
 export default function Footer({ currentScreen, onNavigate }) {
   useEffect(() => {
@@ -28,11 +29,11 @@ export default function Footer({ currentScreen, onNavigate }) {
   }, [])
 
   const navItems = [
-    { id: 'upgrade', label: 'Shop', icon: upgradeIcon, href: '#upgrade' },
+    { id: 'store', label: 'Store', icon: storeIcon, href: '#store' },
     { id: 'earn', label: 'Earn', icon: earnIcon, href: '#earn' },
-    { id: 'miner', label: 'Miner', icon: minerIcon, href: '#miner' },
+    { id: 'game', label: 'Game', icon: lotteryIcon, href: '#game' },
     { id: 'tasks', label: 'Tasks', icon: taskIcon, href: '#tasks' },
-    { id: 'payout', label: 'Withdraw', icon: payoutIcon, href: '#payout' }
+    { id: 'payout', label: 'Payout', icon: payoutIcon, href: '#payout' }
   ]
 
   return (
@@ -40,33 +41,42 @@ export default function Footer({ currentScreen, onNavigate }) {
       <div className="container footer__container">
         <nav className="footer__nav">
           <ul className="footer__list">
-            {navItems.map((item) => (
-              <li key={item.id} className="footer__item">
-                <span className={item.id === 'upgrade' ? 'footer__link-border' : ''}>
-                  <a
-                    href={item.href}
-                    className={`footer__link ${currentScreen === item.id ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      if (onNavigate) {
-                        onNavigate(item.id)
-                      }
-                    }}
-                  >
-                    <img
-                      src={item.icon}
-                      alt={item.id}
-                      className="footer__icon"
-                      width="33"
-                      height="33"
-                    />
-                    <span className={`footer__text ${item.id === 'upgrade' ? 'footer__text--upgrade' : ''}`}>
-                      {item.label}
-                    </span>
-                  </a>
-                </span>
-              </li>
-            ))}
+            {navItems.map((item) => {
+              const isActive = currentScreen === item.id || (item.id === 'game' && currentScreen === 'main')
+              return (
+                <li key={item.id} className="footer__item">
+                  <span className={isActive ? 'footer__link-border' : ''}>
+                    <a
+                      href={item.href}
+                      className={`footer__link ${isActive ? 'active' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (onNavigate) {
+                          if (item.id === 'game') {
+                            onNavigate('main')
+                          } else if (item.id === 'earn') {
+                            onNavigate('referral')
+                          } else {
+                            onNavigate(item.id)
+                          }
+                        }
+                      }}
+                    >
+                      <img
+                        src={item.icon}
+                        alt={item.id}
+                        className="footer__icon"
+                        width="33"
+                        height="33"
+                      />
+                      <span className={isActive ? 'footer__text footer__text--upgrade' : 'footer__text'}>
+                        {item.label}
+                      </span>
+                    </a>
+                  </span>
+                </li>
+              )
+            })}
           </ul>
         </nav>
       </div>
