@@ -28,7 +28,10 @@ function App() {
       webApp.ready()
       
       const platform = webApp.platform
+      let sizebleS = false
+      
       if (platform === 'android' || platform === 'ios') {
+        sizebleS = true
         webApp.requestFullscreen()
         webApp.expand()
         if (webApp.isFullscreenAvailable) {
@@ -38,31 +41,24 @@ function App() {
       
       setTg(webApp)
       
-      // Handle safe area insets
+      // Handle safe area insets - matching Secret Miner implementation
+      const modal = document.querySelector('.modal--language-menu')
+      
       function updateSafeArea() {
-        if (platform !== 'android' && platform !== 'ios') return
+        if (!sizebleS) return
         
         const safeAreaInsetTop = 
           getComputedStyle(document.documentElement).getPropertyValue('--tg-safe-area-inset-top') || '0px'
         const safeAreaInsetTopValue = parseFloat(safeAreaInsetTop) || 0
         
         if (safeAreaInsetTopValue > 0) {
-          const header = document.querySelector('.header')
-          const modal = document.querySelector('.modal--language-menu')
-          // Add padding-top to header instead of margin-top to .bg
-          // This prevents Telegram mini app buttons from overlapping the header
-          if (header) {
-            // Get original padding-top from computed style (1vw)
-            const computedStyle = window.getComputedStyle(header)
-            const originalPadding = parseFloat(computedStyle.paddingTop) || 4
-            header.style.paddingTop = `${safeAreaInsetTopValue + originalPadding}px`
+          const nwidth = safeAreaInsetTopValue
+          const container = document.querySelector('.bg')
+          if (container) {
+            container.style.marginTop = `${nwidth}px` // Только безопасный отступ
           }
-          if (modal) modal.style.top = `${safeAreaInsetTopValue}px`
-        } else {
-          // Reset padding if safe area is 0
-          const header = document.querySelector('.header')
-          if (header) {
-            header.style.paddingTop = ''
+          if (modal) {
+            modal.style.top = `${nwidth}px` // Только безопасный отступ
           }
         }
       }
