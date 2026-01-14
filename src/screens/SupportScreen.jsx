@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './SupportScreen.css'
 
-export default function SupportScreen({ onBack }) {
+export default function SupportScreen({ onBack, onNavigate }) {
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -46,10 +46,16 @@ export default function SupportScreen({ onBack }) {
 
     // TODO: Implement API call to submit support request
     console.log('Submitting support request:', { subject, message })
-    // For now, just show success message
-    alert('Support request submitted successfully!')
-    setSubject('')
-    setMessage('')
+    
+    // Navigate to support chat screen with ticket info
+    if (onNavigate) {
+      onNavigate('supportChat', { ticketId: Date.now(), ticketSubject: subject })
+    } else {
+      // Fallback if navigation not available
+      alert('Support request submitted successfully!')
+      setSubject('')
+      setMessage('')
+    }
   }
 
   return (

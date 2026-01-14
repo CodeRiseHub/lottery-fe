@@ -5,6 +5,7 @@ import MainScreen from './screens/MainScreen'
 import GameHistoryScreen from './screens/GameHistoryScreen'
 import FAQScreen from './screens/FAQScreen'
 import SupportScreen from './screens/SupportScreen'
+import SupportChatScreen from './screens/SupportChatScreen'
 import ReferralScreen from './screens/ReferralScreen'
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen'
 import './utils/modals'
@@ -13,6 +14,7 @@ import './App.css'
 function App() {
   const [tg, setTg] = useState(null)
   const [currentScreen, setCurrentScreen] = useState('main')
+  const [screenProps, setScreenProps] = useState({})
 
   useEffect(() => {
     // Initialize Telegram WebApp
@@ -59,12 +61,14 @@ function App() {
     }
   }, [])
 
-  const handleNavigate = (screen) => {
+  const handleNavigate = (screen, props = {}) => {
     setCurrentScreen(screen)
+    setScreenProps(props)
   }
 
   const handleBack = () => {
     setCurrentScreen('main')
+    setScreenProps({})
   }
 
   return (
@@ -74,7 +78,14 @@ function App() {
         {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} />}
         {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} />}
         {currentScreen === 'faq' && <FAQScreen onBack={handleNavigate} />}
-        {currentScreen === 'support' && <SupportScreen onBack={handleBack} />}
+        {currentScreen === 'support' && <SupportScreen onBack={handleBack} onNavigate={handleNavigate} />}
+        {currentScreen === 'supportChat' && (
+          <SupportChatScreen
+            ticketId={screenProps.ticketId}
+            ticketSubject={screenProps.ticketSubject}
+            onBack={handleBack}
+          />
+        )}
         {currentScreen === 'referral' && <ReferralScreen onBack={handleBack} />}
         {currentScreen === 'transactionHistory' && <TransactionHistoryScreen onBack={handleBack} />}
       </main>
