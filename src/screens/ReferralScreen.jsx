@@ -1,22 +1,42 @@
 import { useState, useEffect } from 'react'
 import { initTabs } from '../utils/tabs'
 import refIcon from '../assets/images/ref.png'
-import tiktokIcon from '../assets/images/social/tiktik.png'
-import instIcon from '../assets/images/social/inst.png'
-import youtubeIcon from '../assets/images/social/youtube.png'
-import facebookIcon from '../assets/images/social/facebook.png'
+import pagLeftIcon from '../assets/images/tasks/pag-left.png'
+import pagRightIcon from '../assets/images/tasks/pag-right.png'
 import './ReferralScreen.css'
 
 export default function ReferralScreen({ onBack }) {
   const [activeTab, setActiveTab] = useState('invite')
+  const [activeLevel, setActiveLevel] = useState(1)
   const [referralLink] = useState('https://t.me/secretminerbot?start=123')
-  const [referrals] = useState([
-    { name: 'Ali Hassan', commission: '0.0000 USD' },
-    { name: 'rashd abed', commission: '0.0000 USD' },
-    { name: 'ali2 hassan2', commission: '0.0000 USD' },
-    { name: '🐍Hicham5 Ach', commission: '0.0000 USD' },
-    { name: 'Charlotte Mills', commission: '0.0000 USD' }
-  ])
+  
+  // Different referrals for each level (just reordered for demo)
+  const referralsByLevel = {
+    1: [
+      { name: 'Ali Hassan', commission: '0.0000 USD' },
+      { name: 'rashd abed', commission: '0.0000 USD' },
+      { name: 'ali2 hassan2', commission: '0.0000 USD' },
+      { name: '🐍Hicham5 Ach', commission: '0.0000 USD' },
+      { name: 'Charlotte Mills', commission: '0.0000 USD' }
+    ],
+    2: [
+      { name: 'Charlotte Mills', commission: '0.0000 USD' },
+      { name: '🐍Hicham5 Ach', commission: '0.0000 USD' },
+      { name: 'ali2 hassan2', commission: '0.0000 USD' },
+      { name: 'rashd abed', commission: '0.0000 USD' },
+      { name: 'Ali Hassan', commission: '0.0000 USD' }
+    ],
+    3: [
+      { name: 'ali2 hassan2', commission: '0.0000 USD' },
+      { name: 'Ali Hassan', commission: '0.0000 USD' },
+      { name: 'Charlotte Mills', commission: '0.0000 USD' },
+      { name: 'rashd abed', commission: '0.0000 USD' },
+      { name: '🐍Hicham5 Ach', commission: '0.0000 USD' }
+    ]
+  }
+  
+  const referrals = referralsByLevel[activeLevel] || referralsByLevel[1]
+  const showPagination = referrals.length > 50 // Will be controlled by backend later
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -42,8 +62,28 @@ export default function ReferralScreen({ onBack }) {
   useEffect(() => {
     if (typeof window.$ !== 'undefined') {
       initTabs()
+      
+      // Update active border position when tab changes
+      const tabsBlock = window.$('[data-tabs]')
+      const nav = tabsBlock.find('[data-tabs-nav]')
+      const tabButtons = nav.find('[data-tab-target]')
+      const activeBg = nav.find('.tabs__active-border')
+      
+      const activeIndex = tabButtons.toArray().findIndex(btn => {
+        const target = window.$(btn).attr('data-tab-target')
+        return target === activeTab
+      })
+      
+      if (activeIndex >= 0 && activeBg.length) {
+        const tabCount = tabButtons.length
+        // For 2 tabs, the active border width is 50% of container (minus padding)
+        // To move it to the second tab, we need to move by 100% of its own width
+        // So: index 0 = 0%, index 1 = 100% (of the active border's width)
+        const offset = activeIndex * 100
+        activeBg.css('transform', `translateX(${offset}%)`)
+      }
     }
-  }, [])
+  }, [activeTab])
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
@@ -68,7 +108,6 @@ export default function ReferralScreen({ onBack }) {
             <li data-tab-target="bonuses" className={activeTab === 'bonuses' ? 'active' : ''} onClick={() => setActiveTab('bonuses')}>
               <span>Bonuses</span>
             </li>
-
             <div className="tabs__active-border tabs__active-position-second tabs__active-position">
               <span className="tabs__active-bg tabs__active-position"></span>
             </div>
@@ -108,36 +147,45 @@ export default function ReferralScreen({ onBack }) {
                 </button>
               </div>
               
-              <div className="earn__social">
-                <p className="earn__social-title">
-                  EARN Power by uploading videos to social media
-                </p>
-                <div className="earn__social-img">
-                  <img src={tiktokIcon} alt="social" width="41" height="47" />
-                  <img src={instIcon} alt="social" width="43" height="43" />
-                  <img src={youtubeIcon} alt="social" width="64" height="45" />
-                  <img src={facebookIcon} alt="social" width="46" height="46" />
-                </div>
-                <a href="#" onClick={(e) => { e.preventDefault(); }} className="earn__button">
-                  <span>MORE DETAILS</span>
-                </a>
-              </div>
-
               <p className="earn__levels-title">Your referrals by level</p>
               <div className="earn__levels"> 
-                <p className="earn__level active">
+                <p className={`earn__level ${activeLevel === 1 ? 'active' : ''}`}>
                   <span>
-                    <a href="#">1 Level</a>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setActiveLevel(1)
+                      }}
+                    >
+                      1 Level
+                    </a>
                   </span>
                 </p>
-                <p className="earn__level">
+                <p className={`earn__level ${activeLevel === 2 ? 'active' : ''}`}>
                   <span>
-                    <a href="#">2 Level</a>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setActiveLevel(2)
+                      }}
+                    >
+                      2 Level
+                    </a>
                   </span>
                 </p>
-                <p className="earn__level">
+                <p className={`earn__level ${activeLevel === 3 ? 'active' : ''}`}>
                   <span>
-                    <a href="#">3 Level</a>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setActiveLevel(3)
+                      }}
+                    >
+                      3 Level
+                    </a>
                   </span>
                 </p>
               </div>
@@ -155,6 +203,18 @@ export default function ReferralScreen({ onBack }) {
                   </div>
                 ))}
               </div>
+              
+              {showPagination && (
+                <div className="earn__pagination">
+                  <button className="earn__pagination-button">
+                    <img className="pagination__icon" src={pagLeftIcon} alt="prev" />
+                  </button>
+                  <p className="earn__pagination-info">Page 1 of 1</p>
+                  <button className="earn__pagination-button">
+                    <img className="pagination__icon" src={pagRightIcon} alt="Next" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
