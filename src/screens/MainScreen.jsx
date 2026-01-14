@@ -303,17 +303,14 @@ export default function MainScreen({ onNavigate }) {
                   />
                   <path
                     className="spin__progress-ring-fill"
-                    d="M 20,0 L 80,0 A 20,20 0 0,1 100,20 L 100,80 A 20,20 0 0,1 80,100 L 20,100 A 20,20 0 0,1 0,80 L 0,20 A 20,20 0 0,1 20,0 Z"
+                    d="M 50,0 L 80,0 A 20,20 0 0,1 100,20 L 100,80 A 20,20 0 0,1 80,100 L 20,100 A 20,20 0 0,1 0,80 L 0,20 A 20,20 0 0,1 20,0 L 50,0"
                     fill="none"
                     stroke="#6cc5a1"
                     strokeWidth="2"
                     strokeDasharray="360"
                     strokeDashoffset={`${360 * (countdownProgress / 100)}`}
                     strokeLinecap="round"
-                    style={{
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: '50% 50%'
-                    }}
+                    pathLength="360"
                   />
                 </svg>
               )}
