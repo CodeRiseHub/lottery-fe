@@ -26,7 +26,7 @@ const languages = [
   { code: 'TR', icon: trLangIcon, name: 'Türkçe' }
 ]
 
-export default function Header() {
+export default function Header({ onNavigate }) {
   const [showLangModal, setShowLangModal] = useState(false)
   const [showHeaderMenu, setShowHeaderMenu] = useState(false)
   const [showAccountDetail, setShowAccountDetail] = useState(false)
@@ -182,10 +182,28 @@ export default function Header() {
           <div className="modal modal__header--menu">
             <ul className="modal__header--menu__list">
               <li>
-                <a href="#faq">FAQ</a>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    closeModal('headerMenu')
+                    if (onNavigate) onNavigate('faq')
+                  }}
+                >
+                  FAQ
+                </a>
               </li>
               <li>
-                <a href="#support">Support</a>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    closeModal('headerMenu')
+                    if (onNavigate) onNavigate('support')
+                  }}
+                >
+                  Support
+                </a>
               </li>
               <li>
                 <a
@@ -199,10 +217,28 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                <a href="#referals">Referral program</a>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    closeModal('headerMenu')
+                    if (onNavigate) onNavigate('referral')
+                  }}
+                >
+                  Referral program
+                </a>
               </li>
               <li>
-                <a href="#history">Transaction history</a>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    closeModal('headerMenu')
+                    if (onNavigate) onNavigate('transactionHistory')
+                  }}
+                >
+                  Transaction history
+                </a>
               </li>
             </ul>
           </div>

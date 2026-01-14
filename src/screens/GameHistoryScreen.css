@@ -24,7 +24,7 @@
   border: 1px solid #24303e;
   background: #1a222c;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
-  margin-bottom: 0;
+  margin-bottom: 16px;
 }
 
 .transaction__table {

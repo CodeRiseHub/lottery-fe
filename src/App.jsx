@@ -3,6 +3,10 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import MainScreen from './screens/MainScreen'
 import GameHistoryScreen from './screens/GameHistoryScreen'
+import FAQScreen from './screens/FAQScreen'
+import SupportScreen from './screens/SupportScreen'
+import ReferralScreen from './screens/ReferralScreen'
+import TransactionHistoryScreen from './screens/TransactionHistoryScreen'
 import './utils/modals'
 import './App.css'
 
@@ -65,10 +69,14 @@ function App() {
 
   return (
     <div className="bg">
-      <Header />
+      <Header onNavigate={handleNavigate} />
       <main>
         {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} />}
         {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} />}
+        {currentScreen === 'faq' && <FAQScreen onBack={handleNavigate} />}
+        {currentScreen === 'support' && <SupportScreen onBack={handleBack} />}
+        {currentScreen === 'referral' && <ReferralScreen onBack={handleBack} />}
+        {currentScreen === 'transactionHistory' && <TransactionHistoryScreen onBack={handleBack} />}
       </main>
       <Footer currentScreen={currentScreen} onNavigate={handleNavigate} />
     </div>
