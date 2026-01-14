@@ -53,6 +53,11 @@
   font-weight: 600;
 }
 
+.room-dropdown__spacer {
+  width: 8px;
+  display: inline-block;
+}
+
 .room-dropdown__users {
   font-size: 14px;
   opacity: 0.8;

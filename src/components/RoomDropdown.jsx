@@ -29,6 +29,7 @@ export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="room-dropdown__text">Room {currentRoom.number}</span>
+        <span className="room-dropdown__spacer"></span>
         <span className="room-dropdown__users">
           {currentRoom.users} 👤
         </span>

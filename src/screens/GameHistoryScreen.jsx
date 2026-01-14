@@ -29,9 +29,9 @@ export default function GameHistoryScreen({ onBack }) {
       <div className="transaction__container container">
         <h1 className="transaction__title title">Game history (last 100)</h1>
         
-        <button onClick={onBack} className="spin__back">
+        <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }} className="spin__back">
           &lt;&lt;&lt; Back
-        </button>
+        </a>
         
         <div className="transaction__table">
           <div className="transaction__head">
