@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import MainScreen from './screens/MainScreen'
+import GameHistoryScreen from './screens/GameHistoryScreen'
 import './utils/modals'
 import './App.css'
 
@@ -56,19 +57,18 @@ function App() {
 
   const handleNavigate = (screen) => {
     setCurrentScreen(screen)
-    // TODO: Implement navigation to other screens when they are added
-    // For now, all navigation goes to main screen
-    if (screen !== 'main') {
-      console.log('Navigation to', screen, 'not yet implemented')
-    }
+  }
+
+  const handleBack = () => {
+    setCurrentScreen('main')
   }
 
   return (
     <div className="bg">
       <Header />
       <main>
-        {currentScreen === 'main' && <MainScreen />}
-        {/* TODO: Add other screens here when implemented */}
+        {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} />}
+        {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} />}
       </main>
       <Footer currentScreen={currentScreen} onNavigate={handleNavigate} />
     </div>

@@ -7,17 +7,17 @@ import avatar1 from '../assets/avatars/avatar1.svg'
 import avatar2 from '../assets/avatars/avatar2.svg'
 import avatar3 from '../assets/avatars/avatar3.svg'
 import RoomDropdown from '../components/RoomDropdown'
-import GameHistoryModal from '../components/GameHistoryModal'
 import CustomKeyboard from '../components/CustomKeyboard'
 import '../utils/modals'
 import './MainScreen.css'
 
-export default function MainScreen() {
+export default function MainScreen({ onNavigate }) {
   const [currentBet, setCurrentBet] = useState(1000)
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
-  const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showKeyboardModal, setShowKeyboardModal] = useState(false)
+  const [countdownActive, setCountdownActive] = useState(false)
+  const [countdownProgress, setCountdownProgress] = useState(0)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [registeredUsers, setRegisteredUsers] = useState(42)
@@ -105,7 +105,9 @@ export default function MainScreen() {
   }
 
   const handleKeyboardConfirm = (value) => {
-    changeBet(value)
+    if (value && !isNaN(value) && value > 0) {
+      changeBet(value)
+    }
     setShowKeyboardModal(false)
     if (typeof window.closeModal === 'function') {
       window.closeModal('customKeyboard')
@@ -130,52 +132,84 @@ export default function MainScreen() {
     $container.animate({ scrollLeft: offset }, 3000, "swing")
   }
 
-  const handleJoin = () => {
-    if (gameStarted) return
+  const startSpin = () => {
     if (typeof window.$ === 'undefined') {
       console.error('jQuery not loaded')
       return
     }
 
-    setGameStarted(true)
+    const $lineContainer = window.$('#lineContainer')
+    if ($lineContainer.length) {
+      $lineContainer.scrollLeft(0)
+      // Regenerate tape with new distribution
+      $lineContainer.html(generateTapeHTML())
+    }
 
-    // TODO: Implement actual API call
+    // Animate to center using jQuery
+    const $container = window.$('.noScrolQ')
+    const $middleElement = window.$('#middleQ')
+    if ($container.length && $middleElement.length) {
+      scrollToCenter($container, $middleElement)
+    }
+
     setTimeout(() => {
-      const $lineContainer = window.$('#lineContainer')
-      if ($lineContainer.length) {
-        $lineContainer.scrollLeft(0)
-        // Regenerate tape with new distribution
-        $lineContainer.html(generateTapeHTML())
+      // Add blink animation
+      const $middle = window.$('#middleQ')
+      if ($middle.length) {
+        $middle.addClass('blinkWinX')
       }
 
-      // Animate to center using jQuery
-      const $container = window.$('.noScrolQ')
-      const $middleElement = window.$('#middleQ')
-      if ($container.length && $middleElement.length) {
-        scrollToCenter($container, $middleElement)
+      // Simulate adding user bet
+      const newBet = {
+        id: Date.now(),
+        avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg',
+        name: 'You 👑',
+        tickets: currentBet
       }
+      setUserBets(prev => [newBet, ...prev.slice(0, 14)])
+      setTotalTickets(prev => prev + currentBet)
+      setRegisteredUsers(prev => prev + 1)
 
-      setTimeout(() => {
-        // Add blink animation
-        const $middle = window.$('#middleQ')
-        if ($middle.length) {
-          $middle.addClass('blinkWinX')
+      setGameStarted(false)
+    }, 3500)
+  }
+
+  useEffect(() => {
+    if (!countdownActive) {
+      setCountdownProgress(0)
+      return
+    }
+
+    const duration = 5000 // 5 seconds
+    const interval = 16 // ~60fps
+    const increment = 100 / (duration / interval)
+    
+    const timer = setInterval(() => {
+      setCountdownProgress(prev => {
+        const newProgress = prev + increment
+        if (newProgress >= 100) {
+          clearInterval(timer)
+          setCountdownActive(false)
+          setCountdownProgress(0)
+          // Start spin after countdown completes
+          setTimeout(() => {
+            startSpin()
+          }, 50)
+          return 100
         }
+        return newProgress
+      })
+    }, interval)
 
-        // Simulate adding user bet
-        const newBet = {
-          id: Date.now(),
-          avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg',
-          name: 'You 👑',
-          tickets: currentBet
-        }
-        setUserBets(prev => [newBet, ...prev.slice(0, 14)])
-        setTotalTickets(prev => prev + currentBet)
-        setRegisteredUsers(prev => prev + 1)
+    return () => clearInterval(timer)
+  }, [countdownActive])
 
-        setGameStarted(false)
-      }, 3500)
-    }, 100)
+  const handleJoin = () => {
+    if (gameStarted || countdownActive) return
+    
+    setGameStarted(true)
+    setCountdownActive(true)
+    setCountdownProgress(0)
   }
 
   const openModal = (modalName) => {
@@ -183,11 +217,6 @@ export default function MainScreen() {
       setShowRulesModal(true)
       if (typeof window.openModal === 'function') {
         window.openModal('rulesModal')
-      }
-    } else if (modalName === 'gameHistoryModal') {
-      setShowHistoryModal(true)
-      if (typeof window.openModal === 'function') {
-        window.openModal('gameHistoryModal')
       }
     } else if (modalName === 'errorModal') {
       setShowErrorModal(true)
@@ -205,11 +234,6 @@ export default function MainScreen() {
       setShowRulesModal(false)
       if (typeof window.closeModal === 'function') {
         window.closeModal('rulesModal')
-      }
-    } else if (modalName === 'gameHistoryModal') {
-      setShowHistoryModal(false)
-      if (typeof window.closeModal === 'function') {
-        window.closeModal('gameHistoryModal')
       }
     } else if (modalName === 'errorModal') {
       setShowErrorModal(false)
@@ -248,7 +272,7 @@ export default function MainScreen() {
               onRoomChange={handleRoomChange}
             />
             <button
-              onClick={() => openModal('gameHistoryModal')}
+              onClick={() => onNavigate && onNavigate('gameHistory')}
               className="spin__button"
             >
               <img src={historyIcon} alt="history" width="42" />
@@ -267,17 +291,44 @@ export default function MainScreen() {
           </div>
 
           <div className="spin__game-container">
-            <img
-              className="spin__arrow"
-              src={arrowDownIcon}
-              alt="arrow"
-              width="36"
-            />
-            <div
-              className="spin__game scroll-block noScrolQ"
-              id="lineContainer"
-              ref={lineContainerRef}
-            />
+            <div className="spin__game-wrapper">
+              {countdownActive && (
+                <svg className="spin__progress-ring" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path
+                    className="spin__progress-ring-bg"
+                    d="M 20,0 L 80,0 A 20,20 0 0,1 100,20 L 100,80 A 20,20 0 0,1 80,100 L 20,100 A 20,20 0 0,1 0,80 L 0,20 A 20,20 0 0,1 20,0 Z"
+                    fill="none"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="2"
+                  />
+                  <path
+                    className="spin__progress-ring-fill"
+                    d="M 20,0 L 80,0 A 20,20 0 0,1 100,20 L 100,80 A 20,20 0 0,1 80,100 L 20,100 A 20,20 0 0,1 0,80 L 0,20 A 20,20 0 0,1 20,0 Z"
+                    fill="none"
+                    stroke="#6cc5a1"
+                    strokeWidth="2"
+                    strokeDasharray="360"
+                    strokeDashoffset={`${360 * (countdownProgress / 100)}`}
+                    strokeLinecap="round"
+                    style={{
+                      transform: 'rotate(-90deg)',
+                      transformOrigin: '50% 50%'
+                    }}
+                  />
+                </svg>
+              )}
+              <img
+                className="spin__arrow"
+                src={arrowDownIcon}
+                alt="arrow"
+                width="36"
+              />
+              <div
+                className="spin__game scroll-block noScrolQ"
+                id="lineContainer"
+                ref={lineContainerRef}
+              />
+            </div>
           </div>
 
           <div className="spin__bets">
@@ -307,16 +358,16 @@ export default function MainScreen() {
               </button>
             </div>
 
-            <button
-              className="education__button"
-              id="startGame"
-              onClick={handleJoin}
-              disabled={gameStarted}
-            >
-              <span className="education__button-text" id="textButton">
-                {gameStarted ? 'Joining...' : 'JOIN'}
-              </span>
-            </button>
+                  <button
+                    className="education__button"
+                    id="startGame"
+                    onClick={handleJoin}
+                    disabled={gameStarted || countdownActive}
+                  >
+                    <span className="education__button-text" id="textButton">
+                      {countdownActive ? 'Joining...' : gameStarted ? 'Spinning...' : 'JOIN'}
+                    </span>
+                  </button>
           </div>
 
           <p className="spin__subtitle">User's Bets</p>
@@ -371,14 +422,6 @@ export default function MainScreen() {
             </p>
           </div>
         </div>
-      )}
-
-      {/* Game History Modal */}
-      {showHistoryModal && (
-        <GameHistoryModal onClose={() => {
-          setShowHistoryModal(false)
-          closeModal('gameHistoryModal')
-        }} />
       )}
 
       {/* Custom Keyboard Modal */}

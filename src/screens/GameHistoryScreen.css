@@ -1,0 +1,19 @@
+/* Game History Screen Styles */
+.transaction {
+  padding: 20px 0;
+}
+
+.transaction__container {
+  max-width: 100%;
+  padding: 0 16px;
+}
+
+.transaction__title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: "Chakra Petch", sans-serif;
+}
+

@@ -1,7 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) {
-  const [inputValue, setInputValue] = useState(value.toString())
+  const [inputValue, setInputValue] = useState(value && !isNaN(value) ? value.toString() : '0')
+
+  useEffect(() => {
+    // Update input value when value prop changes
+    if (value && !isNaN(value)) {
+      setInputValue(value.toString())
+    }
+  }, [value])
 
   const handleNumberClick = (num) => {
     const newValue = inputValue === '0' ? num.toString() : inputValue + num
@@ -23,8 +30,11 @@ export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) 
   }
 
   const handleConfirm = () => {
-    const numValue = parseFloat(inputValue) || 0
-    onChange(numValue)
+    const numValue = parseFloat(inputValue)
+    if (!isNaN(numValue) && numValue > 0) {
+      onChange(numValue)
+    }
+    // Always call onConfirm to close the modal
     onConfirm()
   }
 
@@ -62,7 +72,11 @@ export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) 
           <button className="modal__keyboard-btn" onClick={() => handleNumberClick('9')}>9</button>
           <button className="modal__keyboard-btn" onClick={handleDecimalClick}>.</button>
           <button className="modal__keyboard-btn" onClick={() => handleNumberClick('0')}>0</button>
-          <button className="modal__keyboard-btn modal__keyboard-btn--backspace" onClick={handleBackspace}>✕</button>
+          <button className="modal__keyboard-btn modal__keyboard-btn--backspace" onClick={handleBackspace}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V11Z" fill="white"/>
+            </svg>
+          </button>
         </div>
 
         <button className="modal__keyboard-ok" onClick={handleConfirm}>
