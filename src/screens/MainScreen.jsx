@@ -3,40 +3,80 @@ import infoIcon from '../assets/images/tasks/info.png'
 import historyIcon from '../assets/images/tasks/history.png'
 import arrowDownIcon from '../assets/images/tasks/arrow-down.png'
 import defaultAvatar from '../assets/images/default.png'
-import { initTabs } from '../utils/tabs'
+import avatar1 from '../assets/avatars/avatar1.svg'
+import avatar2 from '../assets/avatars/avatar2.svg'
+import avatar3 from '../assets/avatars/avatar3.svg'
+import RoomDropdown from '../components/RoomDropdown'
+import GameHistoryModal from '../components/GameHistoryModal'
+import CustomKeyboard from '../components/CustomKeyboard'
 import '../utils/modals'
 import './MainScreen.css'
 
 export default function MainScreen() {
   const [currentBet, setCurrentBet] = useState(1000)
   const [gameStarted, setGameStarted] = useState(false)
-  const [showSpinModal, setShowSpinModal] = useState(false)
-  const [showRealModal, setShowRealModal] = useState(false)
+  const [showRulesModal, setShowRulesModal] = useState(false)
+  const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showKeyboardModal, setShowKeyboardModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [registeredUsers, setRegisteredUsers] = useState(42)
+  const [totalTickets, setTotalTickets] = useState(125000)
+  const [currentRoom, setCurrentRoom] = useState({ number: 1, users: 15 })
+  const [rooms] = useState([
+    { number: 1, users: 15 },
+    { number: 2, users: 8 },
+    { number: 3, users: 19 }
+  ])
   const [userBets, setUserBets] = useState([
-    { id: 1, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', win: 1611, factor: 'X1.5' },
-    { id: 2, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', win: 1611, factor: 'X1.5' },
-    { id: 3, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', win: 51573, factor: 'X3' },
-    { id: 4, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', win: 0, factor: 'X0' },
+    { id: 1, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 1611 },
+    { id: 2, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 1611 },
+    { id: 3, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 51573 },
+    { id: 4, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 0 },
   ])
   const lineContainerRef = useRef(null)
   const minBet = 100
   const maxBet = 1000000
-  const realMod = 0 // Demo mode
 
-  // Exact roulette items from original HTML
-  const initialRouletteHTML = `<div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:red'>X100</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X0</div><div class='spin__game-item' style='color:yellow'>X10</div><div class='spin__game-item' style='color:#336699'>X50</div><div class='spin__game-item' >X3</div><div class='spin__game-item' style='color:red'>X100</div><div class='spin__game-item' >X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X1.5</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X3</div><div class='spin__game-item' id='middleQ'>X0</div><div class='spin__game-item' >X3</div><div class='spin__game-item' >X1.5</div>`
+  // Avatar distribution based on ticket percentages
+  // For demo: 40% avatar1, 35% avatar2, 25% avatar3
+  const avatars = [avatar1, avatar2, avatar3]
+  const avatarDistribution = [0.4, 0.35, 0.25] // Percentages for each avatar
+
+  // Generate tape with avatars
+  const generateTapeHTML = () => {
+    const totalItems = 100 // Total items in the tape
+    const items = []
+    
+    for (let i = 0; i < totalItems; i++) {
+      // Calculate which avatar to use based on distribution
+      const rand = Math.random()
+      let cumulative = 0
+      let avatarIndex = 0
+      
+      for (let j = 0; j < avatarDistribution.length; j++) {
+        cumulative += avatarDistribution[j]
+        if (rand <= cumulative) {
+          avatarIndex = j
+          break
+        }
+      }
+      
+      const isMiddle = i === Math.floor(totalItems / 2)
+      items.push(
+        `<div class='spin__game-item spin__game-item--avatar' ${isMiddle ? "id='middleQ'" : ''}>
+          <img src="${avatars[avatarIndex]}" alt="avatar" width="56" height="56" />
+        </div>`
+      )
+    }
+    
+    return items.join('')
+  }
 
   useEffect(() => {
-    // Initialize tabs functionality
-    if (typeof window.$ !== 'undefined') {
-      initTabs()
-    }
-
-    // Initialize line container with exact HTML from original
+    // Initialize line container with avatars
     if (lineContainerRef.current) {
-      lineContainerRef.current.innerHTML = initialRouletteHTML
+      lineContainerRef.current.innerHTML = generateTapeHTML()
     }
   }, [])
 
@@ -49,13 +89,33 @@ export default function MainScreen() {
 
   const handleBetChange = (action) => {
     if (action === 'min') changeBet(minBet)
-    else if (action === 'half') changeBet(Math.floor(currentBet / 2))
-    else if (action === 'double') changeBet(currentBet * 2)
     else if (action === 'max') {
       // TODO: Get actual balance from API
       const balance = 100000
       const max = balance - 1000 > maxBet ? maxBet : balance - 1000
       changeBet(max)
+    }
+  }
+
+  const handleInputClick = () => {
+    setShowKeyboardModal(true)
+    if (typeof window.openModal === 'function') {
+      window.openModal('customKeyboard')
+    }
+  }
+
+  const handleKeyboardConfirm = (value) => {
+    changeBet(value)
+    setShowKeyboardModal(false)
+    if (typeof window.closeModal === 'function') {
+      window.closeModal('customKeyboard')
+    }
+  }
+
+  const handleKeyboardClose = () => {
+    setShowKeyboardModal(false)
+    if (typeof window.closeModal === 'function') {
+      window.closeModal('customKeyboard')
     }
   }
 
@@ -70,7 +130,7 @@ export default function MainScreen() {
     $container.animate({ scrollLeft: offset }, 3000, "swing")
   }
 
-  const handleSpin = () => {
+  const handleJoin = () => {
     if (gameStarted) return
     if (typeof window.$ === 'undefined') {
       console.error('jQuery not loaded')
@@ -80,18 +140,15 @@ export default function MainScreen() {
     setGameStarted(true)
 
     // TODO: Implement actual API call
-    // For now, simulate the game
     setTimeout(() => {
-      // Simulate game result - in real implementation, this would come from API
-      // The API would return new HTML for lineContainer
       const $lineContainer = window.$('#lineContainer')
       if ($lineContainer.length) {
         $lineContainer.scrollLeft(0)
-        // In real implementation: $lineContainer.html(response["lineContainer"])
-        // For now, keep the same HTML
+        // Regenerate tape with new distribution
+        $lineContainer.html(generateTapeHTML())
       }
 
-      // Animate to center using jQuery (exact same as original)
+      // Animate to center using jQuery
       const $container = window.$('.noScrolQ')
       const $middleElement = window.$('#middleQ')
       if ($container.length && $middleElement.length) {
@@ -110,10 +167,11 @@ export default function MainScreen() {
           id: Date.now(),
           avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg',
           name: 'You 👑',
-          win: 0,
-          factor: 'X0'
+          tickets: currentBet
         }
         setUserBets(prev => [newBet, ...prev.slice(0, 14)])
+        setTotalTickets(prev => prev + currentBet)
+        setRegisteredUsers(prev => prev + 1)
 
         setGameStarted(false)
       }, 3500)
@@ -121,31 +179,56 @@ export default function MainScreen() {
   }
 
   const openModal = (modalName) => {
-    if (typeof window.openModal === 'function') {
+    if (modalName === 'rulesModal') {
+      setShowRulesModal(true)
+      if (typeof window.openModal === 'function') {
+        window.openModal('rulesModal')
+      }
+    } else if (modalName === 'gameHistoryModal') {
+      setShowHistoryModal(true)
+      if (typeof window.openModal === 'function') {
+        window.openModal('gameHistoryModal')
+      }
+    } else if (modalName === 'errorModal') {
+      setShowErrorModal(true)
+      if (typeof window.openModal === 'function') {
+        window.openModal('errorModal')
+      }
+    } else if (typeof window.openModal === 'function') {
       window.openModal(modalName)
-    } else {
-      // Fallback
-      if (modalName === 'spinModal') setShowSpinModal(true)
-      else if (modalName === 'realModal') setShowRealModal(true)
-      else if (modalName === 'errorModal') setShowErrorModal(true)
-      document.body.style.overflow = 'hidden'
     }
+    document.body.style.overflow = 'hidden'
   }
 
   const closeModal = (modalName) => {
-    if (typeof window.closeModal === 'function') {
+    if (modalName === 'rulesModal') {
+      setShowRulesModal(false)
+      if (typeof window.closeModal === 'function') {
+        window.closeModal('rulesModal')
+      }
+    } else if (modalName === 'gameHistoryModal') {
+      setShowHistoryModal(false)
+      if (typeof window.closeModal === 'function') {
+        window.closeModal('gameHistoryModal')
+      }
+    } else if (modalName === 'errorModal') {
+      setShowErrorModal(false)
+      if (typeof window.closeModal === 'function') {
+        window.closeModal('errorModal')
+      }
+    } else if (typeof window.closeModal === 'function') {
       window.closeModal(modalName)
-    } else {
-      // Fallback
-      if (modalName === 'spinModal') setShowSpinModal(false)
-      else if (modalName === 'realModal') setShowRealModal(false)
-      else if (modalName === 'errorModal') setShowErrorModal(false)
-      document.body.style.overflow = 'auto'
     }
+    document.body.style.overflow = 'auto'
   }
 
   const formatNumber = (number) => {
     return Math.floor(number).toLocaleString('ru-RU')
+  }
+
+  const handleRoomChange = (room) => {
+    setCurrentRoom(room)
+    // TODO: Load room data from API
   }
 
   return (
@@ -154,184 +237,158 @@ export default function MainScreen() {
         <div className="container">
           <div className="spin__header">
             <button
-              onClick={() => openModal('spinModal')}
+              onClick={() => openModal('rulesModal')}
               className="spin__button"
             >
               <img src={infoIcon} alt="info" width="34" />
             </button>
-            <p className="title">Roulette</p>
-            <a href="#history" className="spin__button">
-              <img src={historyIcon} alt="info" width="42" />
-            </a>
+            <RoomDropdown
+              currentRoom={currentRoom}
+              rooms={rooms}
+              onRoomChange={handleRoomChange}
+            />
+            <button
+              onClick={() => openModal('gameHistoryModal')}
+              className="spin__button"
+            >
+              <img src={historyIcon} alt="history" width="42" />
+            </button>
           </div>
 
-          <div className="tabs" data-tabs>
-            <ul className="tabs__nav tabs__nav-spin" data-tabs-nav>
-              <li data-tab-target="demo" className="active">
-                <span>Demo</span>
-              </li>
-              <li onClick={() => openModal('realModal')}>
-                <span>Real</span>
-              </li>
-              <div className="tabs__active-border tabs__active-position-second tabs__active-position">
-                <span className="tabs__active-bg tabs__active-position"></span>
-              </div>
-            </ul>
+          <div className="lottery-stats">
+            <div className="lottery-stats__item">
+              <span className="lottery-stats__label">Registered:</span>
+              <span className="lottery-stats__value">{registeredUsers} 👤</span>
+            </div>
+            <div className="lottery-stats__item">
+              <span className="lottery-stats__label">Total Tickets:</span>
+              <span className="lottery-stats__value">{formatNumber(totalTickets)}</span>
+            </div>
+          </div>
 
-            <div className="tabs__content" data-tab-content="demo">
-              <div className="tabs__content tabs__content--demo">
-                <div className="spin__game-container">
-                  <img
-                    className="spin__arrow"
-                    src={arrowDownIcon}
-                    alt="arrow"
-                    width="36"
-                  />
-                  <div
-                    className="spin__game scroll-block noScrolQ"
-                    id="lineContainer"
-                    ref={lineContainerRef}
-                  />
-                </div>
+          <div className="spin__game-container">
+            <img
+              className="spin__arrow"
+              src={arrowDownIcon}
+              alt="arrow"
+              width="36"
+            />
+            <div
+              className="spin__game scroll-block noScrolQ"
+              id="lineContainer"
+              ref={lineContainerRef}
+            />
+          </div>
 
-                <div className="spin__bets">
-                  <p className="spin__bets-title">Choose your bet (Power):</p>
-                  <input
-                    type="text"
-                    className="spin__input"
-                    placeholder="1000"
-                    id="amountBet"
-                    value={currentBet}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value, 10) || minBet
-                      changeBet(val)
-                    }}
-                  />
+          <div className="spin__bets">
+            <p className="spin__bets-title">Choose your bet:</p>
+            
+            <div className="spin__controls-row">
+              <button
+                className="spin__control-btn changeBetBT"
+                onClick={() => handleBetChange('min')}
+              >
+                <span>min</span>
+              </button>
+              <input
+                type="text"
+                className="spin__input"
+                placeholder="1000"
+                id="amountBet"
+                value={currentBet}
+                readOnly
+                onClick={handleInputClick}
+              />
+              <button
+                className="spin__control-btn changeBetBT"
+                onClick={() => handleBetChange('max')}
+              >
+                <span>max</span>
+              </button>
+            </div>
 
-                  <div className="spin__controls">
-                    <button
-                      className="spin__control-btn changeBetBT"
-                      data-id="1"
-                      onClick={() => handleBetChange('min')}
-                    >
-                      <span>min</span>
-                    </button>
-                    <button
-                      className="spin__control-btn changeBetBT"
-                      data-id="2"
-                      onClick={() => handleBetChange('half')}
-                    >
-                      <span>1/2</span>
-                    </button>
-                    <button
-                      className="spin__control-btn changeBetBT"
-                      data-id="3"
-                      onClick={() => handleBetChange('double')}
-                    >
-                      <span>X2</span>
-                    </button>
-                    <button
-                      className="spin__control-btn changeBetBT"
-                      data-id="4"
-                      onClick={() => handleBetChange('max')}
-                    >
-                      <span>max</span>
-                    </button>
-                  </div>
-                  <button
-                    className="education__button"
-                    id="startGame"
-                    onClick={handleSpin}
-                    disabled={gameStarted}
-                  >
-                    <span className="education__button-text" id="textButton">
-                      {gameStarted ? 'Game started...' : 'SPIN'}
-                    </span>
-                  </button>
-                </div>
+            <button
+              className="education__button"
+              id="startGame"
+              onClick={handleJoin}
+              disabled={gameStarted}
+            >
+              <span className="education__button-text" id="textButton">
+                {gameStarted ? 'Joining...' : 'JOIN'}
+              </span>
+            </button>
+          </div>
 
-                <p className="spin__subtitle">User's Bets</p>
-                <div className="spin__bets-list">
-                  {userBets.map((bet) => (
-                    <div
-                      key={bet.id}
-                      className={`spin__bets-item ${bet.win > 0 ? 'spin__bets-item--success' : ''}`}
-                    >
-                      <img
-                        src={bet.avatar}
-                        alt="user"
-                        width="56"
-                        onError={(e) => {
-                          e.target.onerror = null
-                          e.target.src = defaultAvatar
-                        }}
-                      />
-                      <div className="spin__bets-info">
-                        <p className="spin__bets-name">{bet.name}</p>
-                        <p className="spin__bets-amount">
-                          {bet.win > 0 ? '+' : ''}
-                          {formatNumber(bet.win)} Power
-                        </p>
-                      </div>
-                      <p className="spin__bets-sum">{bet.factor}</p>
-                    </div>
-                  ))}
+          <p className="spin__subtitle">User's Bets</p>
+          <div className="spin__bets-list">
+            {userBets.map((bet) => (
+              <div
+                key={bet.id}
+                className={`spin__bets-item ${bet.tickets > 0 ? 'spin__bets-item--success' : ''}`}
+              >
+                <img
+                  src={bet.avatar}
+                  alt="user"
+                  width="56"
+                  onError={(e) => {
+                    e.target.onerror = null
+                    e.target.src = defaultAvatar
+                  }}
+                />
+                <div className="spin__bets-info">
+                  <p className="spin__bets-name">{bet.name}</p>
+                  <p className="spin__bets-amount">
+                    {bet.tickets > 0 ? '+' : ''}
+                    {formatNumber(bet.tickets)} Tickets
+                  </p>
                 </div>
               </div>
-            </div>
-            <div className="tabs__content" data-tab-content="real" hidden>
-              <div></div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Spin Info Modal */}
-      {showSpinModal && (
+      {/* Rules Modal */}
+      {showRulesModal && (
         <div
           className="layout active"
-          data-modal="spinModal"
+          data-modal="rulesModal"
           onClick={(e) => {
             if (e.target.classList.contains('layout')) {
-              closeModal('spinModal')
+              closeModal('rulesModal')
             }
           }}
         >
-          <div className="modal modal__account-spin">
+          <div className="modal modal__account-spin" onClick={(e) => e.stopPropagation()}>
             <p className="modal__account-spin-title">Roulette Rules</p>
             <p className="modal__account-spin-text">
               <span>
                 - Demo mode = no real money, just for fun. <br />
                 - Real mode allows you to place bets with real money.
               </span>
-              <span> Set your bet and tap "SPIN".</span>
+              <span> Set your bet and tap "JOIN".</span>
               <span> Possible multipliers: x0, x1.5, x3, x10, x50, x100 </span>
             </p>
           </div>
         </div>
       )}
 
-      {/* Real Modal */}
-      {showRealModal && (
-        <div
-          className="layout active"
-          data-modal="realModal"
-          onClick={(e) => {
-            if (e.target.classList.contains('layout')) {
-              closeModal('realModal')
-            }
-          }}
-        >
-          <div className="modal modal__account-spin">
-            <p className="modal__account-spin-title">Real mode is not yet unlocked</p>
-            <p className="modal__account-spin-text">
-              To access Real mode, a minimum deposit of $5 is required.
-              <span>
-                This measure protects the platform from misuse by dishonest users.
-              </span>
-            </p>
-          </div>
-        </div>
+      {/* Game History Modal */}
+      {showHistoryModal && (
+        <GameHistoryModal onClose={() => {
+          setShowHistoryModal(false)
+          closeModal('gameHistoryModal')
+        }} />
+      )}
+
+      {/* Custom Keyboard Modal */}
+      {showKeyboardModal && (
+        <CustomKeyboard
+          value={currentBet}
+          onChange={setCurrentBet}
+          onConfirm={handleKeyboardConfirm}
+          onClose={handleKeyboardClose}
+        />
       )}
 
       {/* Error Modal */}

@@ -9,10 +9,10 @@
 
 @keyframes blinkWinX {
   0%, 100% {
-    color: white;
+    opacity: 1;
   }
   50% {
-    color: green;
+    opacity: 0.5;
   }
 }
 
@@ -27,5 +27,250 @@
 
 .spin__bets-item.fade-in.show {
   opacity: 1;
+}
+
+/* Room Dropdown */
+.room-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.room-dropdown__button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.room-dropdown__text {
+  font-weight: 600;
+}
+
+.room-dropdown__users {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.room-dropdown__arrow {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.room-dropdown__menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  padding: 8px 0;
+  min-width: 180px;
+  z-index: 1000;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.room-dropdown__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.room-dropdown__item:hover {
+  background: var(--background-tertiary);
+}
+
+.room-dropdown__item.active {
+  background: var(--gradient-primary);
+}
+
+.room-dropdown__item-text,
+.room-dropdown__item-users {
+  font-family: "Chakra Petch", sans-serif;
+}
+
+/* Lottery Stats */
+.lottery-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 16px 0;
+  margin: 16px 0;
+  background: var(--background-secondary);
+  border-radius: 8px;
+}
+
+.lottery-stats__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.lottery-stats__label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: "Chakra Petch", sans-serif;
+}
+
+.lottery-stats__value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  font-family: "Chakra Petch", sans-serif;
+}
+
+/* Updated Bet Controls */
+.spin__controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.spin__controls-row .spin__control-btn {
+  flex-shrink: 0;
+}
+
+.spin__controls-row .spin__input {
+  flex: 1;
+  margin: 0;
+}
+
+/* Avatar items in tape */
+.spin__game-item--avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.spin__game-item--avatar img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Custom Keyboard Modal */
+.modal--keyboard {
+  max-width: 320px;
+  width: 90%;
+  padding: 24px;
+  background: var(--background-secondary);
+  border-radius: 16px;
+}
+
+.modal__keyboard-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: "Chakra Petch", sans-serif;
+}
+
+.modal__keyboard-input-container {
+  margin-bottom: 20px;
+}
+
+.modal__keyboard-input {
+  width: 100%;
+  padding: 16px;
+  background: var(--background-primary);
+  border: 2px solid var(--background-tertiary);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 24px;
+  text-align: center;
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 600;
+}
+
+.modal__keyboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.modal__keyboard-btn {
+  aspect-ratio: 1;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Chakra Petch", sans-serif;
+  transition: transform 0.1s;
+}
+
+.modal__keyboard-btn:active {
+  transform: scale(0.95);
+}
+
+.modal__keyboard-btn--backspace {
+  background: var(--gradient--cancel);
+}
+
+.modal__keyboard-ok {
+  width: 100%;
+  padding: 16px;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Chakra Petch", sans-serif;
+}
+
+.modal__keyboard-ok:active {
+  transform: scale(0.98);
+}
+
+/* Game History Modal */
+.modal--game-history {
+  max-width: 90%;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--background-secondary);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.spin__back {
+  background: var(--background-tertiary);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 12px 20px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* Layout blur effect */
+.layout.active {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
