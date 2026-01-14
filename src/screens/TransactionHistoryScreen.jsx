@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import './TransactionHistoryScreen.css'
 
 export default function TransactionHistoryScreen({ onBack }) {
   useEffect(() => {

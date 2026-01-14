@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import './SupportScreen.css'
 
 export default function SupportScreen({ onBack, onNavigate }) {
   const [subject, setSubject] = useState('')

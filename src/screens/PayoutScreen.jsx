@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import tonIcon from '../assets/images/upgrade/ton.png'
-import './PayoutScreen.css'
 
 export default function PayoutScreen({ onBack, onNavigate }) {
   useEffect(() => {

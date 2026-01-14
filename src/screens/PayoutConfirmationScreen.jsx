@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import backIcon from '../assets/images/back.png'
-import './PayoutConfirmationScreen.css'
 
 export default function PayoutConfirmationScreen({ onBack }) {
   const [wallet, setWallet] = useState('')
@@ -152,8 +151,7 @@ export default function PayoutConfirmationScreen({ onBack }) {
             onClick={(e) => {
               e.preventDefault()
               if (onBack) {
-                // Navigate back to payout screen
-                window.history.back()
+                onBack()
               }
             }}
           >

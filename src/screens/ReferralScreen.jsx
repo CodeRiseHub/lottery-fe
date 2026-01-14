@@ -3,7 +3,6 @@ import { initTabs } from '../utils/tabs'
 import refIcon from '../assets/images/ref.png'
 import pagLeftIcon from '../assets/images/tasks/pag-left.png'
 import pagRightIcon from '../assets/images/tasks/pag-right.png'
-import './ReferralScreen.css'
 
 export default function ReferralScreen({ onBack }) {
   const [activeTab, setActiveTab] = useState('invite')

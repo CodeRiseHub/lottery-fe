@@ -3,7 +3,6 @@ import { initTabs } from '../utils/tabs'
 import friendIcon from '../assets/images/friend.png'
 import storeIcon from '../assets/images/tasks/store.png'
 import infoChannelIcon from '../assets/info_channel.png'
-import './TasksScreen.css'
 
 export default function TasksScreen({ onBack, onNavigate }) {
   const [activeTab, setActiveTab] = useState('referral')

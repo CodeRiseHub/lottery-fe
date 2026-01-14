@@ -9,7 +9,6 @@ import avatar3 from '../assets/avatars/avatar3.svg'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import '../utils/modals'
-import './MainScreen.css'
 
 export default function MainScreen({ onNavigate }) {
   const [currentBet, setCurrentBet] = useState(1000)

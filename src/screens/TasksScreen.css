@@ -1,7 +1,0 @@
-/* Tasks Screen Styles - Most styles are already in the main style.css file */
-
-/* Remove blur from task modals */
-.layout.task__layout {
-  backdrop-filter: none !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-}

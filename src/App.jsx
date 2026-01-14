@@ -103,7 +103,7 @@ function App() {
           <SupportChatScreen
             ticketId={screenProps.ticketId}
             ticketSubject={screenProps.ticketSubject}
-            onBack={handleBack}
+            onBack={() => handleNavigate('support')}
           />
         )}
         {currentScreen === 'referral' && <ReferralScreen onBack={handleBack} />}
@@ -115,9 +115,7 @@ function App() {
         {currentScreen === 'payout' && <PayoutScreen onBack={handleBack} onNavigate={handleNavigate} />}
         {currentScreen === 'payoutConfirmation' && (
           <PayoutConfirmationScreen
-            onBack={() => {
-              setCurrentScreen('payout')
-            }}
+            onBack={() => handleNavigate('payout')}
           />
         )}
       </main>

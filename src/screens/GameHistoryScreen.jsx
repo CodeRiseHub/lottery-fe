@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import backIcon from '../assets/images/back.png'
-import './GameHistoryScreen.css'
 
 export default function GameHistoryScreen({ onBack }) {
   useEffect(() => {

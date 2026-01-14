@@ -1,6 +1,0 @@
-/* Referral Screen Styles - Most styles are already in the main style.css file */
-
-/* Ensure tabs nav is positioned relative for absolute positioning of active border */
-.tabs__nav-second {
-  position: relative;
-}

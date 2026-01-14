@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import './StoreScreen.css'
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
   const [amount, setAmount] = useState('3')

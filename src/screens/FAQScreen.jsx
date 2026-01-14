@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import './FAQScreen.css'
 
 export default function FAQScreen({ onBack }) {
   useEffect(() => {

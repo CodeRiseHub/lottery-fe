@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import closeIcon from '../assets/images/close.png'
 import backIcon from '../assets/images/back.png'
 import arrowUpIcon from '../assets/images/arrow-up.png'
-import './SupportChatScreen.css'
 
 export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
   const [messages, setMessages] = useState([
