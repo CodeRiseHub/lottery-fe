@@ -43,6 +43,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const countdownIntervalRef = useRef(null)
   const animationRunningRef = useRef(false) // Track if animation is currently running
   const animationStartTimeRef = useRef(null) // Track when animation started (for timeout)
+  const animationCompletedTimeRef = useRef(null) // Track when animation completed (for state machine guards)
   // Bet limits in ticket units (for UI display)
   const minBet = 1000
   const maxBet = 1000000
@@ -177,8 +178,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         const totalTicketsBigint = state.totalTickets || 0
         const totalTicketsDisplay = totalTicketsBigint / 1000000
         setTotalTickets(totalTicketsDisplay)
-        // Update roomPhase with state validation
-        // Ensure valid phase transitions (prevent invalid state changes)
+        // Update roomPhase with state validation and synchronization
+        // Ensure valid phase transitions and synchronize with winner data
         const newPhase = state.phase || 'WAITING'
         const currentPhase = roomPhase
         
@@ -192,8 +193,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           'RESOLUTION': ['WAITING']
         }
         
-        // If transition is valid or going to WAITING (reset), update phase
-        if (newPhase === 'WAITING' || (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase))) {
+        // Synchronize phase update with winner data (atomic update)
+        // If transitioning to RESOLUTION, ensure winner data is present
+        if (newPhase === 'RESOLUTION' && state.winner) {
+          // Update phase atomically with winner data
+          setRoomPhase(newPhase)
+        } else if (newPhase === 'WAITING') {
+          // For WAITING, check if animation just completed (state machine guard)
+          const now = Date.now()
+          const animationCompletedTime = animationCompletedTimeRef.current
+          // If animation completed less than 1 second ago, delay WAITING processing
+          if (animationCompletedTime && (now - animationCompletedTime) < 1000) {
+            // Don't update to WAITING yet - animation just completed
+            // This prevents race condition with tape clearing
+            // Skip this state update but continue processing other state updates
+          } else {
+            setRoomPhase(newPhase)
+          }
+        } else if (newPhase === 'WAITING' || (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase))) {
           setRoomPhase(newPhase)
         } else {
           // Invalid transition - log warning but allow it (might be due to missed messages)
@@ -236,24 +253,27 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           
           // Update tape with participants (but NOT during SPINNING - that's handled separately)
           // Only update tape for WAITING and COUNTDOWN phases
-          // Use requestAnimationFrame to ensure DOM is ready before setting innerHTML
+          // Set HTML synchronously when DOM is ready (no requestAnimationFrame needed)
           if ((state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
-            requestAnimationFrame(() => {
-              if (lineContainerRef.current) {
-                const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
-                if (tapeHTML) {
-                  lineContainerRef.current.innerHTML = tapeHTML
-                }
-              }
-            })
+            const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
+            if (tapeHTML) {
+              lineContainerRef.current.innerHTML = tapeHTML
+            }
           }
         } else {
           setUserBets([])
           setUserTickets(0)
-          // Clear spinner when no participants
-          // Don't clear if we're in RESOLUTION phase (tape will be cleared by animation callback)
-          if (lineContainerRef.current && state.phase !== 'RESOLUTION') {
-            lineContainerRef.current.innerHTML = ''
+          // Don't clear tape here - let animation callback handle it
+          // Only clear if we're in WAITING phase AND animation completed more than 1 second ago
+          // This prevents race condition between animation completion and WAITING state
+          if (lineContainerRef.current && state.phase === 'WAITING') {
+            const now = Date.now()
+            const animationCompletedTime = animationCompletedTimeRef.current
+            // Only clear if animation completed more than 1 second ago, or never ran
+            if (!animationCompletedTime || (now - animationCompletedTime) > 1000) {
+              lineContainerRef.current.innerHTML = ''
+              animationCompletedTimeRef.current = null // Reset after clearing
+            }
           }
         }
 
@@ -286,12 +306,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
               window.$('#lineContainer').scrollLeft(0)
             }
             
-            // Set HTML content immediately
-            lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
+            // Set HTML content immediately (synchronously, no requestAnimationFrame)
+            // Ensure container exists and is mounted before setting HTML
+            if (lineContainerRef.current) {
+              const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
+              if (tapeHTML) {
+                lineContainerRef.current.innerHTML = tapeHTML
+              }
+            }
             
             // Mark animation as running and record start time
             animationRunningRef.current = true
             animationStartTimeRef.current = Date.now()
+            animationCompletedTimeRef.current = null // Reset completion time when starting new animation
             
             // Start animation immediately - use minimal delay to ensure DOM is ready
             setTimeout(() => {
@@ -303,19 +330,25 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in WAITING
           
-          // Don't clear tape if animation is still running (protect against rapid state changes)
-          // Only clear if animation has completed or if there are no participants
-          if (!animationRunningRef.current) {
-            // Clear userBets if no participants (new round started)
-            if (!state.participants || state.participants.length === 0) {
-              setUserBets([])
-              setUserTickets(0)
-              // Clear tape when room is in WAITING with no participants
-              // Tape should already be cleared by animation callback, but clear here as safety
-              if (lineContainerRef.current) {
-                lineContainerRef.current.innerHTML = ''
-              }
+          // State machine guard: Don't process WAITING if animation just completed
+          // This prevents race condition between animation completion and WAITING state
+          const now = Date.now()
+          const animationCompletedTime = animationCompletedTimeRef.current
+          if (animationCompletedTime && (now - animationCompletedTime) < 1000) {
+            // Animation just completed (< 1 second ago), skip WAITING processing
+            // Tape clearing is handled by animation callback
+            // Skip this state update to prevent race condition
+            return // Skip this state update to prevent race condition
+          }
+          
+          // If animation wasn't running (single participant refund), allow tape clearing
+          if (!animationRunningRef.current && (!state.participants || state.participants.length === 0)) {
+            setUserBets([])
+            setUserTickets(0)
+            if (lineContainerRef.current) {
+              lineContainerRef.current.innerHTML = ''
             }
+            animationCompletedTimeRef.current = null // Reset after clearing
           }
         } else if (state.phase === 'COUNTDOWN') {
           // During countdown, user can still join
@@ -485,6 +518,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     if (typeof window.$ === 'undefined') {
       console.error('jQuery not loaded')
       animationRunningRef.current = false // Reset flag on error
+      animationStartTimeRef.current = null
+      animationCompletedTimeRef.current = null
       return
     }
 
@@ -502,6 +537,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         $middleElement.addClass('blinkWinX')
         
         // Clear tape after animation completes (not based on arbitrary timeout)
+        // This is the SINGLE SOURCE OF TRUTH for tape clearing
         // This ensures tape is cleared exactly when animation finishes
         setTimeout(() => {
           if (lineContainerRef.current) {
@@ -510,6 +546,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // Reset animation flag after animation fully completes
           animationRunningRef.current = false
           animationStartTimeRef.current = null
+          // Record completion time for state machine guards
+          animationCompletedTimeRef.current = Date.now()
         }, 500) // Small delay to show blink animation
       })
     } else {
@@ -521,6 +559,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         lineContainer: window.$('#lineContainer').length
       })
       animationRunningRef.current = false // Reset flag on error
+      animationStartTimeRef.current = null
+      animationCompletedTimeRef.current = null
     }
   }
 
