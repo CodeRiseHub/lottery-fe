@@ -42,6 +42,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
   const animationRunningRef = useRef(false) // Track if animation is currently running
+  const animationStartTimeRef = useRef(null) // Track when animation started (for timeout)
   // Bet limits in ticket units (for UI display)
   const minBet = 1000
   const maxBet = 1000000
@@ -132,6 +133,36 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     fetchUserData()
   }, [onBalanceUpdate])
 
+  // Animation flag timeout - reset if stuck for more than 10 seconds
+  useEffect(() => {
+    const checkAnimationTimeout = setInterval(() => {
+      if (animationRunningRef.current && animationStartTimeRef.current) {
+        const elapsed = Date.now() - animationStartTimeRef.current
+        if (elapsed > 10000) { // 10 seconds timeout
+          console.warn('Animation flag stuck, resetting')
+          animationRunningRef.current = false
+          animationStartTimeRef.current = null
+        }
+      }
+    }, 1000) // Check every second
+    
+    return () => clearInterval(checkAnimationTimeout)
+  }, [])
+  
+  // RoomPhase timeout - reset if stuck in SPINNING for more than 8 seconds
+  useEffect(() => {
+    if (roomPhase === 'SPINNING') {
+      const timeout = setTimeout(() => {
+        // If still in SPINNING after 8 seconds, force transition to RESOLUTION
+        // This handles cases where WebSocket message was missed
+        console.warn('RoomPhase stuck in SPINNING, forcing transition')
+        setRoomPhase('RESOLUTION')
+      }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
+      
+      return () => clearTimeout(timeout)
+    }
+  }, [roomPhase])
+  
   // WebSocket connection and state updates
   useEffect(() => {
     const roomNumber = currentRoom.number
@@ -146,7 +177,29 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         const totalTicketsBigint = state.totalTickets || 0
         const totalTicketsDisplay = totalTicketsBigint / 1000000
         setTotalTickets(totalTicketsDisplay)
-        setRoomPhase(state.phase || 'WAITING')
+        // Update roomPhase with state validation
+        // Ensure valid phase transitions (prevent invalid state changes)
+        const newPhase = state.phase || 'WAITING'
+        const currentPhase = roomPhase
+        
+        // Validate phase transition (prevent skipping phases)
+        // Allow: WAITING -> COUNTDOWN -> SPINNING -> RESOLUTION -> WAITING
+        // Also allow: any -> WAITING (reset)
+        const validTransitions = {
+          'WAITING': ['COUNTDOWN', 'WAITING'],
+          'COUNTDOWN': ['SPINNING', 'WAITING'],
+          'SPINNING': ['RESOLUTION', 'WAITING'],
+          'RESOLUTION': ['WAITING']
+        }
+        
+        // If transition is valid or going to WAITING (reset), update phase
+        if (newPhase === 'WAITING' || (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase))) {
+          setRoomPhase(newPhase)
+        } else {
+          // Invalid transition - log warning but allow it (might be due to missed messages)
+          console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase}`)
+          setRoomPhase(newPhase) // Still update to prevent stuck state
+        }
         
         // Update room user count for all rooms (always update, even if no participants)
         if (state.roomNumber !== undefined && state.roomNumber !== null) {
@@ -183,8 +236,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           
           // Update tape with participants (but NOT during SPINNING - that's handled separately)
           // Only update tape for WAITING and COUNTDOWN phases
+          // Use requestAnimationFrame to ensure DOM is ready before setting innerHTML
           if ((state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
-            lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
+            requestAnimationFrame(() => {
+              if (lineContainerRef.current) {
+                const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
+                if (tapeHTML) {
+                  lineContainerRef.current.innerHTML = tapeHTML
+                }
+              }
+            })
           }
         } else {
           setUserBets([])
@@ -228,8 +289,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             // Set HTML content immediately
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
             
-            // Mark animation as running
+            // Mark animation as running and record start time
             animationRunningRef.current = true
+            animationStartTimeRef.current = Date.now()
             
             // Start animation immediately - use minimal delay to ensure DOM is ready
             setTimeout(() => {
@@ -447,6 +509,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           }
           // Reset animation flag after animation fully completes
           animationRunningRef.current = false
+          animationStartTimeRef.current = null
         }, 500) // Small delay to show blink animation
       })
     } else {
