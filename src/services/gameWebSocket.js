@@ -13,6 +13,7 @@ class GameWebSocketService {
     this.reconnectAttempts = 0
     this.maxReconnectAttempts = 5
     this.reconnectDelay = 3000
+    this.reconnecting = false // Flag to prevent multiple simultaneous reconnection attempts
     this.listeners = new Map()
     this.connectionStateCallback = null
   }
@@ -53,7 +54,8 @@ class GameWebSocketService {
       console.log('[WebSocket] SockJS connection closed', event)
       this.connected = false
       this.updateConnectionState(false)
-      if (!event.wasClean) {
+      // Only reconnect if it wasn't a clean close and we're not already reconnecting
+      if (!event.wasClean && !this.reconnecting && this.reconnectAttempts < this.maxReconnectAttempts) {
         this.handleReconnect(roomNumber, onStateUpdate, onError)
       }
     }
@@ -74,7 +76,8 @@ class GameWebSocketService {
       onConnect: (frame) => {
         console.log('[WebSocket] STOMP connected', frame)
         this.connected = true
-        this.reconnectAttempts = 0
+        this.reconnectAttempts = 0 // Reset reconnection attempts on successful connection
+        this.reconnecting = false // Reset reconnecting flag on successful connection
         this.updateConnectionState(true)
         
         // Subscribe to room updates and error queue
@@ -91,7 +94,8 @@ class GameWebSocketService {
         console.log('[WebSocket] WebSocket closed', event)
         this.connected = false
         this.updateConnectionState(false)
-        if (!event.wasClean) {
+        // Only reconnect if it wasn't a clean close and we're not already reconnecting
+        if (!event.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.handleReconnect(roomNumber, onStateUpdate, onError)
         }
       },
@@ -204,17 +208,31 @@ class GameWebSocketService {
    * Handles reconnection logic.
    */
   handleReconnect(roomNumber, onStateUpdate, onError) {
+    // Prevent multiple simultaneous reconnection attempts
+    if (this.reconnecting) {
+      console.log('[WebSocket] Reconnection already in progress, skipping...')
+      return
+    }
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('[WebSocket] Max reconnection attempts reached')
+      this.reconnecting = false
+      this.updateConnectionState(false)
       onError?.('Failed to reconnect. Please refresh the page.')
       return
     }
 
+    this.reconnecting = true
     this.reconnectAttempts++
     console.log(`[WebSocket] Reconnecting (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
+    // Update connection state to show we're trying to reconnect
+    this.updateConnectionState(false)
 
     setTimeout(() => {
-      this.connect(roomNumber, onStateUpdate, onError)
+      // Pass the connection state callback to reconnect
+      this.connect(roomNumber, onStateUpdate, onError, this.connectionStateCallback)
+      // Reset reconnecting flag after connection attempt starts
+      // (will be reset to false on successful connect or after max attempts)
     }, this.reconnectDelay)
   }
 
@@ -223,14 +241,23 @@ class GameWebSocketService {
    */
   disconnect() {
     if (this.client) {
+      // Stop reconnection attempts
+      this.reconnectAttempts = this.maxReconnectAttempts
+      this.reconnecting = false
+      
       // Unsubscribe from all topics
       this.subscriptions.forEach((sub) => sub.unsubscribe())
       this.subscriptions.clear()
 
       // Deactivate client
-      this.client.deactivate()
+      try {
+        this.client.deactivate()
+      } catch (e) {
+        console.warn('[WebSocket] Error during deactivate:', e)
+      }
       this.client = null
       this.connected = false
+      this.updateConnectionState(false)
       console.log('[WebSocket] Disconnected')
     }
   }

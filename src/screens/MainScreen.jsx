@@ -290,7 +290,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         setErrorMessage(error || 'WebSocket connection error')
         setShowErrorModal(true)
         // Don't disconnect on join errors - only on connection errors
-        if (error && error.includes('connection')) {
+        if (error && (error.includes('connection') || error.includes('WebSocket') || error.includes('reconnect'))) {
           setWsConnected(false)
         }
         // Reset game state on error
