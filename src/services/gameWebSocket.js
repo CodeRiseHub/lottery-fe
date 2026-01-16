@@ -14,28 +14,55 @@ class GameWebSocketService {
     this.maxReconnectAttempts = 5
     this.reconnectDelay = 3000
     this.listeners = new Map()
+    this.connectionStateCallback = null
   }
 
   /**
    * Connects to WebSocket server with Bearer token authentication.
    */
-  connect(roomNumber, onStateUpdate, onError) {
-    if (this.client && this.connected) {
-      console.log('[WebSocket] Already connected')
-      return
+  connect(roomNumber, onStateUpdate, onError, onConnectionStateChange) {
+    // Store connection state callback
+    this.connectionStateCallback = onConnectionStateChange
+    
+    // Disconnect existing connection if any
+    if (this.client) {
+      this.disconnect()
     }
 
     const token = getSessionToken()
     if (!token) {
       console.error('[WebSocket] No session token available')
+      this.updateConnectionState(false)
       onError?.('Authentication required')
       return
     }
 
     console.log('[WebSocket] Connecting to room', roomNumber)
+    this.updateConnectionState(false) // Set to connecting state
 
     // Create SockJS connection
     const socket = new SockJS(`${API_BASE_URL}/ws`)
+    
+    // Handle SockJS connection events
+    socket.onopen = () => {
+      console.log('[WebSocket] SockJS connection opened')
+    }
+    
+    socket.onclose = (event) => {
+      console.log('[WebSocket] SockJS connection closed', event)
+      this.connected = false
+      this.updateConnectionState(false)
+      if (!event.wasClean) {
+        this.handleReconnect(roomNumber, onStateUpdate, onError)
+      }
+    }
+    
+    socket.onerror = (error) => {
+      console.error('[WebSocket] SockJS connection error:', error)
+      this.connected = false
+      this.updateConnectionState(false)
+      onError?.('WebSocket connection failed. Please check your connection.')
+    }
     
     // Create STOMP client
     this.client = new Client({
@@ -43,10 +70,11 @@ class GameWebSocketService {
       reconnectDelay: this.reconnectDelay,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      onConnect: () => {
-        console.log('[WebSocket] Connected')
+      onConnect: (frame) => {
+        console.log('[WebSocket] STOMP connected', frame)
         this.connected = true
         this.reconnectAttempts = 0
+        this.updateConnectionState(true)
         
         // Subscribe to room updates
         this.subscribeToRoom(roomNumber, onStateUpdate)
@@ -54,16 +82,22 @@ class GameWebSocketService {
       onStompError: (frame) => {
         console.error('[WebSocket] STOMP error:', frame)
         this.connected = false
-        onError?.(frame.headers['message'] || 'WebSocket connection error')
+        this.updateConnectionState(false)
+        const errorMsg = frame.headers?.['message'] || frame.body || 'WebSocket connection error'
+        onError?.(errorMsg)
       },
-      onWebSocketClose: () => {
-        console.log('[WebSocket] Connection closed')
+      onWebSocketClose: (event) => {
+        console.log('[WebSocket] WebSocket closed', event)
         this.connected = false
-        this.handleReconnect(roomNumber, onStateUpdate, onError)
+        this.updateConnectionState(false)
+        if (!event.wasClean) {
+          this.handleReconnect(roomNumber, onStateUpdate, onError)
+        }
       },
       onDisconnect: () => {
         console.log('[WebSocket] Disconnected')
         this.connected = false
+        this.updateConnectionState(false)
       },
       connectHeaders: {
         Authorization: `Bearer ${token}`
@@ -71,7 +105,24 @@ class GameWebSocketService {
     })
 
     // Start connection
-    this.client.activate()
+    try {
+      this.client.activate()
+    } catch (error) {
+      console.error('[WebSocket] Failed to activate client:', error)
+      this.connected = false
+      this.updateConnectionState(false)
+      onError?.('Failed to start WebSocket connection')
+    }
+  }
+
+  /**
+   * Updates connection state and notifies callback.
+   */
+  updateConnectionState(connected) {
+    this.connected = connected
+    if (this.connectionStateCallback) {
+      this.connectionStateCallback(connected)
+    }
   }
 
   /**
@@ -179,7 +230,7 @@ class GameWebSocketService {
    * Checks if connected.
    */
   isConnected() {
-    return this.connected && this.client?.active
+    return this.connected && (this.client?.active === true)
   }
 }
 

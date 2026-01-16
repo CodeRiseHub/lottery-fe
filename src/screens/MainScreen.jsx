@@ -32,6 +32,7 @@ export default function MainScreen({ onNavigate }) {
   const [userBets, setUserBets] = useState([])
   const [roomPhase, setRoomPhase] = useState('WAITING')
   const [winner, setWinner] = useState(null)
+  const [wsConnected, setWsConnected] = useState(false)
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
   const minBet = 1000
@@ -139,6 +140,12 @@ export default function MainScreen({ onNavigate }) {
       (error) => {
         setErrorMessage(error || 'WebSocket connection error')
         setShowErrorModal(true)
+        setWsConnected(false)
+      },
+      (connected) => {
+        // Connection state callback
+        setWsConnected(connected)
+        console.log('[MainScreen] WebSocket connection state:', connected)
       }
     )
 
@@ -432,10 +439,10 @@ export default function MainScreen({ onNavigate }) {
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || !gameWebSocket.isConnected()}
+                    disabled={!wsConnected || gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION'}
                   >
                     <span className="education__button-text" id="textButton">
-                      {!gameWebSocket.isConnected() ? 'Connecting...' : 
+                      {!wsConnected ? 'Connecting...' : 
                        countdownActive ? `Joining... ${Math.ceil(countdownRemaining || 0)}s` : 
                        gameStarted || roomPhase === 'SPINNING' ? 'Spinning...' : 
                        roomPhase === 'RESOLUTION' ? 'Round Ended' : 'JOIN'}
