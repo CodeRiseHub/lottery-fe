@@ -183,6 +183,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         const newPhase = state.phase || 'WAITING'
         const currentPhase = roomPhase
         
+        console.log('[PHASE-TRANSITION]', {
+          from: currentPhase,
+          to: newPhase,
+          hasWinner: !!state.winner,
+          participants: state.participants?.length || 0,
+          animationRunning: animationRunningRef.current,
+          animationCompletedTime: animationCompletedTimeRef.current,
+          timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null,
+          timestamp: Date.now()
+        })
+        
         // Validate phase transition (prevent skipping phases)
         // Allow: WAITING -> COUNTDOWN -> SPINNING -> RESOLUTION -> WAITING
         // Also allow: any -> WAITING (reset)
@@ -197,17 +208,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // If transitioning to RESOLUTION, ensure winner data is present
         if (newPhase === 'RESOLUTION' && state.winner) {
           // Update phase atomically with winner data
+          console.log('[PHASE-TRANSITION] Updating to RESOLUTION with winner:', state.winner.userId)
           setRoomPhase(newPhase)
         } else if (newPhase === 'WAITING') {
           // For WAITING, check if animation just completed (state machine guard)
           const now = Date.now()
           const animationCompletedTime = animationCompletedTimeRef.current
+          const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
           // If animation completed less than 1 second ago, delay WAITING processing
-          if (animationCompletedTime && (now - animationCompletedTime) < 1000) {
+          if (animationCompletedTime && timeSinceCompletion < 1000) {
             // Don't update to WAITING yet - animation just completed
             // This prevents race condition with tape clearing
+            console.log('[PHASE-TRANSITION] BLOCKED WAITING - animation completed', timeSinceCompletion, 'ms ago')
             // Skip this state update but continue processing other state updates
           } else {
+            console.log('[PHASE-TRANSITION] Allowing WAITING transition', {
+              timeSinceCompletion,
+              animationCompletedTime: !!animationCompletedTime
+            })
             setRoomPhase(newPhase)
           }
         } else if (newPhase === 'WAITING' || (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase))) {
@@ -256,8 +274,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // Set HTML synchronously when DOM is ready (no requestAnimationFrame needed)
           if ((state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
             const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
+            console.log('[TAPE-GEN]', {
+              phase: state.phase,
+              participants: state.participants?.length || 0,
+              hasHTML: !!tapeHTML,
+              htmlLength: tapeHTML?.length || 0,
+              containerExists: !!lineContainerRef.current,
+              timestamp: Date.now()
+            })
             if (tapeHTML) {
               lineContainerRef.current.innerHTML = tapeHTML
+              console.log('[TAPE-GEN] HTML set successfully')
+            } else {
+              console.warn('[TAPE-GEN] No HTML generated, participants:', state.participants)
             }
           }
         } else {
@@ -269,10 +298,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           if (lineContainerRef.current && state.phase === 'WAITING') {
             const now = Date.now()
             const animationCompletedTime = animationCompletedTimeRef.current
+            const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
+            
+            console.log('[TAPE-CLEAR-CHECK]', {
+              phase: state.phase,
+              participants: state.participants?.length || 0,
+              animationCompletedTime: !!animationCompletedTime,
+              timeSinceCompletion,
+              willClear: !animationCompletedTime || timeSinceCompletion > 1000,
+              timestamp: now
+            })
+            
             // Only clear if animation completed more than 1 second ago, or never ran
-            if (!animationCompletedTime || (now - animationCompletedTime) > 1000) {
+            if (!animationCompletedTime || timeSinceCompletion > 1000) {
+              console.log('[TAPE-CLEAR-CHECK] Clearing tape')
               lineContainerRef.current.innerHTML = ''
               animationCompletedTimeRef.current = null // Reset after clearing
+            } else {
+              console.log('[TAPE-CLEAR-CHECK] Skipping clear - animation completed', timeSinceCompletion, 'ms ago')
             }
           }
         }
@@ -308,16 +351,33 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             
             // Set HTML content immediately (synchronously, no requestAnimationFrame)
             // Ensure container exists and is mounted before setting HTML
+            const animationStartTime = Date.now()
+            console.log('[ANIMATION-START]', {
+              participants: state.participants?.length || 0,
+              stopIndex: state.stopIndex,
+              containerExists: !!lineContainerRef.current,
+              timestamp: animationStartTime
+            })
+            
             if (lineContainerRef.current) {
               const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
+              console.log('[ANIMATION-START] Generated tape HTML:', {
+                hasHTML: !!tapeHTML,
+                htmlLength: tapeHTML?.length || 0
+              })
               if (tapeHTML) {
                 lineContainerRef.current.innerHTML = tapeHTML
+                console.log('[ANIMATION-START] HTML set to container')
+              } else {
+                console.error('[ANIMATION-START] No HTML generated!')
               }
+            } else {
+              console.error('[ANIMATION-START] Container not found!')
             }
             
             // Mark animation as running and record start time
             animationRunningRef.current = true
-            animationStartTimeRef.current = Date.now()
+            animationStartTimeRef.current = animationStartTime
             animationCompletedTimeRef.current = null // Reset completion time when starting new animation
             
             // Start animation immediately - use minimal delay to ensure DOM is ready
@@ -334,15 +394,26 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // This prevents race condition between animation completion and WAITING state
           const now = Date.now()
           const animationCompletedTime = animationCompletedTimeRef.current
-          if (animationCompletedTime && (now - animationCompletedTime) < 1000) {
+          const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
+          
+          console.log('[WAITING-HANDLER]', {
+            animationRunning: animationRunningRef.current,
+            animationCompletedTime: !!animationCompletedTime,
+            timeSinceCompletion,
+            participants: state.participants?.length || 0,
+            timestamp: now
+          })
+          
+          if (animationCompletedTime && timeSinceCompletion < 1000) {
             // Animation just completed (< 1 second ago), skip WAITING processing
             // Tape clearing is handled by animation callback
-            // Skip this state update to prevent race condition
+            console.log('[WAITING-HANDLER] BLOCKED - animation completed', timeSinceCompletion, 'ms ago')
             return // Skip this state update to prevent race condition
           }
           
           // If animation wasn't running (single participant refund), allow tape clearing
           if (!animationRunningRef.current && (!state.participants || state.participants.length === 0)) {
+            console.log('[WAITING-HANDLER] Clearing tape (no animation, no participants)')
             setUserBets([])
             setUserTickets(0)
             if (lineContainerRef.current) {
@@ -539,15 +610,37 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // Clear tape after animation completes (not based on arbitrary timeout)
         // This is the SINGLE SOURCE OF TRUTH for tape clearing
         // This ensures tape is cleared exactly when animation finishes
+        const animationEndTime = Date.now()
+        const animationDuration = animationEndTime - (animationStartTimeRef.current || animationEndTime)
+        console.log('[ANIMATION-COMPLETE] Animation finished, clearing tape in 500ms', {
+          animationDuration,
+          timestamp: animationEndTime
+        })
+        
         setTimeout(() => {
+          const clearTime = Date.now()
+          console.log('[ANIMATION-COMPLETE] Clearing tape now', {
+            containerExists: !!lineContainerRef.current,
+            timeSinceAnimationEnd: clearTime - animationEndTime,
+            timestamp: clearTime
+          })
+          
           if (lineContainerRef.current) {
             lineContainerRef.current.innerHTML = ''
+            console.log('[ANIMATION-COMPLETE] Tape cleared successfully')
+          } else {
+            console.error('[ANIMATION-COMPLETE] Container not found when clearing!')
           }
+          
           // Reset animation flag after animation fully completes
           animationRunningRef.current = false
           animationStartTimeRef.current = null
           // Record completion time for state machine guards
-          animationCompletedTimeRef.current = Date.now()
+          animationCompletedTimeRef.current = clearTime
+          console.log('[ANIMATION-COMPLETE] Animation lifecycle complete', {
+            completedTime: clearTime,
+            totalDuration: clearTime - (animationStartTimeRef.current || clearTime)
+          })
         }, 500) // Small delay to show blink animation
       })
     } else {
