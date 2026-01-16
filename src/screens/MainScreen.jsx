@@ -204,11 +204,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           'RESOLUTION': ['WAITING']
         }
         
-        // Synchronize phase update with winner data (atomic update)
-        // If transitioning to RESOLUTION, ensure winner data is present
-        if (newPhase === 'RESOLUTION' && state.winner) {
-          // Update phase atomically with winner data
-          console.log('[PHASE-TRANSITION] Updating to RESOLUTION with winner:', state.winner.userId)
+        // Handle RESOLUTION phase - update phase even if winner data is missing (it may arrive separately)
+        // This ensures phase updates on mobile where messages might arrive out of order
+        if (newPhase === 'RESOLUTION') {
+          // Update phase immediately when RESOLUTION arrives
+          // Winner data can be set separately when it arrives (handled below)
+          console.log('[PHASE-TRANSITION] Updating to RESOLUTION', {
+            hasWinner: !!state.winner,
+            winnerId: state.winner?.userId || null
+          })
           setRoomPhase(newPhase)
         } else if (newPhase === 'WAITING') {
           // For WAITING, check if animation just completed (state machine guard)
