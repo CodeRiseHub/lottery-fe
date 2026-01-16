@@ -68,19 +68,21 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     })
 
     // Generate tape items - repeat participants proportionally
-    // Use more items for smoother animation (like lottery-draft-fe)
+    // Use enough items to ensure smooth scrolling (like lottery-draft-fe has ~100+ items)
     const totalItems = 200
     for (let i = 0; i < totalItems; i++) {
-      // Map position to ticket range
+      // Map position to ticket range (all in bigint format)
       const position = (i / totalItems) * totalTickets
       
       // Find which participant this position belongs to
       const participant = participantRanges.find(p => position >= p.start && position < p.end)
       
-      if (!participant) continue
+      if (!participant) {
+        // If no participant found, skip this item
+        continue
+      }
       
-      // Mark stop position and middle item
-      const isStopPosition = stopIndex !== null && Math.abs(position - stopIndex) < (totalTickets / totalItems)
+      // Mark middle item (exactly at center for animation)
       const isMiddle = i === Math.floor(totalItems / 2)
       
       // Use participant's userId to determine avatar (placeholder)
@@ -88,9 +90,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       const avatars = [avatar1, avatar2, avatar3]
       const avatarUrl = avatars[avatarIndex]
       
-      // Create block with avatar placeholder
+      // Create block with avatar placeholder (exactly like lottery-draft-fe structure)
       items.push(
-        `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''} ${isStopPosition ? "data-stop='true'" : ''}>
+        `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''}>
           <img src="${avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%;" />
         </div>`
       )
@@ -210,13 +212,20 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           if (userHasJoined) {
             setIsJoining(false) // Reset joining state only for users who joined
           }
-          // Generate tape with stop index and start animation
+          // Generate tape with stop index and start animation (exactly like lottery-draft-fe)
           if (lineContainerRef.current && state.participants && state.stopIndex !== null) {
+            // Reset scroll first (like lottery-draft-fe)
+            if (typeof window.$ !== 'undefined') {
+              window.$('#lineContainer').scrollLeft(0)
+            }
+            
+            // Set HTML content
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
-            // Start animation after a small delay to ensure DOM is ready
+            
+            // Start animation after DOM is ready (like lottery-draft-fe lineAnimation function)
             setTimeout(() => {
               startSpinAnimation(state.stopIndex, state.spinDuration || 3000)
-            }, 100)
+            }, 50)
           }
         } else if (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') {
           // Reset game started state if we're back to waiting or countdown
@@ -367,12 +376,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   }
 
   const scrollToCenter = ($container, $element) => {
-    if (typeof window.$ === 'undefined') return
+    if (typeof window.$ === 'undefined') {
+      console.error('jQuery not available for scrollToCenter')
+      return
+    }
     
     const container = $container[0]
     const element = $element[0]
-    if (!container || !element) return
+    if (!container || !element) {
+      console.warn('scrollToCenter: container or element not found', { container, element })
+      return
+    }
 
+    // Calculate offset exactly like lottery-draft-fe
     const offset = element.offsetLeft - (container.clientWidth / 2) + (element.clientWidth / 2)
     $container.animate({ scrollLeft: offset }, 3000, "swing")
   }
@@ -383,22 +399,26 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       return
     }
 
-    const $lineContainer = window.$('#lineContainer')
-    if ($lineContainer.length) {
-      $lineContainer.scrollLeft(0)
-    }
-
-    // Use scrollToCenter to center the middle item (like lottery-draft-fe)
+    // Use scrollToCenter to center the middle item (exactly like lottery-draft-fe lineAnimation function)
     const $container = window.$('.noScrolQ')
     const $middleElement = window.$('#middleQ')
     
     if ($container.length && $middleElement.length) {
+      // Call scrollToCenter exactly as in lottery-draft-fe
       scrollToCenter($container, $middleElement)
       
-      // Add blink animation after animation completes (like lottery-draft-fe)
+      // Add blink animation after animation completes (like lottery-draft-fe - 3500ms total)
       setTimeout(() => {
         $middleElement.addClass('blinkWinX')
       }, duration || 3000)
+    } else {
+      console.error('Animation elements not found:', {
+        container: $container.length,
+        middleElement: $middleElement.length,
+        allNoScrolQ: window.$('.noScrolQ').length,
+        allMiddleQ: window.$('#middleQ').length,
+        lineContainer: window.$('#lineContainer').length
+      })
     }
   }
 

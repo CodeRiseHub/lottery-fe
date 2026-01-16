@@ -3249,7 +3249,7 @@ font {
     align-items: center;
     gap: 6px;
     padding: 4px 0;
-    overflow-x: auto;
+    /* overflow-x will be controlled by .noScrolQ class */
 
     border-radius: 20px;
     background: #141414;
@@ -4229,9 +4229,12 @@ font {
 
 /* ===== Lottery App Custom Styles ===== */
 
+/* Exactly like lottery-draft-fe - allows scrolling but hides scrollbar */
 .noScrolQ {
-  overflow: hidden;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .noScrolQ::-webkit-scrollbar {
