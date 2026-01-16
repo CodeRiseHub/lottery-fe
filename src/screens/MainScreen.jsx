@@ -150,6 +150,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     return () => clearInterval(checkAnimationTimeout)
   }, [])
   
+  // Reset isJoining when user is detected as already joined (e.g., after reconnection)
+  useEffect(() => {
+    if (currentUserId && userBets.length > 0) {
+      const userHasJoined = userBets.some(bet => bet.id === currentUserId)
+      if (userHasJoined && isJoining) {
+        console.log('[EFFECT] User already joined, resetting isJoining state')
+        setIsJoining(false)
+      }
+    }
+  }, [currentUserId, userBets, isJoining])
+
   // RoomPhase timeout - reset if stuck in SPINNING or RESOLUTION
   useEffect(() => {
     if (roomPhase === 'SPINNING') {
@@ -272,12 +283,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         
         // Update participants and calculate user's tickets
         if (state.participants && state.participants.length > 0) {
-          setUserBets(state.participants.map(p => ({
+          const bets = state.participants.map(p => ({
             id: p.userId,
             avatar: defaultAvatar,
             name: `User ${p.userId}`,
             tickets: p.tickets
-          })))
+          }))
+          setUserBets(bets)
           
           // Find current user's tickets
           // Tickets from backend are in bigint format, convert to ticket units for display
@@ -287,6 +299,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const currentUserTickets = currentUserTicketsBigint / 1000000
           setUserTickets(currentUserTickets)
           
+          // If user has joined (is in participants) but isJoining is still true, reset it
+          // This handles the case when app reopens and user was already joined
+          if (currentUserId && state.participants.some(p => p.userId === currentUserId) && isJoining) {
+            console.log('[STATE-UPDATE] User already joined, resetting isJoining state after reconnection')
+            setIsJoining(false)
+          }
+
+
           // Update tape with participants (but NOT during SPINNING - that's handled separately)
           // Only update tape for WAITING and COUNTDOWN phases
           // Set HTML synchronously when DOM is ready (no requestAnimationFrame needed)
@@ -350,6 +370,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // Check if current user has joined the round
         const userHasJoined = currentUserId && state.participants && 
           state.participants.some(p => p.userId === currentUserId)
+        
+        // If user has joined but isJoining is still true (e.g., after reconnection), reset it
+        // This ensures button shows "Joined" instead of "Joining..." when user reconnects
+        if (userHasJoined && isJoining) {
+          console.log('[STATE-UPDATE] User has joined, resetting isJoining state')
+          setIsJoining(false)
+        }
 
         // Handle spin - must be checked BEFORE other phases to start animation immediately
         if (state.phase === 'SPINNING') {
