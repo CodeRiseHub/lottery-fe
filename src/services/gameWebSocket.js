@@ -21,8 +21,9 @@ class GameWebSocketService {
    * Connects to WebSocket server with Bearer token authentication.
    */
   connect(roomNumber, onStateUpdate, onError, onConnectionStateChange) {
-    // Store connection state callback
+    // Store connection state callback and error handler
     this.connectionStateCallback = onConnectionStateChange
+    this.onErrorCallback = onError
     
     // Disconnect existing connection if any
     if (this.client) {
@@ -76,8 +77,8 @@ class GameWebSocketService {
         this.reconnectAttempts = 0
         this.updateConnectionState(true)
         
-        // Subscribe to room updates
-        this.subscribeToRoom(roomNumber, onStateUpdate)
+        // Subscribe to room updates and error queue
+        this.subscribeToRoom(roomNumber, onStateUpdate, onError)
       },
       onStompError: (frame) => {
         console.error('[WebSocket] STOMP error:', frame)
@@ -128,7 +129,7 @@ class GameWebSocketService {
   /**
    * Subscribes to room state updates.
    */
-  subscribeToRoom(roomNumber, onStateUpdate) {
+  subscribeToRoom(roomNumber, onStateUpdate, onError) {
     if (!this.client || !this.connected) {
       console.warn('[WebSocket] Cannot subscribe: not connected')
       return
@@ -157,15 +158,18 @@ class GameWebSocketService {
     this.subscriptions.set(`room-${roomNumber}`, subscription)
     console.log(`[WebSocket] Subscribed to room ${roomNumber}`)
 
-    // Also subscribe to error queue
+    // Also subscribe to error queue (user-specific)
     const errorSub = this.client.subscribe(
       `/user/queue/errors`,
       (message) => {
         try {
           const error = JSON.parse(message.body)
           console.error('[WebSocket] Error from server:', error)
+          const errorMsg = error.error || error.message || 'An error occurred'
+          onError?.(errorMsg)
         } catch (e) {
           console.error('[WebSocket] Error parsing error message:', e)
+          onError?.('An error occurred')
         }
       }
     )

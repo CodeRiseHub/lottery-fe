@@ -40,12 +40,27 @@ export default function MainScreen({ onNavigate }) {
 
   // Generate tape with avatars based on participants
   const generateTapeHTML = (participants, stopIndex) => {
-    if (!participants || participants.length === 0) {
-      return ''
+    // Always generate tape, even if no participants (show default avatars)
+    const totalTickets = participants && participants.length > 0 
+      ? participants.reduce((sum, p) => sum + p.tickets, 0) 
+      : 0
+    
+    // If no participants, generate default tape
+    if (!participants || participants.length === 0 || totalTickets === 0) {
+      const avatars = [avatar1, avatar2, avatar3]
+      const totalItems = 200
+      const items = []
+      for (let i = 0; i < totalItems; i++) {
+        const avatarIndex = i % 3
+        const isMiddle = i === Math.floor(totalItems / 2)
+        items.push(
+          `<div class='spin__game-item spin__game-item--avatar' ${isMiddle ? "id='middleQ'" : ''}>
+            <img src="${avatars[avatarIndex]}" alt="avatar" width="56" height="56" />
+          </div>`
+        )
+      }
+      return items.join('')
     }
-
-    const totalTickets = participants.reduce((sum, p) => sum + p.tickets, 0)
-    if (totalTickets === 0) return ''
 
     const totalItems = 200 // Total items in the tape
     const items = []
@@ -87,6 +102,13 @@ export default function MainScreen({ onNavigate }) {
     return items.join('')
   }
 
+  // Initialize spinner on mount
+  useEffect(() => {
+    if (lineContainerRef.current && !lineContainerRef.current.innerHTML) {
+      lineContainerRef.current.innerHTML = generateTapeHTML([], null)
+    }
+  }, [])
+
   // WebSocket connection and state updates
   useEffect(() => {
     const roomNumber = currentRoom.number
@@ -108,6 +130,16 @@ export default function MainScreen({ onNavigate }) {
             name: `User ${p.userId}`,
             tickets: p.tickets
           })))
+          
+          // Update spinner with participants
+          if (lineContainerRef.current) {
+            lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
+          }
+        } else {
+          // No participants, show default spinner
+          if (lineContainerRef.current) {
+            lineContainerRef.current.innerHTML = generateTapeHTML([], null)
+          }
         }
 
         // Handle countdown
@@ -127,6 +159,10 @@ export default function MainScreen({ onNavigate }) {
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
             startSpinAnimation(state.stopIndex, state.spinDuration || 5000)
           }
+        } else if (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') {
+          // Reset game started state if we're back to waiting or countdown
+          // (this means join might have failed or round reset)
+          setGameStarted(false)
         }
 
         // Handle winner
@@ -141,6 +177,8 @@ export default function MainScreen({ onNavigate }) {
         setErrorMessage(error || 'WebSocket connection error')
         setShowErrorModal(true)
         setWsConnected(false)
+        // Reset game state on error
+        setGameStarted(false)
       },
       (connected) => {
         // Connection state callback
@@ -281,10 +319,15 @@ export default function MainScreen({ onNavigate }) {
       return
     }
 
+    // Set loading state
+    setGameStarted(true)
+
     try {
       gameWebSocket.joinRound(currentRoom.number, currentBet)
-      setGameStarted(true)
+      // Don't reset gameStarted here - wait for server response
+      // If join fails, error handler will reset it
     } catch (error) {
+      setGameStarted(false) // Reset on immediate error
       setErrorMessage(error.message || 'Failed to join round')
       setShowErrorModal(true)
     }
