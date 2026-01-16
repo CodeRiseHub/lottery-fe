@@ -165,11 +165,12 @@ class GameWebSocketService {
         try {
           const error = JSON.parse(message.body)
           console.error('[WebSocket] Error from server:', error)
-          const errorMsg = error.error || error.message || 'An error occurred'
+          // Extract user-friendly error message
+          const errorMsg = error.error || error.message || 'An error occurred. Please try again.'
           onError?.(errorMsg)
         } catch (e) {
           console.error('[WebSocket] Error parsing error message:', e)
-          onError?.('An error occurred')
+          onError?.('An error occurred. Please try again.')
         }
       }
     )

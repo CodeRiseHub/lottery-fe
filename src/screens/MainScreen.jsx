@@ -568,11 +568,25 @@ export default function MainScreen({ onNavigate }) {
             }
           }}
         >
-          <div className="modal modal__account-spin">
+          <div className="modal modal__account-spin" onClick={(e) => e.stopPropagation()}>
             <p className="modal__account-spin-title" style={{ color: 'red' }}>
-              ERROR
+              Error
             </p>
             <p className="modal__account-spin-text">{errorMessage}</p>
+            <button
+              onClick={() => closeModal('errorModal')}
+              style={{
+                marginTop: '20px',
+                padding: '10px 20px',
+                backgroundColor: '#6cc5a1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }}
+            >
+              OK
+            </button>
           </div>
         </div>
       )}
