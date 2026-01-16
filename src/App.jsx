@@ -37,11 +37,9 @@ function App() {
       
       if (platform === 'android' || platform === 'ios') {
         sizebleS = true
-        webApp.requestFullscreen()
+        // Don't request fullscreen - let Telegram handle the viewport
         webApp.expand()
-        if (webApp.isFullscreenAvailable) {
-          webApp.requestFullscreen()
-        }
+        // Removed fullscreen requests to allow normal Telegram mini app view
       }
       
       setTg(webApp)

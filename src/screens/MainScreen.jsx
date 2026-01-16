@@ -3,6 +3,9 @@ import infoIcon from '../assets/images/tasks/info.png'
 import historyIcon from '../assets/images/tasks/history.png'
 import arrowDownIcon from '../assets/images/tasks/arrow-down.png'
 import defaultAvatar from '../assets/images/default.png'
+import avatar1 from '../assets/avatars/avatar1.svg'
+import avatar2 from '../assets/avatars/avatar2.svg'
+import avatar3 from '../assets/avatars/avatar3.svg'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
@@ -80,9 +83,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       const isStopPosition = stopIndex !== null && Math.abs(position - stopIndex) < (totalTickets / totalItems)
       const isMiddle = i === Math.floor(totalItems / 2)
       
-      // Create empty block (no avatars, no text - just empty div)
+      // Use participant's userId to determine avatar (placeholder)
+      const avatarIndex = participant.userId % 3
+      const avatars = [avatar1, avatar2, avatar3]
+      const avatarUrl = avatars[avatarIndex]
+      
+      // Create block with avatar placeholder
       items.push(
-        `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''} ${isStopPosition ? "data-stop='true'" : ''}></div>`
+        `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''} ${isStopPosition ? "data-stop='true'" : ''}>
+          <img src="${avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%;" />
+        </div>`
       )
     }
     
