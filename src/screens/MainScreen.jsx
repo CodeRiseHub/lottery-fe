@@ -811,24 +811,22 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
               width="36"
             />
             {/* Container is always mounted to prevent ref from becoming null during animation */}
+            {/* Hide container visually when showing waiting message or winner, but keep it mounted */}
             <div
               className="spin__game scroll-block noScrolQ"
               id="lineContainer"
               ref={lineContainerRef}
               style={{ 
-                opacity: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 0 : 1,
-                pointerEvents: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 'none' : 'auto'
+                visibility: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 'hidden' : 'visible',
+                height: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 0 : 'auto',
+                minHeight: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 0 : '110px',
+                overflow: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 'hidden' : 'auto'
               }}
             />
             
-            {/* "Waiting for users..." overlay */}
+            {/* "Waiting for users..." message - only show when no users and in WAITING phase */}
             {registeredUsers === 0 && roomPhase === 'WAITING' && (
               <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -836,21 +834,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                 color: 'white',
                 fontSize: '18px',
                 textAlign: 'center',
-                padding: '20px',
-                zIndex: 10
+                padding: '20px'
               }}>
                 Waiting for users...
               </div>
             )}
             
-            {/* Winner display overlay */}
+            {/* Winner display - only show when winner exists */}
             {winner && (
               <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
@@ -859,8 +851,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                 color: 'white',
                 padding: '20px',
                 textAlign: 'center',
-                zIndex: 10,
-                backgroundColor: 'rgba(0, 0, 0, 0.7)' // Semi-transparent background
+                backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background
+                borderRadius: '8px'
               }}>
                 <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
                   Winner: User {winner.userId}
