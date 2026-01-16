@@ -150,15 +150,28 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     return () => clearInterval(checkAnimationTimeout)
   }, [])
   
-  // RoomPhase timeout - reset if stuck in SPINNING for more than 8 seconds
+  // RoomPhase timeout - reset if stuck in SPINNING or RESOLUTION
   useEffect(() => {
     if (roomPhase === 'SPINNING') {
       const timeout = setTimeout(() => {
         // If still in SPINNING after 8 seconds, force transition to RESOLUTION
         // This handles cases where WebSocket message was missed
-        console.warn('RoomPhase stuck in SPINNING, forcing transition')
+        console.warn('RoomPhase stuck in SPINNING, forcing transition to RESOLUTION')
         setRoomPhase('RESOLUTION')
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
+      
+      return () => clearTimeout(timeout)
+    } else if (roomPhase === 'RESOLUTION') {
+      const timeout = setTimeout(() => {
+        // If still in RESOLUTION after 10 seconds, force transition to WAITING
+        // This handles cases where WAITING message was missed
+        console.warn('RoomPhase stuck in RESOLUTION, forcing transition to WAITING')
+        setRoomPhase('WAITING')
+        // Clear winner when forcing WAITING
+        setWinner(null)
+        // Reset animation completion time
+        animationCompletedTimeRef.current = null
+      }, 10000) // 10 seconds (6 seconds backend delay + 4 seconds buffer)
       
       return () => clearTimeout(timeout)
     }
@@ -215,28 +228,29 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           })
           setRoomPhase(newPhase)
         } else if (newPhase === 'WAITING') {
-          // For WAITING, check if animation just completed (state machine guard)
-          const now = Date.now()
-          const animationCompletedTime = animationCompletedTimeRef.current
-          const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
-          // If animation completed less than 1 second ago, delay WAITING processing
-          if (animationCompletedTime && timeSinceCompletion < 1000) {
-            // Don't update to WAITING yet - animation just completed
-            // This prevents race condition with tape clearing
-            console.log('[PHASE-TRANSITION] BLOCKED WAITING - animation completed', timeSinceCompletion, 'ms ago')
-            // Skip this state update but continue processing other state updates
-          } else {
-            console.log('[PHASE-TRANSITION] Allowing WAITING transition', {
-              timeSinceCompletion,
-              animationCompletedTime: !!animationCompletedTime
-            })
-            setRoomPhase(newPhase)
-          }
-        } else if (newPhase === 'WAITING' || (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase))) {
+          // For WAITING, always allow the transition
+          // The state machine guard was too aggressive and causing stuck states on mobile
+          // Tape clearing is handled by the animation callback, so we don't need to block WAITING
+          console.log('[PHASE-TRANSITION] Allowing WAITING transition', {
+            currentPhase,
+            animationCompletedTime: !!animationCompletedTimeRef.current,
+            timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null
+          })
+          setRoomPhase(newPhase)
+          // Reset animation completion time when moving to WAITING (new round starting)
+          animationCompletedTimeRef.current = null
+        } else if (currentPhase === newPhase) {
+          // Same phase - always allow (might be a refresh or duplicate message)
+          console.log('[PHASE-TRANSITION] Same phase, allowing:', newPhase)
+          setRoomPhase(newPhase)
+        } else if (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase)) {
+          // Valid transition according to state machine
+          console.log('[PHASE-TRANSITION] Valid transition:', currentPhase, '->', newPhase)
           setRoomPhase(newPhase)
         } else {
           // Invalid transition - log warning but allow it (might be due to missed messages)
-          console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase}`)
+          // This is important for mobile where messages might arrive out of order
+          console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase} - allowing anyway to prevent stuck state`)
           setRoomPhase(newPhase) // Still update to prevent stuck state
         }
         
@@ -453,14 +467,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           }
         }
 
-        // Handle winner
+        // Handle winner - only clear when actually moving to WAITING phase
+        // Don't clear winner just because phase is not RESOLUTION (might be transitioning)
         if (state.phase === 'RESOLUTION' && state.winner) {
           setWinner(state.winner)
           // Balance update will be received via WebSocket balance update message
           // No need to manually update here - WebSocket will send the updated balance
-        } else {
+        } else if (state.phase === 'WAITING') {
+          // Only clear winner when actually in WAITING phase (new round started)
           setWinner(null)
         }
+        // Don't clear winner for other phases (COUNTDOWN, SPINNING) - keep it visible during transition
       },
       (error) => {
         setErrorMessage(error || 'WebSocket connection error')
