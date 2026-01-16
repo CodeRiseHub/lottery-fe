@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+import { bootstrapSession } from './auth/authService'
+import { getSessionToken } from './auth/sessionManager'
+import { fetchCurrentUser } from './api'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import MainScreen from './screens/MainScreen'
@@ -20,6 +23,8 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState('main') // 'main' is the Game screen
   const [screenProps, setScreenProps] = useState({})
   const [balance, setBalance] = useState('0.000000')
+  const [authInitialized, setAuthInitialized] = useState(false)
+  const [userData, setUserData] = useState(null)
 
   useEffect(() => {
     // Initialize Telegram WebApp
@@ -73,6 +78,56 @@ function App() {
         }
       })
     }
+
+    // Initialize auth on app startup
+    async function initializeAuth() {
+      try {
+        // Check if we have a stored session token
+        const existingToken = getSessionToken()
+        console.debug("[App] Token check:", {
+          hasToken: !!existingToken,
+          tokenLength: existingToken?.length,
+          isTelegram: !!window.Telegram?.WebApp,
+          hasCloudStorage: !!window.Telegram?.WebApp?.CloudStorage,
+          cloudStorageType: typeof window.Telegram?.WebApp?.CloudStorage
+        })
+        
+        if (existingToken) {
+          // Validate the token by making a lightweight API call
+          console.debug("[App] Existing session token found, validating...")
+          try {
+            const user = await fetchCurrentUser()
+            // Token is valid, store user data and skip bootstrap
+            setUserData(user)
+            console.debug("[App] Session token validated successfully")
+            setAuthInitialized(true)
+            return
+          } catch (error) {
+            // Token is invalid or expired (401), clear it and bootstrap new one
+            console.debug("[App] Session token validation failed (401), clearing and re-authenticating:", error)
+            const { clearSessionToken } = await import('./auth/sessionManager')
+            clearSessionToken()
+            // Continue to bootstrap below
+          }
+        }
+
+        // No token exists or token is invalid, bootstrap a new session
+        console.debug("[App] No valid session token, bootstrapping...")
+        const result = await bootstrapSession()
+        if (result) {
+          console.debug("[App] Session bootstrapped successfully")
+        } else {
+          console.warn("[App] No session created (dev mode or no Telegram initData)")
+        }
+      } catch (error) {
+        console.error("[App] Failed to bootstrap session:", error)
+        // Continue anyway - user might be in dev mode without Telegram
+      } finally {
+        setAuthInitialized(true)
+      }
+    }
+
+    initializeAuth()
   }, [])
 
   const handleNavigate = (screen, props = {}) => {
@@ -91,9 +146,24 @@ function App() {
     setBalance(newBalance)
   }
 
+  if (!authInitialized) {
+    return (
+      <div className="bg">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh' 
+        }}>
+          <p>Initializing...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg">
-      <Header onNavigate={handleNavigate} balance={balance} onBalanceUpdate={handleBalanceUpdate} />
+      <Header onNavigate={handleNavigate} balance={balance} onBalanceUpdate={handleBalanceUpdate} userData={userData} />
       <main>
         {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} />}
         {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} />}

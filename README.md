@@ -42,3 +42,4 @@ The project is configured for Railway deployment using Docker:
 - Modal dialogs for game rules, errors, and account details
 - Telegram WebApp integration
 
+
