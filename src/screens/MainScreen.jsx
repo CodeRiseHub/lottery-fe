@@ -194,8 +194,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           }
         }
 
-        // Handle countdown
-        if (state.phase === 'COUNTDOWN' && state.countdownRemainingSeconds !== null) {
+        // Handle countdown - set for all users when phase is COUNTDOWN
+        if (state.phase === 'COUNTDOWN' && state.countdownRemainingSeconds !== null && state.countdownRemainingSeconds !== undefined) {
           setCountdownActive(true)
           setCountdownRemaining(state.countdownRemainingSeconds)
         } else {
@@ -203,15 +203,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           setCountdownRemaining(null)
         }
 
+        // Check if current user has joined the round
+        const userHasJoined = currentUserId && state.participants && 
+          state.participants.some(p => p.userId === currentUserId)
+
         // Handle spin - must be checked BEFORE other phases to start animation immediately
         if (state.phase === 'SPINNING') {
           setGameStarted(true)
-          // Only reset joining state if we're actually in the game (user has joined)
-          // Check if current user is in participants
-          const userHasJoined = currentUserId && state.participants && 
-            state.participants.some(p => p.userId === currentUserId)
+          // Reset joining state if user has joined (they're now in the spin)
           if (userHasJoined) {
-            setIsJoining(false) // Reset joining state only for users who joined
+            setIsJoining(false)
           }
           
           // Generate tape with stop index and start animation IMMEDIATELY (exactly like lottery-draft-fe)
@@ -229,21 +230,26 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
               startSpinAnimation(state.stopIndex, state.spinDuration || 5000)
             }, 10) // Very short delay to ensure DOM is ready
           }
-        } else if (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') {
-          // Reset game started state if we're back to waiting or countdown
+        } else if (state.phase === 'WAITING') {
+          // Reset all game states when back to WAITING
           setGameStarted(false)
-          // Only reset joining state if current user is NOT in participants
-          // (meaning they haven't joined yet, so their joining state should be false)
-          const userHasJoined = currentUserId && state.participants && 
-            state.participants.some(p => p.userId === currentUserId)
-          if (!userHasJoined && state.phase === 'WAITING') {
-            setIsJoining(false) // Reset if user hasn't joined and we're in WAITING phase
+          // Only reset joining state if user hasn't joined (they can join now)
+          if (!userHasJoined) {
+            setIsJoining(false)
           }
-          // Don't reset if user is joining during COUNTDOWN - let them complete the join
+          // If user has already joined, keep isJoining false (they're already in)
+        } else if (state.phase === 'COUNTDOWN') {
+          // During countdown, user can still join
+          setGameStarted(false)
+          // If user has joined, reset joining state (they're in the countdown)
+          if (userHasJoined) {
+            setIsJoining(false)
+          }
+          // If user hasn't joined yet, keep isJoining as is (they might be in the process of joining)
         } else if (state.phase === 'RESOLUTION') {
           // Reset game started state when resolution phase starts
           setGameStarted(false)
-          setIsJoining(false)
+          setIsJoining(false) // Always reset joining state in resolution
           
           // Don't clear tape immediately - let animation finish first
           // Only clear after animation completes (5000ms spin duration + buffer)
@@ -434,7 +440,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   }
 
   const handleJoin = () => {
-    if (gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining) {
+    // Don't allow joining if already joined (unless in WAITING phase where a new round can start)
+    const userHasJoined = currentUserId && userBets.some(bet => bet.id === currentUserId)
+    if (roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || (userHasJoined && roomPhase !== 'WAITING')) {
       return
     }
 
@@ -645,14 +653,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining}
+                    disabled={!wsConnected || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || (currentUserId && userBets.some(bet => bet.id === currentUserId) && roomPhase !== 'WAITING')}
                   >
                     <span className="education__button-text" id="textButton">
                       {!wsConnected ? 'Connecting...' : 
-                       isJoining ? 'Joining...' :
-                       countdownActive ? `Joining... ${Math.ceil(countdownRemaining || 0)}s` : 
                        roomPhase === 'SPINNING' ? 'Spinning...' : 
-                       roomPhase === 'RESOLUTION' ? 'Round Ended' : 'JOIN'}
+                       roomPhase === 'RESOLUTION' ? 'Round Ended' :
+                       isJoining ? 'Joining...' :
+                       countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
+                       (currentUserId && userBets.some(bet => bet.id === currentUserId)) ? 'Joined' : 'JOIN'}
                     </span>
                   </button>
           </div>
