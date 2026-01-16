@@ -8,6 +8,7 @@ import avatar2 from '../assets/avatars/avatar2.svg'
 import avatar3 from '../assets/avatars/avatar3.svg'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
+import { gameWebSocket } from '../services/gameWebSocket'
 import '../utils/modals'
 
 export default function MainScreen({ onNavigate }) {
@@ -17,54 +18,67 @@ export default function MainScreen({ onNavigate }) {
   const [showKeyboardModal, setShowKeyboardModal] = useState(false)
   const [countdownActive, setCountdownActive] = useState(false)
   const [countdownProgress, setCountdownProgress] = useState(0)
+  const [countdownRemaining, setCountdownRemaining] = useState(null)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const [registeredUsers, setRegisteredUsers] = useState(42)
-  const [totalTickets, setTotalTickets] = useState(125000)
-  const [currentRoom, setCurrentRoom] = useState({ number: 1, users: 15 })
+  const [registeredUsers, setRegisteredUsers] = useState(0)
+  const [totalTickets, setTotalTickets] = useState(0)
+  const [currentRoom, setCurrentRoom] = useState({ number: 1, users: 0 })
   const [rooms] = useState([
-    { number: 1, users: 15 },
-    { number: 2, users: 8 },
-    { number: 3, users: 19 }
+    { number: 1, users: 0 },
+    { number: 2, users: 0 },
+    { number: 3, users: 0 }
   ])
-  const [userBets, setUserBets] = useState([
-    { id: 1, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 1611 },
-    { id: 2, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 1611 },
-    { id: 3, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 51573 },
-    { id: 4, avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg', name: 'Lol 👑', tickets: 0 },
-  ])
+  const [userBets, setUserBets] = useState([])
+  const [roomPhase, setRoomPhase] = useState('WAITING')
+  const [winner, setWinner] = useState(null)
   const lineContainerRef = useRef(null)
-  const minBet = 100
+  const countdownIntervalRef = useRef(null)
+  const minBet = 1000
   const maxBet = 1000000
 
-  // Avatar distribution based on ticket percentages
-  // For demo: 40% avatar1, 35% avatar2, 25% avatar3
-  const avatars = [avatar1, avatar2, avatar3]
-  const avatarDistribution = [0.4, 0.35, 0.25] // Percentages for each avatar
+  // Generate tape with avatars based on participants
+  const generateTapeHTML = (participants, stopIndex) => {
+    if (!participants || participants.length === 0) {
+      return ''
+    }
 
-  // Generate tape with avatars
-  const generateTapeHTML = () => {
-    const totalItems = 100 // Total items in the tape
+    const totalTickets = participants.reduce((sum, p) => sum + p.tickets, 0)
+    if (totalTickets === 0) return ''
+
+    const totalItems = 200 // Total items in the tape
     const items = []
     
+    // Calculate cumulative positions for each participant
+    let cumulative = 0
+    const participantRanges = participants.map(p => {
+      const start = cumulative
+      cumulative += p.tickets
+      const end = cumulative
+      return { ...p, start, end }
+    })
+
+    // Generate tape items
     for (let i = 0; i < totalItems; i++) {
-      // Calculate which avatar to use based on distribution
-      const rand = Math.random()
-      let cumulative = 0
-      let avatarIndex = 0
+      // Map position to ticket range
+      const position = (i / totalItems) * totalTickets
       
-      for (let j = 0; j < avatarDistribution.length; j++) {
-        cumulative += avatarDistribution[j]
-        if (rand <= cumulative) {
-          avatarIndex = j
-          break
-        }
-      }
+      // Find which participant this position belongs to
+      const participant = participantRanges.find(p => position >= p.start && position < p.end)
       
+      // Use participant's userId to determine avatar (for now, just use userId % 3)
+      const avatarIndex = participant ? (participant.userId % 3) : 0
+      const avatars = [avatar1, avatar2, avatar3]
+      const avatarUrl = avatars[avatarIndex]
+      
+      // Mark stop position
+      const isStopPosition = stopIndex !== null && Math.abs(position - stopIndex) < (totalTickets / totalItems)
       const isMiddle = i === Math.floor(totalItems / 2)
+      
       items.push(
-        `<div class='spin__game-item spin__game-item--avatar' ${isMiddle ? "id='middleQ'" : ''}>
-          <img src="${avatars[avatarIndex]}" alt="avatar" width="56" height="56" />
+        `<div class='spin__game-item spin__game-item--avatar' ${isMiddle ? "id='middleQ'" : ''} ${isStopPosition ? "data-stop='true'" : ''}>
+          <img src="${avatarUrl}" alt="avatar" width="56" height="56" />
+          <span style="position: absolute; color: white; font-size: 10px;">${participant ? participant.userId : ''}</span>
         </div>`
       )
     }
@@ -72,12 +86,99 @@ export default function MainScreen({ onNavigate }) {
     return items.join('')
   }
 
+  // WebSocket connection and state updates
   useEffect(() => {
-    // Initialize line container with avatars
-    if (lineContainerRef.current) {
-      lineContainerRef.current.innerHTML = generateTapeHTML()
+    const roomNumber = currentRoom.number
+
+    // Connect to WebSocket
+    gameWebSocket.connect(
+      roomNumber,
+      (state) => {
+        // Update state from server
+        setRegisteredUsers(state.registeredPlayers || 0)
+        setTotalTickets(state.totalTickets || 0)
+        setRoomPhase(state.phase || 'WAITING')
+        
+        // Update participants
+        if (state.participants) {
+          setUserBets(state.participants.map(p => ({
+            id: p.userId,
+            avatar: defaultAvatar, // Placeholder
+            name: `User ${p.userId}`,
+            tickets: p.tickets
+          })))
+        }
+
+        // Handle countdown
+        if (state.phase === 'COUNTDOWN' && state.countdownRemainingSeconds !== null) {
+          setCountdownActive(true)
+          setCountdownRemaining(state.countdownRemainingSeconds)
+        } else {
+          setCountdownActive(false)
+          setCountdownRemaining(null)
+        }
+
+        // Handle spin
+        if (state.phase === 'SPINNING') {
+          setGameStarted(true)
+          // Generate tape with stop index
+          if (lineContainerRef.current && state.participants && state.stopIndex !== null) {
+            lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
+            startSpinAnimation(state.stopIndex, state.spinDuration || 5000)
+          }
+        }
+
+        // Handle winner
+        if (state.phase === 'RESOLUTION' && state.winner) {
+          setWinner(state.winner)
+          setGameStarted(false)
+        } else {
+          setWinner(null)
+        }
+      },
+      (error) => {
+        setErrorMessage(error || 'WebSocket connection error')
+        setShowErrorModal(true)
+      }
+    )
+
+    // Cleanup on unmount
+    return () => {
+      gameWebSocket.disconnect()
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current)
+      }
     }
-  }, [])
+  }, [currentRoom.number])
+
+  // Countdown timer
+  useEffect(() => {
+    if (countdownRemaining === null) {
+      setCountdownProgress(0)
+      return
+    }
+
+    const totalSeconds = 30
+    const updateInterval = 100 // Update every 100ms
+
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdownRemaining(prev => {
+        if (prev === null || prev <= 0) {
+          clearInterval(countdownIntervalRef.current)
+          return 0
+        }
+        const newRemaining = prev - 0.1
+        setCountdownProgress(((totalSeconds - newRemaining) / totalSeconds) * 100)
+        return newRemaining
+      })
+    }, updateInterval)
+
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current)
+      }
+    }
+  }, [countdownRemaining])
 
   const changeBet = (newBet) => {
     let bet = parseInt(newBet, 10)
@@ -131,7 +232,7 @@ export default function MainScreen({ onNavigate }) {
     $container.animate({ scrollLeft: offset }, 3000, "swing")
   }
 
-  const startSpin = () => {
+  const startSpinAnimation = (stopIndex, duration) => {
     if (typeof window.$ === 'undefined') {
       console.error('jQuery not loaded')
       return
@@ -140,75 +241,46 @@ export default function MainScreen({ onNavigate }) {
     const $lineContainer = window.$('#lineContainer')
     if ($lineContainer.length) {
       $lineContainer.scrollLeft(0)
-      // Regenerate tape with new distribution
-      $lineContainer.html(generateTapeHTML())
     }
 
-    // Animate to center using jQuery
+    // Calculate scroll position based on stop index
+    // This is a simplified calculation - you may need to adjust based on your tape structure
+    const totalTickets = userBets.reduce((sum, bet) => sum + bet.tickets, 0)
+    if (totalTickets === 0) return
+
+    const scrollPosition = (stopIndex / totalTickets) * ($lineContainer[0]?.scrollWidth || 0)
+
+    // Animate to stop position
     const $container = window.$('.noScrolQ')
-    const $middleElement = window.$('#middleQ')
-    if ($container.length && $middleElement.length) {
-      scrollToCenter($container, $middleElement)
+    if ($container.length) {
+      $container.animate({ scrollLeft: scrollPosition }, duration || 5000, 'swing', () => {
+        // Add blink animation when animation completes
+        const $stopElement = window.$('[data-stop="true"]')
+        if ($stopElement.length) {
+          $stopElement.addClass('blinkWinX')
+        }
+      })
     }
-
-    setTimeout(() => {
-      // Add blink animation
-      const $middle = window.$('#middleQ')
-      if ($middle.length) {
-        $middle.addClass('blinkWinX')
-      }
-
-      // Simulate adding user bet
-      const newBet = {
-        id: Date.now(),
-        avatar: 'https://t.me/i/userpic/320/ymBQlQnwMhxBHvDhcUEuudwlXbCg06cWpn4vOPBQt9Gig4YXvjD1s3hyOcqtH0Vq.svg',
-        name: 'You 👑',
-        tickets: currentBet
-      }
-      setUserBets(prev => [newBet, ...prev.slice(0, 14)])
-      setTotalTickets(prev => prev + currentBet)
-      setRegisteredUsers(prev => prev + 1)
-
-      setGameStarted(false)
-    }, 3500)
   }
 
-  useEffect(() => {
-    if (!countdownActive) {
-      setCountdownProgress(0)
+  const handleJoin = () => {
+    if (gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION') {
       return
     }
 
-    const duration = 5000 // 5 seconds
-    const interval = 16 // ~60fps
-    const increment = 100 / (duration / interval)
-    
-    const timer = setInterval(() => {
-      setCountdownProgress(prev => {
-        const newProgress = prev + increment
-        if (newProgress >= 100) {
-          clearInterval(timer)
-          setCountdownActive(false)
-          setCountdownProgress(0)
-          // Start spin after countdown completes
-          setTimeout(() => {
-            startSpin()
-          }, 50)
-          return 100
-        }
-        return newProgress
-      })
-    }, interval)
+    if (currentBet < minBet || currentBet > maxBet) {
+      setErrorMessage(`Bet must be between ${minBet} and ${maxBet}`)
+      setShowErrorModal(true)
+      return
+    }
 
-    return () => clearInterval(timer)
-  }, [countdownActive])
-
-  const handleJoin = () => {
-    if (gameStarted || countdownActive) return
-    
-    setGameStarted(true)
-    setCountdownActive(true)
-    setCountdownProgress(0)
+    try {
+      gameWebSocket.joinRound(currentRoom.number, currentBet)
+      setGameStarted(true)
+    } catch (error) {
+      setErrorMessage(error.message || 'Failed to join round')
+      setShowErrorModal(true)
+    }
   }
 
   const openModal = (modalName) => {
@@ -250,8 +322,10 @@ export default function MainScreen({ onNavigate }) {
   }
 
   const handleRoomChange = (room) => {
+    // Disconnect from current room
+    gameWebSocket.disconnect()
     setCurrentRoom(room)
-    // TODO: Load room data from API
+    // WebSocket will reconnect in useEffect
   }
 
   return (
@@ -358,10 +432,13 @@ export default function MainScreen({ onNavigate }) {
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={gameStarted || countdownActive}
+                    disabled={gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || !gameWebSocket.isConnected()}
                   >
                     <span className="education__button-text" id="textButton">
-                      {countdownActive ? 'Joining...' : gameStarted ? 'Spinning...' : 'JOIN'}
+                      {!gameWebSocket.isConnected() ? 'Connecting...' : 
+                       countdownActive ? `Joining... ${Math.ceil(countdownRemaining || 0)}s` : 
+                       gameStarted || roomPhase === 'SPINNING' ? 'Spinning...' : 
+                       roomPhase === 'RESOLUTION' ? 'Round Ended' : 'JOIN'}
                     </span>
                   </button>
           </div>

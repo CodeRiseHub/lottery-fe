@@ -11,9 +11,11 @@
     "start": "vite preview --host 0.0.0.0 --port ${PORT:-5173}"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.2.1",
+    "jquery": "^3.6.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "jquery": "^3.6.0",
+    "sockjs-client": "^1.6.1",
     "swiper": "^11.0.0"
   },
   "devDependencies": {
@@ -28,4 +30,3 @@
     "vite": "^7.2.4"
   }
 }
-
