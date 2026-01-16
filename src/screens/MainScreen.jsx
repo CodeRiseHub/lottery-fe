@@ -262,33 +262,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           }, 5500) // Wait for animation to complete (5000ms) + buffer
         }
 
-        // Handle winner and update balance
+        // Handle winner
         if (state.phase === 'RESOLUTION' && state.winner) {
           setWinner(state.winner)
-          
-          // Update balance if current user won
-          if (state.winner.userId === currentUserId && state.winner.payout) {
-            // Winner payout is already in bigint format (database format)
-            const newBalance = userBalance + state.winner.payout
-            setUserBalance(newBalance)
-            // Update header balance immediately
-            if (onBalanceUpdate) {
-              onBalanceUpdate(formatBalance(newBalance))
-            }
-            // Also fetch updated balance from server to ensure accuracy (async, won't block UI update)
-            setTimeout(() => {
-              fetchCurrentUser().then(user => {
-                if (user && user.balanceA !== undefined) {
-                  setUserBalance(user.balanceA)
-                  if (onBalanceUpdate) {
-                    onBalanceUpdate(formatBalance(user.balanceA))
-                  }
-                }
-              }).catch(err => {
-                console.error('Failed to refresh balance after win:', err)
-              })
-            }, 500) // Small delay to let server process the win
-          }
+          // Balance update will be received via WebSocket balance update message
+          // No need to manually update here - WebSocket will send the updated balance
         } else {
           setWinner(null)
         }
@@ -308,6 +286,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // Connection state callback
         setWsConnected(connected)
         console.log('[MainScreen] WebSocket connection state:', connected)
+      },
+      (balanceBigint) => {
+        // Balance update callback from WebSocket
+        if (balanceBigint !== null && balanceBigint !== undefined) {
+          setUserBalance(balanceBigint)
+          if (onBalanceUpdate) {
+            onBalanceUpdate(formatBalance(balanceBigint))
+          }
+          console.debug('[MainScreen] Balance updated from WebSocket:', balanceBigint)
+        }
       }
     )
 

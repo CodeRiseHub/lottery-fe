@@ -42,7 +42,9 @@ export default function Footer({ currentScreen, onNavigate }) {
         <nav className="footer__nav">
           <ul className="footer__list">
             {navItems.map((item) => {
-              const isActive = currentScreen === item.id || (item.id === 'game' && currentScreen === 'main')
+              const isActive = currentScreen === item.id || 
+                               (item.id === 'game' && currentScreen === 'main') ||
+                               (item.id === 'earn' && currentScreen === 'referral')
               return (
                 <li key={item.id} className="footer__item">
                   <span className={isActive ? 'footer__link-border' : ''}>

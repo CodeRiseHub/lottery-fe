@@ -21,10 +21,11 @@ class GameWebSocketService {
   /**
    * Connects to WebSocket server with Bearer token authentication.
    */
-  connect(roomNumber, onStateUpdate, onError, onConnectionStateChange) {
+  connect(roomNumber, onStateUpdate, onError, onConnectionStateChange, onBalanceUpdate) {
     // Store connection state callback and error handler
     this.connectionStateCallback = onConnectionStateChange
     this.onErrorCallback = onError
+    this.onBalanceUpdateCallback = onBalanceUpdate
     
     // Disconnect existing connection if any
     if (this.client) {
@@ -180,6 +181,24 @@ class GameWebSocketService {
       }
     )
     this.subscriptions.set('errors', errorSub)
+    
+    // Subscribe to balance updates (user-specific)
+    const balanceSub = this.client.subscribe(
+      `/user/queue/balance`,
+      (message) => {
+        try {
+          const balanceUpdate = JSON.parse(message.body)
+          console.debug('[WebSocket] Balance update received:', balanceUpdate)
+          // Notify callback if provided
+          if (this.onBalanceUpdateCallback) {
+            this.onBalanceUpdateCallback(balanceUpdate.balanceA)
+          }
+        } catch (e) {
+          console.error('[WebSocket] Error parsing balance update:', e)
+        }
+      }
+    )
+    this.subscriptions.set('balance', balanceSub)
     
     // Store error callback for later use
     this.onErrorCallback = onError
