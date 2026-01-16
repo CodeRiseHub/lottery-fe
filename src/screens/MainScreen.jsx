@@ -434,11 +434,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in resolution
           
-          // Don't clear tape here - it will be cleared by animation completion callback
-          // The animation callback in startSpinAnimation handles tape clearing
-          // This ensures tape is cleared exactly when animation finishes, not based on arbitrary timeout
-          // If animation wasn't running (single participant refund), allow tape clearing
-          if (!animationRunningRef.current && lineContainerRef.current) {
+          // Clear tape synchronously when RESOLUTION arrives if animation is still running
+          // This ensures tape is cleared before winner overlay is shown
+          // The animation callback will also try to clear, but this ensures it happens immediately
+          if (animationRunningRef.current && lineContainerRef.current) {
+            console.log('[RESOLUTION] Clearing tape synchronously (animation still running)')
+            lineContainerRef.current.innerHTML = ''
+            // Don't reset animationRunningRef here - let the callback do it
+            // This prevents the callback from trying to clear a non-existent container
+          } else if (!animationRunningRef.current && lineContainerRef.current) {
+            // Animation wasn't running (single participant refund), clear immediately
+            console.log('[RESOLUTION] Clearing tape (no animation)')
             lineContainerRef.current.innerHTML = ''
           }
         }
@@ -626,10 +632,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           })
           
           if (lineContainerRef.current) {
-            lineContainerRef.current.innerHTML = ''
-            console.log('[ANIMATION-COMPLETE] Tape cleared successfully')
+            // Check if tape is already cleared (might have been cleared by RESOLUTION handler)
+            const alreadyCleared = lineContainerRef.current.innerHTML === ''
+            if (!alreadyCleared) {
+              lineContainerRef.current.innerHTML = ''
+              console.log('[ANIMATION-COMPLETE] Tape cleared successfully')
+            } else {
+              console.log('[ANIMATION-COMPLETE] Tape already cleared (by RESOLUTION handler)')
+            }
           } else {
-            console.error('[ANIMATION-COMPLETE] Container not found when clearing!')
+            console.warn('[ANIMATION-COMPLETE] Container not found when clearing (may have been unmounted)')
           }
           
           // Reset animation flag after animation fully completes
@@ -791,15 +803,32 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             </div>
           </div>
 
-          <div className="spin__game-container">
+          <div className="spin__game-container" style={{ position: 'relative' }}>
             <img
               className="spin__arrow"
               src={arrowDownIcon}
               alt="arrow"
               width="36"
             />
-            {registeredUsers === 0 && roomPhase === 'WAITING' ? (
+            {/* Container is always mounted to prevent ref from becoming null during animation */}
+            <div
+              className="spin__game scroll-block noScrolQ"
+              id="lineContainer"
+              ref={lineContainerRef}
+              style={{ 
+                opacity: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 0 : 1,
+                pointerEvents: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 'none' : 'auto'
+              }}
+            />
+            
+            {/* "Waiting for users..." overlay */}
+            {registeredUsers === 0 && roomPhase === 'WAITING' && (
               <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -807,12 +836,21 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                 color: 'white',
                 fontSize: '18px',
                 textAlign: 'center',
-                padding: '20px'
+                padding: '20px',
+                zIndex: 10
               }}>
                 Waiting for users...
               </div>
-            ) : winner ? (
+            )}
+            
+            {/* Winner display overlay */}
+            {winner && (
               <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
@@ -820,7 +858,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                 minHeight: '110px',
                 color: 'white',
                 padding: '20px',
-                textAlign: 'center'
+                textAlign: 'center',
+                zIndex: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0.7)' // Semi-transparent background
               }}>
                 <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
                   Winner: User {winner.userId}
@@ -835,12 +875,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                   Chance: {totalTickets > 0 ? (((winner.tickets / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
                 </div>
               </div>
-            ) : (
-              <div
-                className="spin__game scroll-block noScrolQ"
-                id="lineContainer"
-                ref={lineContainerRef}
-              />
             )}
           </div>
 
