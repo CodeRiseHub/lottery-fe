@@ -180,8 +180,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const currentUserTickets = currentUserTicketsBigint / 1000000
           setUserTickets(currentUserTickets)
           
-          // Update tape with participants (generate tape for all phases except RESOLUTION)
-          if (state.phase !== 'RESOLUTION' && lineContainerRef.current) {
+          // Update tape with participants (but NOT during SPINNING - that's handled separately)
+          // Only update tape for WAITING and COUNTDOWN phases
+          if ((state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
           }
         } else {
@@ -202,7 +203,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           setCountdownRemaining(null)
         }
 
-        // Handle spin
+        // Handle spin - must be checked BEFORE other phases to start animation immediately
         if (state.phase === 'SPINNING') {
           setGameStarted(true)
           // Only reset joining state if we're actually in the game (user has joined)
@@ -212,20 +213,21 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           if (userHasJoined) {
             setIsJoining(false) // Reset joining state only for users who joined
           }
-          // Generate tape with stop index and start animation (exactly like lottery-draft-fe)
-          if (lineContainerRef.current && state.participants && state.stopIndex !== null) {
+          
+          // Generate tape with stop index and start animation IMMEDIATELY (exactly like lottery-draft-fe)
+          if (lineContainerRef.current && state.participants && state.participants.length > 0) {
             // Reset scroll first (like lottery-draft-fe)
             if (typeof window.$ !== 'undefined') {
               window.$('#lineContainer').scrollLeft(0)
             }
             
-            // Set HTML content
+            // Set HTML content immediately
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
             
-            // Start animation after DOM is ready (like lottery-draft-fe lineAnimation function)
+            // Start animation immediately - use minimal delay to ensure DOM is ready
             setTimeout(() => {
-              startSpinAnimation(state.stopIndex, state.spinDuration || 3000)
-            }, 50)
+              startSpinAnimation(state.stopIndex, state.spinDuration || 5000)
+            }, 10) // Very short delay to ensure DOM is ready
           }
         } else if (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') {
           // Reset game started state if we're back to waiting or countdown
@@ -242,6 +244,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // Reset game started state when resolution phase starts
           setGameStarted(false)
           setIsJoining(false)
+          
+          // Don't clear tape immediately - let animation finish first
+          // Only clear after animation completes (5000ms spin duration + buffer)
+          setTimeout(() => {
+            if (lineContainerRef.current && state.winner) {
+              // Clear tape to show winner info
+              lineContainerRef.current.innerHTML = ''
+            }
+          }, 5500) // Wait for animation to complete (5000ms) + buffer
         }
 
         // Handle winner and update balance
@@ -253,25 +264,23 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             // Winner payout is already in bigint format (database format)
             const newBalance = userBalance + state.winner.payout
             setUserBalance(newBalance)
+            // Update header balance immediately
             if (onBalanceUpdate) {
               onBalanceUpdate(formatBalance(newBalance))
             }
-            // Also fetch updated balance from server to ensure accuracy
-            fetchCurrentUser().then(user => {
-              if (user && user.balanceA !== undefined) {
-                setUserBalance(user.balanceA)
-                if (onBalanceUpdate) {
-                  onBalanceUpdate(formatBalance(user.balanceA))
+            // Also fetch updated balance from server to ensure accuracy (async, won't block UI update)
+            setTimeout(() => {
+              fetchCurrentUser().then(user => {
+                if (user && user.balanceA !== undefined) {
+                  setUserBalance(user.balanceA)
+                  if (onBalanceUpdate) {
+                    onBalanceUpdate(formatBalance(user.balanceA))
+                  }
                 }
-              }
-            }).catch(err => {
-              console.error('Failed to refresh balance after win:', err)
-            })
-          }
-          
-          // Clear spinner to show winner
-          if (lineContainerRef.current) {
-            lineContainerRef.current.innerHTML = ''
+              }).catch(err => {
+                console.error('Failed to refresh balance after win:', err)
+              })
+            }, 500) // Small delay to let server process the win
           }
         } else {
           setWinner(null)
@@ -407,10 +416,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       // Call scrollToCenter exactly as in lottery-draft-fe
       scrollToCenter($container, $middleElement)
       
-      // Add blink animation after animation completes (like lottery-draft-fe - 3500ms total)
+      // Add blink animation after animation completes (like lottery-draft-fe)
+      // Use the actual duration from backend (5000ms) or default to 3000ms
+      const animationDuration = duration || 3000
       setTimeout(() => {
         $middleElement.addClass('blinkWinX')
-      }, duration || 3000)
+      }, animationDuration)
     } else {
       console.error('Animation elements not found:', {
         container: $container.length,
