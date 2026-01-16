@@ -9,9 +9,11 @@ import avatar3 from '../assets/avatars/avatar3.svg'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
+import { fetchCurrentUser } from '../api'
+import { formatBalance, balanceToBigint } from '../utils/balanceFormatter'
 import '../utils/modals'
 
-export default function MainScreen({ onNavigate }) {
+export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const [currentBet, setCurrentBet] = useState(1000)
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
@@ -33,36 +35,27 @@ export default function MainScreen({ onNavigate }) {
   const [roomPhase, setRoomPhase] = useState('WAITING')
   const [winner, setWinner] = useState(null)
   const [wsConnected, setWsConnected] = useState(false)
+  const [userBalance, setUserBalance] = useState(0) // Balance in bigint format
+  const [userTickets, setUserTickets] = useState(0) // User's tickets in current round
+  const [isJoining, setIsJoining] = useState(false) // Track if user is attempting to join
+  const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
   const minBet = 1000
   const maxBet = 1000000
 
-  // Generate tape with avatars based on participants
+  // Generate tape with avatars based on participants - only show actual participants
   const generateTapeHTML = (participants, stopIndex) => {
-    // Always generate tape, even if no participants (show default avatars)
-    const totalTickets = participants && participants.length > 0 
-      ? participants.reduce((sum, p) => sum + p.tickets, 0) 
-      : 0
-    
-    // If no participants, generate default tape
-    if (!participants || participants.length === 0 || totalTickets === 0) {
-      const avatars = [avatar1, avatar2, avatar3]
-      const totalItems = 200
-      const items = []
-      for (let i = 0; i < totalItems; i++) {
-        const avatarIndex = i % 3
-        const isMiddle = i === Math.floor(totalItems / 2)
-        items.push(
-          `<div class='spin__game-item spin__game-item--avatar' ${isMiddle ? "id='middleQ'" : ''}>
-            <img src="${avatars[avatarIndex]}" alt="avatar" width="56" height="56" />
-          </div>`
-        )
-      }
-      return items.join('')
+    if (!participants || participants.length === 0) {
+      return '' // Return empty - will show "Waiting for users..." message
     }
 
-    const totalItems = 200 // Total items in the tape
+    const totalTickets = participants.reduce((sum, p) => sum + p.tickets, 0)
+    if (totalTickets === 0) {
+      return ''
+    }
+
+    const avatars = [avatar1, avatar2, avatar3]
     const items = []
     
     // Calculate cumulative positions for each participant
@@ -74,7 +67,8 @@ export default function MainScreen({ onNavigate }) {
       return { ...p, start, end }
     })
 
-    // Generate tape items
+    // Generate tape items - repeat participants proportionally
+    const totalItems = 200
     for (let i = 0; i < totalItems; i++) {
       // Map position to ticket range
       const position = (i / totalItems) * totalTickets
@@ -82,9 +76,10 @@ export default function MainScreen({ onNavigate }) {
       // Find which participant this position belongs to
       const participant = participantRanges.find(p => position >= p.start && position < p.end)
       
-      // Use participant's userId to determine avatar (for now, just use userId % 3)
-      const avatarIndex = participant ? (participant.userId % 3) : 0
-      const avatars = [avatar1, avatar2, avatar3]
+      if (!participant) continue
+      
+      // Use participant's userId to determine avatar
+      const avatarIndex = participant.userId % 3
       const avatarUrl = avatars[avatarIndex]
       
       // Mark stop position
@@ -94,7 +89,7 @@ export default function MainScreen({ onNavigate }) {
       items.push(
         `<div class='spin__game-item spin__game-item--avatar' ${isMiddle ? "id='middleQ'" : ''} ${isStopPosition ? "data-stop='true'" : ''}>
           <img src="${avatarUrl}" alt="avatar" width="56" height="56" />
-          <span style="position: absolute; color: white; font-size: 10px;">${participant ? participant.userId : ''}</span>
+          <span style="position: absolute; color: white; font-size: 10px; bottom: 2px; left: 50%; transform: translateX(-50%);">${participant.userId}</span>
         </div>`
       )
     }
@@ -102,12 +97,33 @@ export default function MainScreen({ onNavigate }) {
     return items.join('')
   }
 
-  // Initialize spinner on mount
+  // Calculate user's win chance percentage
+  const calculateWinChance = () => {
+    if (totalTickets === 0 || userTickets === 0) return 0
+    return ((userTickets / totalTickets) * 100).toFixed(2)
+  }
+
+  // Fetch user balance and ID on mount
   useEffect(() => {
-    if (lineContainerRef.current && !lineContainerRef.current.innerHTML) {
-      lineContainerRef.current.innerHTML = generateTapeHTML([], null)
+    async function fetchUserData() {
+      try {
+        const user = await fetchCurrentUser()
+        if (user) {
+          if (user.balanceA !== undefined) {
+            setUserBalance(user.balanceA)
+            if (onBalanceUpdate) {
+              onBalanceUpdate(formatBalance(user.balanceA))
+            }
+          }
+          // Store user ID if available (we'll need to add this to UserDto)
+          // For now, we'll get it from the participants list
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error)
+      }
     }
-  }, [])
+    fetchUserData()
+  }, [onBalanceUpdate])
 
   // WebSocket connection and state updates
   useEffect(() => {
@@ -122,23 +138,34 @@ export default function MainScreen({ onNavigate }) {
         setTotalTickets(state.totalTickets || 0)
         setRoomPhase(state.phase || 'WAITING')
         
-        // Update participants
-        if (state.participants) {
+        // Update participants and calculate user's tickets
+        if (state.participants && state.participants.length > 0) {
           setUserBets(state.participants.map(p => ({
             id: p.userId,
-            avatar: defaultAvatar, // Placeholder
+            avatar: defaultAvatar,
             name: `User ${p.userId}`,
             tickets: p.tickets
           })))
           
-          // Update spinner with participants
-          if (lineContainerRef.current) {
+          // Find current user's tickets
+          // We'll identify the user by checking which participant matches our balance deduction
+          // For now, we'll use the first participant's tickets if we don't have userId
+          // TODO: Get actual current user ID from backend
+          const currentUserTickets = currentUserId 
+            ? state.participants.find(p => p.userId === currentUserId)?.tickets || 0
+            : state.participants[0]?.tickets || 0
+          setUserTickets(currentUserTickets)
+          
+          // Update spinner with participants only if phase is not RESOLUTION
+          if (state.phase !== 'RESOLUTION' && lineContainerRef.current) {
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
           }
         } else {
-          // No participants, show default spinner
-          if (lineContainerRef.current) {
-            lineContainerRef.current.innerHTML = generateTapeHTML([], null)
+          setUserBets([])
+          setUserTickets(0)
+          // Clear spinner when no participants
+          if (lineContainerRef.current && state.phase !== 'RESOLUTION') {
+            lineContainerRef.current.innerHTML = ''
           }
         }
 
@@ -154,6 +181,7 @@ export default function MainScreen({ onNavigate }) {
         // Handle spin
         if (state.phase === 'SPINNING') {
           setGameStarted(true)
+          setIsJoining(false) // Reset joining state
           // Generate tape with stop index
           if (lineContainerRef.current && state.participants && state.stopIndex !== null) {
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
@@ -161,14 +189,28 @@ export default function MainScreen({ onNavigate }) {
           }
         } else if (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') {
           // Reset game started state if we're back to waiting or countdown
-          // (this means join might have failed or round reset)
           setGameStarted(false)
+          setIsJoining(false)
         }
 
-        // Handle winner
+        // Handle winner and update balance
         if (state.phase === 'RESOLUTION' && state.winner) {
           setWinner(state.winner)
           setGameStarted(false)
+          setIsJoining(false)
+          
+          // Update balance if user won
+          if (state.winner.payout && onBalanceUpdate) {
+            // Winner payout is already in bigint format
+            const newBalance = userBalance + state.winner.payout
+            setUserBalance(newBalance)
+            onBalanceUpdate(formatBalance(newBalance))
+          }
+          
+          // Clear spinner to show winner
+          if (lineContainerRef.current) {
+            lineContainerRef.current.innerHTML = ''
+          }
         } else {
           setWinner(null)
         }
@@ -179,6 +221,7 @@ export default function MainScreen({ onNavigate }) {
         setWsConnected(false)
         // Reset game state on error
         setGameStarted(false)
+        setIsJoining(false)
       },
       (connected) => {
         // Connection state callback
@@ -235,10 +278,11 @@ export default function MainScreen({ onNavigate }) {
   const handleBetChange = (action) => {
     if (action === 'min') changeBet(minBet)
     else if (action === 'max') {
-      // TODO: Get actual balance from API
-      const balance = 100000
-      const max = balance - 1000 > maxBet ? maxBet : balance - 1000
-      changeBet(max)
+      // Use actual balance
+      const balanceDisplay = formatBalance(userBalance)
+      const balanceValue = parseFloat(balanceDisplay) * 1000000 // Convert to bigint equivalent
+      const max = Math.min(balanceValue - 1000, maxBet)
+      changeBet(Math.max(minBet, max))
     }
   }
 
@@ -309,7 +353,7 @@ export default function MainScreen({ onNavigate }) {
   }
 
   const handleJoin = () => {
-    if (gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION') {
+    if (gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining) {
       return
     }
 
@@ -319,15 +363,31 @@ export default function MainScreen({ onNavigate }) {
       return
     }
 
-    // Set loading state
-    setGameStarted(true)
+    // Bet amount is already in the correct format (e.g., 1000 = 1000 tickets)
+    // Backend expects bigint format, so we multiply by 1,000,000 to convert to 6 decimal places
+    const betBigint = currentBet * 1000000
+    
+    // Check balance
+    if (userBalance < betBigint) {
+      setErrorMessage('Insufficient balance')
+      setShowErrorModal(true)
+      return
+    }
+
+    // Set joining state
+    setIsJoining(true)
 
     try {
-      gameWebSocket.joinRound(currentRoom.number, currentBet)
-      // Don't reset gameStarted here - wait for server response
-      // If join fails, error handler will reset it
+      gameWebSocket.joinRound(currentRoom.number, betBigint)
+      
+      // Update balance immediately (will be confirmed by server)
+      const newBalance = userBalance - betBigint
+      setUserBalance(newBalance)
+      if (onBalanceUpdate) {
+        onBalanceUpdate(formatBalance(newBalance))
+      }
     } catch (error) {
-      setGameStarted(false) // Reset on immediate error
+      setIsJoining(false) // Reset on immediate error
       setErrorMessage(error.message || 'Failed to join round')
       setShowErrorModal(true)
     }
@@ -407,6 +467,12 @@ export default function MainScreen({ onNavigate }) {
               <span className="lottery-stats__label">Registered:</span>
               <span className="lottery-stats__value">{registeredUsers} 👤</span>
             </div>
+            {userTickets > 0 && totalTickets > 0 && (
+              <div className="lottery-stats__item">
+                <span className="lottery-stats__label">Your Chance:</span>
+                <span className="lottery-stats__value">{calculateWinChance()}%</span>
+              </div>
+            )}
             <div className="lottery-stats__item">
               <span className="lottery-stats__label">Total Tickets:</span>
               <span className="lottery-stats__value">{formatNumber(totalTickets)}</span>
@@ -443,11 +509,57 @@ export default function MainScreen({ onNavigate }) {
                 alt="arrow"
                 width="36"
               />
-              <div
-                className="spin__game scroll-block noScrolQ"
-                id="lineContainer"
-                ref={lineContainerRef}
-              />
+              {registeredUsers === 0 && roomPhase === 'WAITING' ? (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                  color: 'white',
+                  fontSize: '18px',
+                  textAlign: 'center',
+                  padding: '20px'
+                }}>
+                  Waiting for users...
+                </div>
+              ) : winner ? (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                  color: 'white',
+                  padding: '20px',
+                  textAlign: 'center'
+                }}>
+                  <img 
+                    src={avatar1} 
+                    alt="Winner" 
+                    width="80" 
+                    height="80" 
+                    style={{ marginBottom: '15px', borderRadius: '50%' }}
+                  />
+                  <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
+                    Winner: User {winner.userId}
+                  </div>
+                  <div style={{ fontSize: '16px', marginBottom: '5px' }}>
+                    Bet: {formatBalance(winner.tickets)}
+                  </div>
+                  <div style={{ fontSize: '16px', marginBottom: '5px', color: '#6cc5a1' }}>
+                    Win: {formatBalance(winner.payout)}
+                  </div>
+                  <div style={{ fontSize: '14px', opacity: 0.8 }}>
+                    Chance: {totalTickets > 0 ? ((winner.tickets / totalTickets) * 100).toFixed(2) : 0}%
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="spin__game scroll-block noScrolQ"
+                  id="lineContainer"
+                  ref={lineContainerRef}
+                />
+              )}
             </div>
           </div>
 
@@ -482,10 +594,11 @@ export default function MainScreen({ onNavigate }) {
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION'}
+                    disabled={!wsConnected || gameStarted || countdownActive || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining}
                   >
                     <span className="education__button-text" id="textButton">
                       {!wsConnected ? 'Connecting...' : 
+                       isJoining ? 'Joining...' :
                        countdownActive ? `Joining... ${Math.ceil(countdownRemaining || 0)}s` : 
                        gameStarted || roomPhase === 'SPINNING' ? 'Spinning...' : 
                        roomPhase === 'RESOLUTION' ? 'Round Ended' : 'JOIN'}

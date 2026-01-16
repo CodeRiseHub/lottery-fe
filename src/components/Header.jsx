@@ -12,6 +12,7 @@ import esLangIcon from '../assets/images/lang/es.png'
 import idLangIcon from '../assets/images/lang/id.png'
 import trLangIcon from '../assets/images/lang/tr.png'
 import backIcon from '../assets/images/back.png'
+import { formatBalance } from '../utils/balanceFormatter'
 
 const languages = [
   { code: 'EN', icon: enLangIcon, name: 'English' },
@@ -26,18 +27,22 @@ const languages = [
   { code: 'TR', icon: trLangIcon, name: 'Türkçe' }
 ]
 
-export default function Header({ onNavigate, balance: balanceProp, onBalanceUpdate }) {
+export default function Header({ onNavigate, balance: balanceProp, onBalanceUpdate, userData }) {
   const [showLangModal, setShowLangModal] = useState(false)
   const [showHeaderMenu, setShowHeaderMenu] = useState(false)
   const [showAccountDetail, setShowAccountDetail] = useState(false)
   const [currentLang, setCurrentLang] = useState('EN')
-  const [balance, setBalance] = useState(balanceProp || '0.000000')
+  const [balance, setBalance] = useState('0.0000')
 
   useEffect(() => {
     if (balanceProp !== undefined) {
+      // balanceProp is already formatted string from MainScreen
       setBalance(balanceProp)
+    } else if (userData && userData.balanceA !== undefined) {
+      // Format balance from bigint
+      setBalance(formatBalance(userData.balanceA))
     }
-  }, [balanceProp])
+  }, [balanceProp, userData])
 
   const currentLangData = languages.find(l => l.code === currentLang) || languages[0]
 

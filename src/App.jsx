@@ -140,10 +140,9 @@ function App() {
     setScreenProps({})
   }
 
-  const handleBalanceUpdate = (ticketsToAdd) => {
-    const currentBalance = parseFloat(balance) || 0
-    const newBalance = (currentBalance + ticketsToAdd).toFixed(6)
-    setBalance(newBalance)
+  const handleBalanceUpdate = (formattedBalance) => {
+    // formattedBalance is already a formatted string (e.g., "1.5627")
+    setBalance(formattedBalance)
   }
 
   if (!authInitialized) {
@@ -165,7 +164,7 @@ function App() {
     <div className="bg">
       <Header onNavigate={handleNavigate} balance={balance} onBalanceUpdate={handleBalanceUpdate} userData={userData} />
       <main>
-        {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} />}
+        {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} onBalanceUpdate={handleBalanceUpdate} />}
         {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} />}
         {currentScreen === 'faq' && <FAQScreen onBack={handleNavigate} />}
         {currentScreen === 'support' && <SupportScreen onBack={handleBack} onNavigate={handleNavigate} />}
