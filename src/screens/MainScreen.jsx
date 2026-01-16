@@ -41,6 +41,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
+  const animationRunningRef = useRef(false) // Track if animation is currently running
   // Bet limits in ticket units (for UI display)
   const minBet = 1000
   const maxBet = 1000000
@@ -216,8 +217,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             setIsJoining(false)
           }
           
-          // Generate tape with stop index and start animation IMMEDIATELY (exactly like lottery-draft-fe)
-          if (lineContainerRef.current && state.participants && state.participants.length > 0) {
+          // Only start animation if not already running (prevent interruption)
+          // This prevents "quick spin" when state changes rapidly
+          if (!animationRunningRef.current && lineContainerRef.current && state.participants && state.participants.length > 0) {
             // Reset scroll first (like lottery-draft-fe)
             if (typeof window.$ !== 'undefined') {
               window.$('#lineContainer').scrollLeft(0)
@@ -225,6 +227,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             
             // Set HTML content immediately
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
+            
+            // Mark animation as running
+            animationRunningRef.current = true
             
             // Start animation immediately - use minimal delay to ensure DOM is ready
             setTimeout(() => {
@@ -235,14 +240,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // Reset all game states when back to WAITING
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in WAITING
-          // Clear userBets if no participants (new round started)
-          if (!state.participants || state.participants.length === 0) {
-            setUserBets([])
-            setUserTickets(0)
-            // Clear tape when room is in WAITING with no participants
-            // Tape should already be cleared by animation callback, but clear here as safety
-            if (lineContainerRef.current) {
-              lineContainerRef.current.innerHTML = ''
+          
+          // Don't clear tape if animation is still running (protect against rapid state changes)
+          // Only clear if animation has completed or if there are no participants
+          if (!animationRunningRef.current) {
+            // Clear userBets if no participants (new round started)
+            if (!state.participants || state.participants.length === 0) {
+              setUserBets([])
+              setUserTickets(0)
+              // Clear tape when room is in WAITING with no participants
+              // Tape should already be cleared by animation callback, but clear here as safety
+              if (lineContainerRef.current) {
+                lineContainerRef.current.innerHTML = ''
+              }
             }
           }
         } else if (state.phase === 'COUNTDOWN') {
@@ -261,6 +271,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // Don't clear tape here - it will be cleared by animation completion callback
           // The animation callback in startSpinAnimation handles tape clearing
           // This ensures tape is cleared exactly when animation finishes, not based on arbitrary timeout
+          // If animation wasn't running (single participant refund), allow tape clearing
+          if (!animationRunningRef.current && lineContainerRef.current) {
+            lineContainerRef.current.innerHTML = ''
+          }
         }
 
         // Handle winner
@@ -380,7 +394,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     }
   }
 
-  const scrollToCenter = ($container, $element) => {
+  const scrollToCenter = ($container, $element, duration, onComplete) => {
     if (typeof window.$ === 'undefined') {
       console.error('jQuery not available for scrollToCenter')
       return
@@ -395,12 +409,20 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
 
     // Calculate offset exactly like lottery-draft-fe
     const offset = element.offsetLeft - (container.clientWidth / 2) + (element.clientWidth / 2)
-    $container.animate({ scrollLeft: offset }, 3000, "swing")
+    // Use duration parameter (defaults to 5000ms to match backend SPIN_DURATION_MS)
+    const animationDuration = duration || 5000
+    $container.animate({ scrollLeft: offset }, animationDuration, "swing", () => {
+      // Animation completed callback
+      if (onComplete) {
+        onComplete()
+      }
+    })
   }
 
   const startSpinAnimation = (stopIndex, duration) => {
     if (typeof window.$ === 'undefined') {
       console.error('jQuery not loaded')
+      animationRunningRef.current = false // Reset flag on error
       return
     }
 
@@ -423,6 +445,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           if (lineContainerRef.current) {
             lineContainerRef.current.innerHTML = ''
           }
+          // Reset animation flag after animation fully completes
+          animationRunningRef.current = false
         }, 500) // Small delay to show blink animation
       })
     } else {
@@ -433,6 +457,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         allMiddleQ: window.$('#middleQ').length,
         lineContainer: window.$('#lineContainer').length
       })
+      animationRunningRef.current = false // Reset flag on error
     }
   }
 
