@@ -3,14 +3,11 @@ import infoIcon from '../assets/images/tasks/info.png'
 import historyIcon from '../assets/images/tasks/history.png'
 import arrowDownIcon from '../assets/images/tasks/arrow-down.png'
 import defaultAvatar from '../assets/images/default.png'
-import avatar1 from '../assets/avatars/avatar1.svg'
-import avatar2 from '../assets/avatars/avatar2.svg'
-import avatar3 from '../assets/avatars/avatar3.svg'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
 import { fetchCurrentUser } from '../api'
-import { formatBalance, balanceToBigint } from '../utils/balanceFormatter'
+import { formatBalance } from '../utils/balanceFormatter'
 import '../utils/modals'
 
 export default function MainScreen({ onNavigate, onBalanceUpdate }) {
@@ -45,7 +42,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const minBet = 1000
   const maxBet = 1000000
 
-  // Generate tape with avatars based on participants - only show actual participants
+  // Generate tape with empty blocks (like lottery-draft-fe but without text/avatars)
   const generateTapeHTML = (participants, stopIndex) => {
     if (!participants || participants.length === 0) {
       return '' // Return empty - will show "Waiting for users..." message
@@ -56,7 +53,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       return ''
     }
 
-    const avatars = [avatar1, avatar2, avatar3]
     const items = []
     
     // Calculate cumulative positions for each participant
@@ -69,6 +65,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     })
 
     // Generate tape items - repeat participants proportionally
+    // Use more items for smoother animation (like lottery-draft-fe)
     const totalItems = 200
     for (let i = 0; i < totalItems; i++) {
       // Map position to ticket range
@@ -79,19 +76,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       
       if (!participant) continue
       
-      // Use participant's userId to determine avatar
-      const avatarIndex = participant.userId % 3
-      const avatarUrl = avatars[avatarIndex]
-      
-      // Mark stop position
+      // Mark stop position and middle item
       const isStopPosition = stopIndex !== null && Math.abs(position - stopIndex) < (totalTickets / totalItems)
       const isMiddle = i === Math.floor(totalItems / 2)
       
+      // Create empty block (no avatars, no text - just empty div)
       items.push(
-        `<div class='spin__game-item spin__game-item--avatar' ${isMiddle ? "id='middleQ'" : ''} ${isStopPosition ? "data-stop='true'" : ''}>
-          <img src="${avatarUrl}" alt="avatar" width="56" height="56" />
-          <span style="position: absolute; color: white; font-size: 10px; bottom: 2px; left: 50%; transform: translateX(-50%);">${participant.userId}</span>
-        </div>`
+        `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''} ${isStopPosition ? "data-stop='true'" : ''}></div>`
       )
     }
     
@@ -177,7 +168,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const currentUserTickets = currentUserTicketsBigint / 1000000
           setUserTickets(currentUserTickets)
           
-          // Update spinner with participants only if phase is not RESOLUTION
+          // Update tape with participants (generate tape for all phases except RESOLUTION)
           if (state.phase !== 'RESOLUTION' && lineContainerRef.current) {
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
           }
@@ -209,10 +200,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           if (userHasJoined) {
             setIsJoining(false) // Reset joining state only for users who joined
           }
-          // Generate tape with stop index
+          // Generate tape with stop index and start animation
           if (lineContainerRef.current && state.participants && state.stopIndex !== null) {
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
-            startSpinAnimation(state.stopIndex, state.spinDuration || 5000)
+            // Start animation after a small delay to ensure DOM is ready
+            setTimeout(() => {
+              startSpinAnimation(state.stopIndex, state.spinDuration || 3000)
+            }, 100)
           }
         } else if (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') {
           // Reset game started state if we're back to waiting or countdown
@@ -384,24 +378,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       $lineContainer.scrollLeft(0)
     }
 
-    // Calculate scroll position based on stop index
-    // stopIndex and tickets are in bigint format from backend
-    // Convert to ticket units for calculation
-    const totalTicketsBigint = userBets.reduce((sum, bet) => sum + bet.tickets, 0)
-    if (totalTicketsBigint === 0) return
-
-    const scrollPosition = (stopIndex / totalTicketsBigint) * ($lineContainer[0]?.scrollWidth || 0)
-
-    // Animate to stop position
+    // Use scrollToCenter to center the middle item (like lottery-draft-fe)
     const $container = window.$('.noScrolQ')
-    if ($container.length) {
-      $container.animate({ scrollLeft: scrollPosition }, duration || 5000, 'swing', () => {
-        // Add blink animation when animation completes
-        const $stopElement = window.$('[data-stop="true"]')
-        if ($stopElement.length) {
-          $stopElement.addClass('blinkWinX')
-        }
-      })
+    const $middleElement = window.$('#middleQ')
+    
+    if ($container.length && $middleElement.length) {
+      scrollToCenter($container, $middleElement)
+      
+      // Add blink animation after animation completes (like lottery-draft-fe)
+      setTimeout(() => {
+        $middleElement.addClass('blinkWinX')
+      }, duration || 3000)
     }
   }
 
@@ -534,87 +521,56 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           </div>
 
           <div className="spin__game-container">
-            <div className="spin__game-wrapper">
-              {countdownActive && (
-                <svg className="spin__progress-ring" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  <path
-                    className="spin__progress-ring-bg"
-                    d="M 20,0 L 80,0 A 20,20 0 0,1 100,20 L 100,80 A 20,20 0 0,1 80,100 L 20,100 A 20,20 0 0,1 0,80 L 0,20 A 20,20 0 0,1 20,0 Z"
-                    fill="none"
-                    stroke="rgba(255, 255, 255, 0.1)"
-                    strokeWidth="2"
-                  />
-                  <path
-                    className="spin__progress-ring-fill"
-                    d="M 50,0 L 80,0 A 20,20 0 0,1 100,20 L 100,80 A 20,20 0 0,1 80,100 L 20,100 A 20,20 0 0,1 0,80 L 0,20 A 20,20 0 0,1 20,0 L 50,0"
-                    fill="none"
-                    stroke="#6cc5a1"
-                    strokeWidth="2"
-                    strokeDasharray="360"
-                    strokeDashoffset={`${360 * (countdownProgress / 100)}`}
-                    strokeLinecap="round"
-                    pathLength="360"
-                  />
-                </svg>
-              )}
-              <img
-                className="spin__arrow"
-                src={arrowDownIcon}
-                alt="arrow"
-                width="36"
+            <img
+              className="spin__arrow"
+              src={arrowDownIcon}
+              alt="arrow"
+              width="36"
+            />
+            {registeredUsers === 0 && roomPhase === 'WAITING' ? (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '110px',
+                color: 'white',
+                fontSize: '18px',
+                textAlign: 'center',
+                padding: '20px'
+              }}>
+                Waiting for users...
+              </div>
+            ) : winner ? (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '110px',
+                color: 'white',
+                padding: '20px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
+                  Winner: User {winner.userId}
+                </div>
+                <div style={{ fontSize: '16px', marginBottom: '5px' }}>
+                  Bet: {formatBalance(winner.tickets)}
+                </div>
+                <div style={{ fontSize: '16px', marginBottom: '5px', color: '#6cc5a1' }}>
+                  Win: {formatBalance(winner.payout)}
+                </div>
+                <div style={{ fontSize: '14px', opacity: 0.8 }}>
+                  Chance: {totalTickets > 0 ? (((winner.tickets / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
+                </div>
+              </div>
+            ) : (
+              <div
+                className="spin__game scroll-block noScrolQ"
+                id="lineContainer"
+                ref={lineContainerRef}
               />
-              {registeredUsers === 0 && roomPhase === 'WAITING' ? (
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                  color: 'white',
-                  fontSize: '18px',
-                  textAlign: 'center',
-                  padding: '20px'
-                }}>
-                  Waiting for users...
-                </div>
-              ) : winner ? (
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                  color: 'white',
-                  padding: '20px',
-                  textAlign: 'center'
-                }}>
-                  <img 
-                    src={avatar1} 
-                    alt="Winner" 
-                    width="80" 
-                    height="80" 
-                    style={{ marginBottom: '15px', borderRadius: '50%' }}
-                  />
-                  <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
-                    Winner: User {winner.userId}
-                  </div>
-                  <div style={{ fontSize: '16px', marginBottom: '5px' }}>
-                    Bet: {formatBalance(winner.tickets)}
-                  </div>
-                  <div style={{ fontSize: '16px', marginBottom: '5px', color: '#6cc5a1' }}>
-                    Win: {formatBalance(winner.payout)}
-                  </div>
-                  <div style={{ fontSize: '14px', opacity: 0.8 }}>
-                    Chance: {totalTickets > 0 ? (((winner.tickets / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className="spin__game scroll-block noScrolQ"
-                  id="lineContainer"
-                  ref={lineContainerRef}
-                />
-              )}
-            </div>
+            )}
           </div>
 
           <div className="spin__bets">
