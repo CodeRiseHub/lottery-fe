@@ -233,11 +233,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         } else if (state.phase === 'WAITING') {
           // Reset all game states when back to WAITING
           setGameStarted(false)
-          // Only reset joining state if user hasn't joined (they can join now)
-          if (!userHasJoined) {
-            setIsJoining(false)
+          setIsJoining(false) // Always reset joining state in WAITING
+          // Clear userBets if no participants (new round started)
+          if (!state.participants || state.participants.length === 0) {
+            setUserBets([])
+            setUserTickets(0)
           }
-          // If user has already joined, keep isJoining false (they're already in)
         } else if (state.phase === 'COUNTDOWN') {
           // During countdown, user can still join
           setGameStarted(false)
@@ -441,8 +442,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
 
   const handleJoin = () => {
     // Don't allow joining if already joined (unless in WAITING phase where a new round can start)
-    const userHasJoined = currentUserId && userBets.some(bet => bet.id === currentUserId)
-    if (roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || (userHasJoined && roomPhase !== 'WAITING')) {
+    // Also check if we have participants but phase is not WAITING - this means we're in an active round
+    const userHasJoined = currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId)
+    const hasActiveRound = userBets.length > 0 && roomPhase !== 'WAITING' && roomPhase !== 'RESOLUTION'
+    
+    if (roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || hasActiveRound || (userHasJoined && roomPhase !== 'WAITING')) {
+      console.log('[handleJoin] Join blocked:', { roomPhase, isJoining, userHasJoined, hasActiveRound, userBetsLength: userBets.length })
       return
     }
 
@@ -653,7 +658,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || (currentUserId && userBets.some(bet => bet.id === currentUserId) && roomPhase !== 'WAITING')}
+                    disabled={!wsConnected || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && roomPhase !== 'WAITING')}
                   >
                     <span className="education__button-text" id="textButton">
                       {!wsConnected ? 'Connecting...' : 
@@ -661,7 +666,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                        roomPhase === 'RESOLUTION' ? 'Round Ended' :
                        isJoining ? 'Joining...' :
                        countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
-                       (currentUserId && userBets.some(bet => bet.id === currentUserId)) ? 'Joined' : 'JOIN'}
+                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && roomPhase === 'WAITING') ? 'Joined' : 
+                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && roomPhase !== 'WAITING' && roomPhase !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'}
                     </span>
                   </button>
           </div>
