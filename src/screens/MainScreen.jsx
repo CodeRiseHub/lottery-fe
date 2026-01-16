@@ -26,7 +26,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const [registeredUsers, setRegisteredUsers] = useState(0)
   const [totalTickets, setTotalTickets] = useState(0)
   const [currentRoom, setCurrentRoom] = useState({ number: 1, users: 0 })
-  const [rooms] = useState([
+  const [rooms, setRooms] = useState([
     { number: 1, users: 0 },
     { number: 2, users: 0 },
     { number: 3, users: 0 }
@@ -41,6 +41,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
+  // Bet limits in ticket units (for UI display)
   const minBet = 1000
   const maxBet = 1000000
 
@@ -99,6 +100,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
 
   // Calculate user's win chance percentage
   const calculateWinChance = () => {
+    // totalTickets and userTickets are already in ticket units (converted from bigint)
     if (totalTickets === 0 || userTickets === 0) return 0
     return ((userTickets / totalTickets) * 100).toFixed(2)
   }
@@ -109,14 +111,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       try {
         const user = await fetchCurrentUser()
         if (user) {
+          if (user.id) {
+            setCurrentUserId(user.id)
+          }
           if (user.balanceA !== undefined) {
             setUserBalance(user.balanceA)
             if (onBalanceUpdate) {
               onBalanceUpdate(formatBalance(user.balanceA))
             }
           }
-          // Store user ID if available (we'll need to add this to UserDto)
-          // For now, we'll get it from the participants list
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error)
@@ -135,8 +138,27 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       (state) => {
         // Update state from server
         setRegisteredUsers(state.registeredPlayers || 0)
-        setTotalTickets(state.totalTickets || 0)
+        // totalTickets from backend is in bigint format, convert to ticket units for display
+        const totalTicketsBigint = state.totalTickets || 0
+        const totalTicketsDisplay = totalTicketsBigint / 1000000
+        setTotalTickets(totalTicketsDisplay)
         setRoomPhase(state.phase || 'WAITING')
+        
+        // Update room user count for all rooms (always update, even if no participants)
+        if (state.roomNumber !== undefined && state.roomNumber !== null) {
+          const userCount = state.registeredPlayers || 0
+          setRooms(prevRooms => 
+            prevRooms.map(room => 
+              room.number === state.roomNumber 
+                ? { ...room, users: userCount }
+                : room
+            )
+          )
+          // Also update currentRoom if it matches
+          if (currentRoom.number === state.roomNumber) {
+            setCurrentRoom(prev => ({ ...prev, users: userCount }))
+          }
+        }
         
         // Update participants and calculate user's tickets
         if (state.participants && state.participants.length > 0) {
@@ -148,12 +170,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           })))
           
           // Find current user's tickets
-          // We'll identify the user by checking which participant matches our balance deduction
-          // For now, we'll use the first participant's tickets if we don't have userId
-          // TODO: Get actual current user ID from backend
-          const currentUserTickets = currentUserId 
+          // Tickets from backend are in bigint format, convert to ticket units for display
+          const currentUserTicketsBigint = currentUserId 
             ? state.participants.find(p => p.userId === currentUserId)?.tickets || 0
-            : state.participants[0]?.tickets || 0
+            : 0
+          const currentUserTickets = currentUserTicketsBigint / 1000000
           setUserTickets(currentUserTickets)
           
           // Update spinner with participants only if phase is not RESOLUTION
@@ -181,7 +202,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // Handle spin
         if (state.phase === 'SPINNING') {
           setGameStarted(true)
-          setIsJoining(false) // Reset joining state
+          // Only reset joining state if we're actually in the game (user has joined)
+          // Check if current user is in participants
+          const userHasJoined = currentUserId && state.participants && 
+            state.participants.some(p => p.userId === currentUserId)
+          if (userHasJoined) {
+            setIsJoining(false) // Reset joining state only for users who joined
+          }
           // Generate tape with stop index
           if (lineContainerRef.current && state.participants && state.stopIndex !== null) {
             lineContainerRef.current.innerHTML = generateTapeHTML(state.participants, state.stopIndex)
@@ -190,21 +217,43 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         } else if (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') {
           // Reset game started state if we're back to waiting or countdown
           setGameStarted(false)
+          // Only reset joining state if current user is NOT in participants
+          // (meaning they haven't joined yet, so their joining state should be false)
+          const userHasJoined = currentUserId && state.participants && 
+            state.participants.some(p => p.userId === currentUserId)
+          if (!userHasJoined && state.phase === 'WAITING') {
+            setIsJoining(false) // Reset if user hasn't joined and we're in WAITING phase
+          }
+          // Don't reset if user is joining during COUNTDOWN - let them complete the join
+        } else if (state.phase === 'RESOLUTION') {
+          // Reset game started state when resolution phase starts
+          setGameStarted(false)
           setIsJoining(false)
         }
 
         // Handle winner and update balance
         if (state.phase === 'RESOLUTION' && state.winner) {
           setWinner(state.winner)
-          setGameStarted(false)
-          setIsJoining(false)
           
-          // Update balance if user won
-          if (state.winner.payout && onBalanceUpdate) {
-            // Winner payout is already in bigint format
+          // Update balance if current user won
+          if (state.winner.userId === currentUserId && state.winner.payout) {
+            // Winner payout is already in bigint format (database format)
             const newBalance = userBalance + state.winner.payout
             setUserBalance(newBalance)
-            onBalanceUpdate(formatBalance(newBalance))
+            if (onBalanceUpdate) {
+              onBalanceUpdate(formatBalance(newBalance))
+            }
+            // Also fetch updated balance from server to ensure accuracy
+            fetchCurrentUser().then(user => {
+              if (user && user.balanceA !== undefined) {
+                setUserBalance(user.balanceA)
+                if (onBalanceUpdate) {
+                  onBalanceUpdate(formatBalance(user.balanceA))
+                }
+              }
+            }).catch(err => {
+              console.error('Failed to refresh balance after win:', err)
+            })
           }
           
           // Clear spinner to show winner
@@ -218,7 +267,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       (error) => {
         setErrorMessage(error || 'WebSocket connection error')
         setShowErrorModal(true)
-        setWsConnected(false)
+        // Don't disconnect on join errors - only on connection errors
+        if (error && error.includes('connection')) {
+          setWsConnected(false)
+        }
         // Reset game state on error
         setGameStarted(false)
         setIsJoining(false)
@@ -333,11 +385,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     }
 
     // Calculate scroll position based on stop index
-    // This is a simplified calculation - you may need to adjust based on your tape structure
-    const totalTickets = userBets.reduce((sum, bet) => sum + bet.tickets, 0)
-    if (totalTickets === 0) return
+    // stopIndex and tickets are in bigint format from backend
+    // Convert to ticket units for calculation
+    const totalTicketsBigint = userBets.reduce((sum, bet) => sum + bet.tickets, 0)
+    if (totalTicketsBigint === 0) return
 
-    const scrollPosition = (stopIndex / totalTickets) * ($lineContainer[0]?.scrollWidth || 0)
+    const scrollPosition = (stopIndex / totalTicketsBigint) * ($lineContainer[0]?.scrollWidth || 0)
 
     // Animate to stop position
     const $container = window.$('.noScrolQ')
@@ -363,11 +416,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       return
     }
 
-    // Bet amount is already in the correct format (e.g., 1000 = 1000 tickets)
-    // Backend expects bigint format, so we multiply by 1,000,000 to convert to 6 decimal places
+    // Convert bet from ticket units to bigint format (database format)
+    // Backend expects and works with bigint format throughout
     const betBigint = currentBet * 1000000
     
-    // Check balance
+    // Check balance (balance is in bigint format with 6 decimal places)
     if (userBalance < betBigint) {
       setErrorMessage('Insufficient balance')
       setShowErrorModal(true)
@@ -378,6 +431,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     setIsJoining(true)
 
     try {
+      // Send bet amount in bigint format (database format)
       gameWebSocket.joinRound(currentRoom.number, betBigint)
       
       // Update balance immediately (will be confirmed by server)
@@ -467,7 +521,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
               <span className="lottery-stats__label">Registered:</span>
               <span className="lottery-stats__value">{registeredUsers} 👤</span>
             </div>
-            {userTickets > 0 && totalTickets > 0 && (
+            {currentUserId && userTickets > 0 && totalTickets > 0 && (
               <div className="lottery-stats__item">
                 <span className="lottery-stats__label">Your Chance:</span>
                 <span className="lottery-stats__value">{calculateWinChance()}%</span>
@@ -550,7 +604,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                     Win: {formatBalance(winner.payout)}
                   </div>
                   <div style={{ fontSize: '14px', opacity: 0.8 }}>
-                    Chance: {totalTickets > 0 ? ((winner.tickets / totalTickets) * 100).toFixed(2) : 0}%
+                    Chance: {totalTickets > 0 ? (((winner.tickets / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
                   </div>
                 </div>
               ) : (
@@ -600,7 +654,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                       {!wsConnected ? 'Connecting...' : 
                        isJoining ? 'Joining...' :
                        countdownActive ? `Joining... ${Math.ceil(countdownRemaining || 0)}s` : 
-                       gameStarted || roomPhase === 'SPINNING' ? 'Spinning...' : 
+                       roomPhase === 'SPINNING' ? 'Spinning...' : 
                        roomPhase === 'RESOLUTION' ? 'Round Ended' : 'JOIN'}
                     </span>
                   </button>
@@ -687,7 +741,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             </p>
             <p className="modal__account-spin-text">{errorMessage}</p>
             <button
-              onClick={() => closeModal('errorModal')}
+              onClick={() => {
+                closeModal('errorModal')
+                // Reset joining state when modal is closed
+                setIsJoining(false)
+              }}
               style={{
                 marginTop: '20px',
                 padding: '10px 20px',

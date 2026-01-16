@@ -167,6 +167,7 @@ class GameWebSocketService {
           console.error('[WebSocket] Error from server:', error)
           // Extract user-friendly error message
           const errorMsg = error.error || error.message || 'An error occurred. Please try again.'
+          // Call error handler - this should reset joining state
           onError?.(errorMsg)
         } catch (e) {
           console.error('[WebSocket] Error parsing error message:', e)
@@ -175,6 +176,9 @@ class GameWebSocketService {
       }
     )
     this.subscriptions.set('errors', errorSub)
+    
+    // Store error callback for later use
+    this.onErrorCallback = onError
   }
 
   /**
