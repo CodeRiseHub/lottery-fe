@@ -40,6 +40,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const [isJoining, setIsJoining] = useState(false) // Track if user is attempting to join
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const lineContainerRef = useRef(null)
+  const resolutionTimeoutRef = useRef(null) // Track RESOLUTION timeout to prevent premature clearing
   const countdownIntervalRef = useRef(null)
   // Bet limits in ticket units (for UI display)
   const minBet = 1000
@@ -189,7 +190,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           setUserBets([])
           setUserTickets(0)
           // Clear spinner when no participants
-          if (lineContainerRef.current && state.phase !== 'RESOLUTION') {
+          // Don't clear if we're in RESOLUTION phase or if there's a pending RESOLUTION timeout
+          // This prevents clearing the tape prematurely when room resets to WAITING after RESOLUTION
+          if (lineContainerRef.current && state.phase !== 'RESOLUTION' && !resolutionTimeoutRef.current) {
             lineContainerRef.current.innerHTML = ''
           }
         }
@@ -235,9 +238,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in WAITING
           // Clear userBets if no participants (new round started)
+          // But don't clear tape if there's a pending RESOLUTION timeout (room just reset after RESOLUTION)
           if (!state.participants || state.participants.length === 0) {
             setUserBets([])
             setUserTickets(0)
+            // Only clear tape if there's no pending RESOLUTION timeout
+            // This prevents clearing the tape when room resets to WAITING after RESOLUTION
+            if (lineContainerRef.current && !resolutionTimeoutRef.current) {
+              lineContainerRef.current.innerHTML = ''
+            }
           }
         } else if (state.phase === 'COUNTDOWN') {
           // During countdown, user can still join
@@ -252,13 +261,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in resolution
           
+          // Clear any existing timeout
+          if (resolutionTimeoutRef.current) {
+            clearTimeout(resolutionTimeoutRef.current)
+          }
+          
           // Don't clear tape immediately - let animation finish first
           // Only clear after animation completes (5000ms spin duration + buffer)
-          setTimeout(() => {
+          resolutionTimeoutRef.current = setTimeout(() => {
             if (lineContainerRef.current && state.winner) {
               // Clear tape to show winner info
               lineContainerRef.current.innerHTML = ''
             }
+            resolutionTimeoutRef.current = null
           }, 5500) // Wait for animation to complete (5000ms) + buffer
         }
 
@@ -300,12 +315,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     )
 
     // Cleanup on unmount
-    return () => {
-      gameWebSocket.disconnect()
-      if (countdownIntervalRef.current) {
-        clearInterval(countdownIntervalRef.current)
+      return () => {
+        gameWebSocket.disconnect()
+        if (countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current)
+        }
+        if (resolutionTimeoutRef.current) {
+          clearTimeout(resolutionTimeoutRef.current)
+          resolutionTimeoutRef.current = null
+        }
       }
-    }
   }, [currentRoom.number])
 
   // Countdown timer
