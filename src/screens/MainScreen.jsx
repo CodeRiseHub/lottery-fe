@@ -298,7 +298,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     gameWebSocket.connect(
       roomNumber,
       (state) => {
-        // Update state from server
+        // Update state from server (authoritative source)
+        console.log('[STATE-RECEIVED] Server state message received', {
+          phase: state.phase,
+          participants: state.participants?.length || 0,
+          registeredPlayers: state.registeredPlayers || 0,
+          totalBet: state.totalBet || 0,
+          hasWinner: !!state.winner,
+          roomNumber: state.roomNumber,
+          timestamp: Date.now()
+        })
         setRegisteredUsers(state.registeredPlayers || 0)
         // totalBet from backend is in bigint format, convert to display units
         const totalBetBigint = state.totalBet || 0
@@ -703,18 +712,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         setWsConnected(connected)
         console.log('[MainScreen] WebSocket connection state:', connected)
         
-        // On reconnect (was disconnected, now connected), reset volatile state
-        // This ensures UI is reconstructed from server snapshot, not stale local state
+        // On reconnect (was disconnected, now connected), reset only local joining state
+        // Don't clear server-derived state (userBets, registeredUsers) - wait for server message
+        // The server will send authoritative state which will update everything correctly
+        // Clearing state here creates a window where UI shows wrong state before server message arrives
         if (!wasConnected && connected) {
-          console.log('[RECONNECT] WebSocket reconnected, resetting volatile state')
-          setIsJoining(false) // Reset joining state - server will send authoritative state
-          // Clear volatile UI state - will be repopulated from first server message
-          setUserBets([])
-          setRegisteredUsers(0)
-          setWinner(null)
-          setCountdownActive(false)
-          setCountdownRemaining(null)
-          // Note: roomPhase and buttonPhase will be updated from server state
+          console.log('[RECONNECT] WebSocket reconnected, resetting local joining state only')
+          setIsJoining(false) // Reset local joining state - this is purely frontend state
+          // DO NOT clear userBets, registeredUsers, winner - let server message update them
+          // This prevents showing "0 registered" and "JOIN" button before server sends state
+          console.log('[RECONNECT] Waiting for server state message to update UI')
         }
       },
       (balanceBigint) => {
