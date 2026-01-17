@@ -33,6 +33,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   ])
   const [userBets, setUserBets] = useState([])
   const [roomPhase, setRoomPhase] = useState('WAITING')
+  const [buttonPhase, setButtonPhase] = useState('WAITING') // Separate state for button rendering to force re-render
   const [winner, setWinner] = useState(null)
   const [wsConnected, setWsConnected] = useState(false)
   const [userBalance, setUserBalance] = useState(0) // Balance in bigint format
@@ -177,6 +178,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // This handles cases where WebSocket message was missed
         console.warn('RoomPhase stuck in SPINNING, forcing transition to RESOLUTION')
         currentPhaseRef.current = 'RESOLUTION' // Update ref first
+        setButtonPhase('RESOLUTION') // Update button phase state immediately
         setRoomPhase('RESOLUTION')
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
       
@@ -187,6 +189,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // This handles cases where WAITING message was missed
         console.warn('RoomPhase stuck in RESOLUTION, forcing transition to WAITING')
         currentPhaseRef.current = 'WAITING' // Update ref first
+        setButtonPhase('WAITING') // Update button phase state immediately
         setRoomPhase('WAITING')
         // Clear winner when forcing WAITING
         setWinner(null)
@@ -270,6 +273,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           })
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
+          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
           setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[PHASE-UPDATE] RESOLUTION - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -291,6 +295,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const beforeState = roomPhase
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
+          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
           setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[PHASE-UPDATE] WAITING - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -308,6 +313,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           console.log('[PHASE-TRANSITION] Same phase, allowing:', newPhase)
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
+          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
           setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[PHASE-UPDATE] Same phase - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -321,6 +327,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           console.log('[PHASE-TRANSITION] Valid transition:', currentPhase, '->', newPhase)
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
+          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
           setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[PHASE-UPDATE] Valid transition - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -335,6 +342,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase} - allowing anyway to prevent stuck state`)
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
+          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
           setRoomPhase(newPhase) // Still update to prevent stuck state (asynchronously)
           console.log('[PHASE-UPDATE] Invalid transition - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -1040,14 +1048,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                     <span className="education__button-text" id="textButton">
                       {(() => {
                         const buttonText = !wsConnected ? 'Connecting...' : 
-                         currentPhaseRef.current === 'SPINNING' ? 'Spinning...' : 
-                         currentPhaseRef.current === 'RESOLUTION' ? 'Round Ended' :
+                         buttonPhase === 'SPINNING' ? 'Spinning...' : 
+                         buttonPhase === 'RESOLUTION' ? 'Round Ended' :
                          isJoining ? 'Joining...' :
                          countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
-                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current === 'WAITING') ? 'Joined' : 
-                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING' && currentPhaseRef.current !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'
+                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase === 'WAITING') ? 'Joined' : 
+                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase !== 'WAITING' && buttonPhase !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'
                         console.log('[BUTTON-RENDER] Button text calculated', {
                           buttonText,
+                          buttonPhase,
                           refPhase: currentPhaseRef.current,
                           statePhase: roomPhase,
                           isJoining,
@@ -1059,12 +1068,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                           timestamp: Date.now(),
                           // Track which condition matched
                           conditionMatched: !wsConnected ? 'Connecting' :
-                            currentPhaseRef.current === 'SPINNING' ? 'SPINNING' :
-                            currentPhaseRef.current === 'RESOLUTION' ? 'RESOLUTION' :
+                            buttonPhase === 'SPINNING' ? 'SPINNING' :
+                            buttonPhase === 'RESOLUTION' ? 'RESOLUTION' :
                             isJoining ? 'Joining' :
                             countdownActive && countdownRemaining !== null ? 'Countdown' :
-                            (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current === 'WAITING') ? 'Joined' :
-                            (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING' && currentPhaseRef.current !== 'RESOLUTION') ? 'Spinning-Fallback' : 'JOIN'
+                            (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase === 'WAITING') ? 'Joined' :
+                            (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase !== 'WAITING' && buttonPhase !== 'RESOLUTION') ? 'Spinning-Fallback' : 'JOIN'
                         })
                         return buttonText
                       })()}
