@@ -255,8 +255,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null
           })
           setRoomPhase(newPhase)
-          // Reset animation completion time when moving to WAITING (new round starting)
-          animationCompletedTimeRef.current = null
+          // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
+          // This ensures roomPhase state is updated before any ref resets, preventing button state issues
         } else if (currentPhase === newPhase) {
           // Same phase - always allow (might be a refresh or duplicate message)
           console.log('[PHASE-TRANSITION] Same phase, allowing:', newPhase)
@@ -463,6 +463,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             return // Skip this state update to prevent race condition
           }
           
+          // Reset animation completion time when actually in WAITING phase (new round starting)
+          // This ensures roomPhase state is updated before resetting the ref
+          if (animationCompletedTimeRef.current) {
+            animationCompletedTimeRef.current = null
+            console.log('[WAITING-HANDLER] Reset animationCompletedTimeRef (new round starting)')
+          }
+          
           // If animation wasn't running (single participant refund), allow tape clearing
           if (!animationRunningRef.current && (!state.participants || state.participants.length === 0)) {
             console.log('[WAITING-HANDLER] Clearing tape (no animation, no participants)')
@@ -471,7 +478,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             if (lineContainerRef.current) {
               lineContainerRef.current.innerHTML = ''
             }
-            animationCompletedTimeRef.current = null // Reset after clearing
           }
         } else if (state.phase === 'COUNTDOWN') {
           // During countdown, user can still join
