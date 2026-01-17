@@ -197,6 +197,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       return () => clearTimeout(timeout)
     }
   }, [roomPhase])
+
+  // Log when roomPhase state actually changes (after React re-render)
+  useEffect(() => {
+    console.log('[PHASE-STATE-UPDATE] roomPhase state changed', {
+      newPhase: roomPhase,
+      refPhase: currentPhaseRef.current,
+      refMatchesState: currentPhaseRef.current === roomPhase,
+      timestamp: Date.now()
+    })
+  }, [roomPhase])
   
   // WebSocket connection and state updates
   useEffect(() => {
@@ -249,6 +259,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           })
           setRoomPhase(newPhase)
           currentPhaseRef.current = newPhase // Update ref immediately for button state
+          console.log('[PHASE-UPDATE] RESOLUTION - setRoomPhase called, currentPhaseRef updated', {
+            newPhase,
+            refValue: currentPhaseRef.current,
+            stateValue: roomPhase,
+            timestamp: Date.now()
+          })
         } else if (newPhase === 'WAITING') {
           // For WAITING, always allow the transition
           // The state machine guard was too aggressive and causing stuck states on mobile
@@ -258,8 +274,18 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             animationCompletedTime: !!animationCompletedTimeRef.current,
             timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null
           })
+          const beforeRef = currentPhaseRef.current
+          const beforeState = roomPhase
           setRoomPhase(newPhase)
           currentPhaseRef.current = newPhase // Update ref immediately for button state
+          console.log('[PHASE-UPDATE] WAITING - setRoomPhase called, currentPhaseRef updated', {
+            newPhase,
+            refBefore: beforeRef,
+            refAfter: currentPhaseRef.current,
+            stateBefore: beforeState,
+            stateAfter: roomPhase, // This will still be old value (async)
+            timestamp: Date.now()
+          })
           // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
           // This ensures roomPhase state is updated before any ref resets, preventing button state issues
         } else if (currentPhase === newPhase) {
@@ -267,17 +293,35 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           console.log('[PHASE-TRANSITION] Same phase, allowing:', newPhase)
           setRoomPhase(newPhase)
           currentPhaseRef.current = newPhase // Update ref immediately for button state
+          console.log('[PHASE-UPDATE] Same phase - setRoomPhase called, currentPhaseRef updated', {
+            newPhase,
+            refValue: currentPhaseRef.current,
+            stateValue: roomPhase,
+            timestamp: Date.now()
+          })
         } else if (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase)) {
           // Valid transition according to state machine
           console.log('[PHASE-TRANSITION] Valid transition:', currentPhase, '->', newPhase)
           setRoomPhase(newPhase)
           currentPhaseRef.current = newPhase // Update ref immediately for button state
+          console.log('[PHASE-UPDATE] Valid transition - setRoomPhase called, currentPhaseRef updated', {
+            newPhase,
+            refValue: currentPhaseRef.current,
+            stateValue: roomPhase,
+            timestamp: Date.now()
+          })
         } else {
           // Invalid transition - log warning but allow it (might be due to missed messages)
           // This is important for mobile where messages might arrive out of order
           console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase} - allowing anyway to prevent stuck state`)
           setRoomPhase(newPhase) // Still update to prevent stuck state
           currentPhaseRef.current = newPhase // Update ref immediately for button state
+          console.log('[PHASE-UPDATE] Invalid transition - setRoomPhase called, currentPhaseRef updated', {
+            newPhase,
+            refValue: currentPhaseRef.current,
+            stateValue: roomPhase,
+            timestamp: Date.now()
+          })
         }
         
         // Update room user count for all rooms (always update, even if no participants)
@@ -973,13 +1017,25 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                     disabled={!wsConnected || currentPhaseRef.current === 'SPINNING' || currentPhaseRef.current === 'RESOLUTION' || isJoining || (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING')}
                   >
                     <span className="education__button-text" id="textButton">
-                      {!wsConnected ? 'Connecting...' : 
-                       currentPhaseRef.current === 'SPINNING' ? 'Spinning...' : 
-                       currentPhaseRef.current === 'RESOLUTION' ? 'Round Ended' :
-                       isJoining ? 'Joining...' :
-                       countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
-                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current === 'WAITING') ? 'Joined' : 
-                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING' && currentPhaseRef.current !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'}
+                      {(() => {
+                        const buttonText = !wsConnected ? 'Connecting...' : 
+                         currentPhaseRef.current === 'SPINNING' ? 'Spinning...' : 
+                         currentPhaseRef.current === 'RESOLUTION' ? 'Round Ended' :
+                         isJoining ? 'Joining...' :
+                         countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
+                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current === 'WAITING') ? 'Joined' : 
+                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING' && currentPhaseRef.current !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'
+                        console.log('[BUTTON-RENDER] Button text calculated', {
+                          buttonText,
+                          refPhase: currentPhaseRef.current,
+                          statePhase: roomPhase,
+                          isJoining,
+                          wsConnected,
+                          userBetsLength: userBets.length,
+                          timestamp: Date.now()
+                        })
+                        return buttonText
+                      })()}
                     </span>
                   </button>
           </div>
