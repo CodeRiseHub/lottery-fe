@@ -713,15 +713,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         console.log('[MainScreen] WebSocket connection state:', connected)
         
         // On reconnect (was disconnected, now connected), reset only local joining state
-        // Don't clear server-derived state (userBets, registeredUsers) - wait for server message
-        // The server will send authoritative state which will update everything correctly
-        // Clearing state here creates a window where UI shows wrong state before server message arrives
+        // Server will automatically send current room state when client subscribes
         if (!wasConnected && connected) {
-          console.log('[RECONNECT] WebSocket reconnected, resetting local joining state only')
+          console.log('[RECONNECT] WebSocket reconnected, resetting local joining state')
           setIsJoining(false) // Reset local joining state - this is purely frontend state
-          // DO NOT clear userBets, registeredUsers, winner - let server message update them
-          // This prevents showing "0 registered" and "JOIN" button before server sends state
-          console.log('[RECONNECT] Waiting for server state message to update UI')
+          // Server will send state automatically on subscription via WebSocketSubscriptionListener
+          console.log('[RECONNECT] Waiting for server state message (sent automatically on subscribe)')
         }
       },
       (balanceBigint) => {
