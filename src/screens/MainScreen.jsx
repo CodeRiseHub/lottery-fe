@@ -450,16 +450,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         }
         
         // Update room user count for all rooms
-        // TODO (Issue 3): Currently using registeredPlayers (round participants), but should use room-level connected users
-        // Backend needs to provide a separate field (e.g., connectedUsers or onlineUsers) that tracks
-        // all users connected to the room, not just those registered in the current round.
-        // This field should:
-        // - Increase when user enters room
-        // - Decrease when user leaves room
-        // - NOT reset per round
-        // Until backend provides this, room dropdown will show round participants instead of room users
+        // Use connectedUsers (room-level connections) instead of registeredPlayers (round participants)
         if (state.roomNumber !== undefined && state.roomNumber !== null) {
-          const userCount = state.registeredPlayers || 0 // This is round participants, not room users
+          const userCount = state.connectedUsers || 0 // Room-level connected users, not just round participants
           setRooms(prevRooms => 
             prevRooms.map(room => 
               room.number === state.roomNumber 
