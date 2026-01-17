@@ -10,6 +10,7 @@ class GameWebSocketService {
     this.client = null
     this.connected = false
     this.subscriptions = new Map()
+    this.currentRoomNumber = null // Track current room to properly unsubscribe when switching
     this.reconnectAttempts = 0
     this.maxReconnectAttempts = 5
     this.reconnectDelay = 3000
@@ -140,10 +141,14 @@ class GameWebSocketService {
       return
     }
 
-    // Unsubscribe from previous room if exists
-    const existingSub = this.subscriptions.get(`room-${roomNumber}`)
-    if (existingSub) {
-      existingSub.unsubscribe()
+    // Unsubscribe from previous room if switching rooms
+    if (this.currentRoomNumber !== null && this.currentRoomNumber !== roomNumber) {
+      const previousSub = this.subscriptions.get(`room-${this.currentRoomNumber}`)
+      if (previousSub) {
+        console.log(`[WebSocket] Unsubscribing from previous room ${this.currentRoomNumber}`)
+        previousSub.unsubscribe()
+        this.subscriptions.delete(`room-${this.currentRoomNumber}`)
+      }
     }
 
     // Subscribe to room topic
@@ -161,6 +166,7 @@ class GameWebSocketService {
     )
 
     this.subscriptions.set(`room-${roomNumber}`, subscription)
+    this.currentRoomNumber = roomNumber // Track current room
     console.log(`[WebSocket] Subscribed to room ${roomNumber}`)
 
     // Also subscribe to error queue (user-specific)
@@ -267,6 +273,7 @@ class GameWebSocketService {
       // Unsubscribe from all topics
       this.subscriptions.forEach((sub) => sub.unsubscribe())
       this.subscriptions.clear()
+      this.currentRoomNumber = null // Reset current room
 
       // Deactivate client
       try {

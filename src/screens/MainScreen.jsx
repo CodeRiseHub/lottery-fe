@@ -996,10 +996,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   }
 
   const handleRoomChange = (room) => {
-    // Disconnect from current room
-    gameWebSocket.disconnect()
+    console.log('[ROOM-CHANGE] Switching from room', currentRoom.number, 'to room', room.number)
+    // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
-    // WebSocket will reconnect in useEffect
+    // The useEffect with currentRoom.number dependency will trigger reconnection
   }
 
   return (
