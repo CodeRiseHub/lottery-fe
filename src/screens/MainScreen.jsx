@@ -449,10 +449,26 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           })
         }
         
-        // Update room user count for all rooms
-        // Use connectedUsers (room-level connections) instead of registeredPlayers (round participants)
-        if (state.roomNumber !== undefined && state.roomNumber !== null) {
-          const userCount = state.connectedUsers || 0 // Room-level connected users, not just round participants
+        // Update room user counts for all rooms
+        // Backend sends allRoomsConnectedUsers map with counts for all rooms (1, 2, 3)
+        // This ensures all room counters are updated even when user switches rooms
+        if (state.allRoomsConnectedUsers && typeof state.allRoomsConnectedUsers === 'object') {
+          setRooms(prevRooms => 
+            prevRooms.map(room => {
+              const count = state.allRoomsConnectedUsers[room.number] || 0
+              return { ...room, users: count }
+            })
+          )
+          // Also update currentRoom if it matches
+          if (state.roomNumber !== undefined && state.roomNumber !== null) {
+            const currentRoomCount = state.allRoomsConnectedUsers[state.roomNumber] || 0
+            if (currentRoom.number === state.roomNumber) {
+              setCurrentRoom(prev => ({ ...prev, users: currentRoomCount }))
+            }
+          }
+        } else if (state.roomNumber !== undefined && state.roomNumber !== null) {
+          // Fallback: if allRoomsConnectedUsers is not available, update only current room
+          const userCount = state.connectedUsers || 0
           setRooms(prevRooms => 
             prevRooms.map(room => 
               room.number === state.roomNumber 
@@ -460,7 +476,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                 : room
             )
           )
-          // Also update currentRoom if it matches
           if (currentRoom.number === state.roomNumber) {
             setCurrentRoom(prev => ({ ...prev, users: userCount }))
           }
