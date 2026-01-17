@@ -190,10 +190,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           buttonPhase,
           timestamp: Date.now()
         })
-        currentPhaseRef.current = 'RESOLUTION' // Update ref first
-        setButtonPhase('RESOLUTION') // Update button phase state immediately
+        setButtonPhase('RESOLUTION') // Update button phase state FIRST (triggers re-render)
         setButtonUpdateCounter(prev => prev + 1) // Force re-render
-        setRoomPhase('RESOLUTION')
+        setRoomPhase('RESOLUTION') // Update room phase state
+        currentPhaseRef.current = 'RESOLUTION' // Update ref AFTER state (for guards/timers only)
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
       
       return () => {
@@ -219,15 +219,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           buttonPhase,
           timestamp: Date.now()
         })
-        currentPhaseRef.current = 'WAITING' // Update ref first
-        setButtonPhase('WAITING') // Update button phase state immediately
+        setButtonPhase('WAITING') // Update button phase state FIRST (triggers re-render)
         setButtonUpdateCounter(prev => prev + 1) // Force re-render
+        setRoomPhase('WAITING') // Update room phase state
+        currentPhaseRef.current = 'WAITING' // Update ref AFTER state (for guards/timers only)
         console.log('[TIMEOUT-FIRED] Updated phases to WAITING', {
           newRefPhase: currentPhaseRef.current,
           newButtonPhase: 'WAITING',
           timestamp: Date.now()
         })
-        setRoomPhase('WAITING')
         // Clear winner when forcing WAITING
         setWinner(null)
         // Reset animation completion time
@@ -332,16 +332,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             winnerId: state.winner?.userId || null
           })
           const updateTimestamp = Date.now()
-          currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
-          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
-          setRoomPhase(newPhase) // Then update state (asynchronously)
-          console.log('[PHASE-UPDATE] RESOLUTION - setRoomPhase called, currentPhaseRef updated', {
+          setRoomPhase(newPhase) // Update room phase state
+          currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
+          console.log('[PHASE-UPDATE] RESOLUTION - setRoomPhase called, state updated first', {
             newPhase,
             refValue: currentPhaseRef.current,
             stateValue: roomPhase, // This will be old value (async)
             timestamp: updateTimestamp,
-            note: 'Ref updated synchronously, state update is async'
+            note: 'State updated first, ref updated after'
           })
         } else if (newPhase === 'WAITING') {
           // For WAITING, always allow the transition
@@ -359,9 +359,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const beforeButtonPhase = buttonPhase
           const beforeState = roomPhase
           const updateTimestamp = Date.now()
-          currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
-          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Always increment counter to force re-render, even if buttonPhase is already WAITING
+          setRoomPhase(newPhase) // Update room phase state
+          currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
           console.log('[WAITING-UPDATE] Updated phases to WAITING', {
             newPhase,
             refBefore: beforeRef,
@@ -371,9 +372,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             stateBefore: beforeState,
             stateAfter: roomPhase, // This will still be old value (async)
             timestamp: updateTimestamp,
-            note: 'Ref and buttonPhase updated synchronously, state update is async'
+            note: 'State updated first, ref updated after'
           })
-          setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[WAITING-UPDATE] setRoomPhase called for WAITING', {
             newPhase,
             refValue: currentPhaseRef.current,
@@ -388,47 +388,47 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // Same phase - always allow (might be a refresh or duplicate message)
           console.log('[PHASE-TRANSITION] Same phase, allowing:', newPhase)
           const updateTimestamp = Date.now()
-          currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
-          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
-          setRoomPhase(newPhase) // Then update state (asynchronously)
-          console.log('[PHASE-UPDATE] Same phase - setRoomPhase called, currentPhaseRef updated', {
+          setRoomPhase(newPhase) // Update room phase state
+          currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
+          console.log('[PHASE-UPDATE] Same phase - setRoomPhase called, state updated first', {
             newPhase,
             refValue: currentPhaseRef.current,
             stateValue: roomPhase, // This will be old value (async)
             timestamp: updateTimestamp,
-            note: 'Ref updated synchronously, state update is async'
+            note: 'State updated first, ref updated after'
           })
         } else if (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase)) {
           // Valid transition according to state machine
           console.log('[PHASE-TRANSITION] Valid transition:', currentPhase, '->', newPhase)
           const updateTimestamp = Date.now()
-          currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
-          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
-          setRoomPhase(newPhase) // Then update state (asynchronously)
-          console.log('[PHASE-UPDATE] Valid transition - setRoomPhase called, currentPhaseRef updated', {
+          setRoomPhase(newPhase) // Update room phase state
+          currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
+          console.log('[PHASE-UPDATE] Valid transition - setRoomPhase called, state updated first', {
             newPhase,
             refValue: currentPhaseRef.current,
             stateValue: roomPhase, // This will be old value (async)
             timestamp: updateTimestamp,
-            note: 'Ref updated synchronously, state update is async'
+            note: 'State updated first, ref updated after'
           })
         } else {
           // Invalid transition - log warning but allow it (might be due to missed messages)
           // This is important for mobile where messages might arrive out of order
           console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase} - allowing anyway to prevent stuck state`)
           const updateTimestamp = Date.now()
-          currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
-          setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
-          setRoomPhase(newPhase) // Still update to prevent stuck state (asynchronously)
-          console.log('[PHASE-UPDATE] Invalid transition - setRoomPhase called, currentPhaseRef updated', {
+          setRoomPhase(newPhase) // Update room phase state
+          currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
+          console.log('[PHASE-UPDATE] Invalid transition - setRoomPhase called, state updated first', {
             newPhase,
             refValue: currentPhaseRef.current,
             stateValue: roomPhase, // This will be old value (async)
             timestamp: updateTimestamp,
-            note: 'Ref updated synchronously, state update is async'
+            note: 'State updated first, ref updated after'
           })
         }
         
@@ -894,10 +894,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     // Don't allow joining if already joined (unless in WAITING phase where a new round can start)
     // Also check if we have participants but phase is not WAITING - this means we're in an active round
     const userHasJoined = currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId)
-    const hasActiveRound = userBets.length > 0 && currentPhaseRef.current !== 'WAITING' && currentPhaseRef.current !== 'RESOLUTION'
+    const hasActiveRound = userBets.length > 0 && buttonPhase !== 'WAITING' && buttonPhase !== 'RESOLUTION'
     
-    if (currentPhaseRef.current === 'SPINNING' || currentPhaseRef.current === 'RESOLUTION' || isJoining || hasActiveRound || (userHasJoined && currentPhaseRef.current !== 'WAITING')) {
-      console.log('[handleJoin] Join blocked:', { roomPhase: currentPhaseRef.current, isJoining, userHasJoined, hasActiveRound, userBetsLength: userBets.length })
+    if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || hasActiveRound || (userHasJoined && buttonPhase !== 'WAITING')) {
+      console.log('[handleJoin] Join blocked:', { buttonPhase, isJoining, userHasJoined, hasActiveRound, userBetsLength: userBets.length })
       return
     }
 
@@ -1119,10 +1119,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             </div>
 
                   <button
+                    key={buttonPhase} // Force remount on iOS WKWebView when phase changes
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || currentPhaseRef.current === 'SPINNING' || currentPhaseRef.current === 'RESOLUTION' || isJoining || (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING')}
+                    disabled={!wsConnected || buttonPhase === 'SPINNING' || isJoining || (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase !== 'WAITING')}
+                    style={buttonPhase === 'RESOLUTION' ? { pointerEvents: 'none', opacity: 0.6 } : {}}
                   >
                     <span className="education__button-text" id="textButton">
                       {(() => {
