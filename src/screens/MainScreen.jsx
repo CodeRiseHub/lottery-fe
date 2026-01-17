@@ -54,8 +54,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       return '' // Return empty - will show "Waiting for users..." message
     }
 
-    const totalTickets = participants.reduce((sum, p) => sum + p.tickets, 0)
-    if (totalTickets === 0) {
+    const totalBet = participants.reduce((sum, p) => sum + (p.bet || 0), 0)
+    if (totalBet === 0) {
       return ''
     }
 
@@ -65,7 +65,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     let cumulative = 0
     const participantRanges = participants.map(p => {
       const start = cumulative
-      cumulative += p.tickets
+      cumulative += (p.bet || 0)
       const end = cumulative
       return { ...p, start, end }
     })
@@ -74,8 +74,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     // Use enough items to ensure smooth scrolling (like lottery-draft-fe has ~100+ items)
     const totalItems = 200
     for (let i = 0; i < totalItems; i++) {
-      // Map position to ticket range (all in bigint format)
-      const position = (i / totalItems) * totalTickets
+      // Map position to bet range (all in bigint format)
+      const position = (i / totalItems) * totalBet
       
       // Find which participant this position belongs to
       const participant = participantRanges.find(p => position >= p.start && position < p.end)
@@ -202,10 +202,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       (state) => {
         // Update state from server
         setRegisteredUsers(state.registeredPlayers || 0)
-        // totalTickets from backend is in bigint format, convert to ticket units for display
-        const totalTicketsBigint = state.totalTickets || 0
-        const totalTicketsDisplay = totalTicketsBigint / 1000000
-        setTotalTickets(totalTicketsDisplay)
+        // totalBet from backend is in bigint format, convert to display units
+        const totalBetBigint = state.totalBet || 0
+        const totalBetDisplay = totalBetBigint / 1000000
+        setTotalTickets(totalBetDisplay)
         // Update roomPhase with state validation and synchronization
         // Ensure valid phase transitions and synchronize with winner data
         const newPhase = state.phase || 'WAITING'
@@ -291,17 +291,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             id: p.userId,
             avatar: p.avatarUrl || defaultAvatar, // Use backend avatar URL, fallback to default
             name: `User ${p.userId}`,
-            tickets: p.tickets
+            bet: p.bet || 0
           }))
           setUserBets(bets)
           
-          // Find current user's tickets
-          // Tickets from backend are in bigint format, convert to ticket units for display
-          const currentUserTicketsBigint = currentUserId 
-            ? state.participants.find(p => p.userId === currentUserId)?.tickets || 0
+          // Find current user's bet
+          // Bet from backend is in bigint format, convert to display units
+          const currentUserBetBigint = currentUserId 
+            ? state.participants.find(p => p.userId === currentUserId)?.bet || 0
             : 0
-          const currentUserTickets = currentUserTicketsBigint / 1000000
-          setUserTickets(currentUserTickets)
+          const currentUserBet = currentUserBetBigint / 1000000
+          setUserTickets(currentUserBet)
           
           // If user has joined (is in participants) but isJoining is still true, reset it
           // This handles the case when app reopens and user was already joined
@@ -910,13 +910,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                   Winner: User {winner.userId}
                 </div>
                 <div style={{ fontSize: '16px', marginBottom: '5px' }}>
-                  Bet: {formatBalance(winner.tickets)}
+                  Bet: {formatBalance(winner.bet)}
                 </div>
                 <div style={{ fontSize: '16px', marginBottom: '5px', color: '#6cc5a1' }}>
                   Win: {formatBalance(winner.payout)}
                 </div>
                 <div style={{ fontSize: '14px', opacity: 0.8 }}>
-                  Chance: {totalTickets > 0 ? (((winner.tickets / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
+                  Chance: {totalTickets > 0 ? (((winner.bet / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
                 </div>
               </div>
             )}
@@ -972,7 +972,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             {userBets.map((bet) => (
               <div
                 key={bet.id}
-                className={`spin__bets-item ${bet.tickets > 0 ? 'spin__bets-item--success' : ''}`}
+                className={`spin__bets-item ${bet.bet > 0 ? 'spin__bets-item--success' : ''}`}
               >
                 <img
                   src={bet.avatar}
@@ -986,8 +986,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                 <div className="spin__bets-info">
                   <p className="spin__bets-name">{bet.name}</p>
                   <p className="spin__bets-amount">
-                    {bet.tickets > 0 ? '+' : ''}
-                    {formatNumber(bet.tickets)} Tickets
+                    {bet.bet > 0 ? '+' : ''}
+                    {formatNumber(bet.bet)} Tickets
                   </p>
                 </div>
               </div>
