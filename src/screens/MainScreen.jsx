@@ -34,6 +34,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const [userBets, setUserBets] = useState([])
   const [roomPhase, setRoomPhase] = useState('WAITING')
   const [buttonPhase, setButtonPhase] = useState('WAITING') // Separate state for button rendering to force re-render
+  const [buttonUpdateCounter, setButtonUpdateCounter] = useState(0) // Counter to force button re-render
   const [winner, setWinner] = useState(null)
   const [wsConnected, setWsConnected] = useState(false)
   const [userBalance, setUserBalance] = useState(0) // Balance in bigint format
@@ -171,10 +172,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   }, [currentUserId, userBets, isJoining])
 
   // RoomPhase timeout - reset if stuck in SPINNING or RESOLUTION
+  // Only depend on roomPhase to ensure timeout is always set when phase changes
   useEffect(() => {
     if (roomPhase === 'SPINNING') {
       console.log('[TIMEOUT-SET] Setting SPINNING timeout (8s)', {
         roomPhase,
+        currentPhaseRef: currentPhaseRef.current,
+        buttonPhase,
         timestamp: Date.now()
       })
       const timeout = setTimeout(() => {
@@ -188,6 +192,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         })
         currentPhaseRef.current = 'RESOLUTION' // Update ref first
         setButtonPhase('RESOLUTION') // Update button phase state immediately
+        setButtonUpdateCounter(prev => prev + 1) // Force re-render
         setRoomPhase('RESOLUTION')
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
       
@@ -216,6 +221,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         })
         currentPhaseRef.current = 'WAITING' // Update ref first
         setButtonPhase('WAITING') // Update button phase state immediately
+        setButtonUpdateCounter(prev => prev + 1) // Force re-render
         console.log('[TIMEOUT-FIRED] Updated phases to WAITING', {
           newRefPhase: currentPhaseRef.current,
           newButtonPhase: 'WAITING',
@@ -238,7 +244,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         clearTimeout(timeout)
       }
     }
-  }, [roomPhase, buttonPhase])
+  }, [roomPhase]) // Only depend on roomPhase to ensure timeout is always set
 
   // Log when roomPhase state actually changes (after React re-render)
   useEffect(() => {
@@ -328,6 +334,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
           setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[PHASE-UPDATE] RESOLUTION - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -354,6 +361,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
           setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonUpdateCounter(prev => prev + 1) // Always increment counter to force re-render, even if buttonPhase is already WAITING
           console.log('[WAITING-UPDATE] Updated phases to WAITING', {
             newPhase,
             refBefore: beforeRef,
@@ -382,6 +390,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
           setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[PHASE-UPDATE] Same phase - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -396,6 +405,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
           setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Then update state (asynchronously)
           console.log('[PHASE-UPDATE] Valid transition - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
@@ -411,6 +421,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
           setButtonPhase(newPhase) // Update button phase state immediately to force re-render
+          setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Still update to prevent stuck state (asynchronously)
           console.log('[PHASE-UPDATE] Invalid transition - setRoomPhase called, currentPhaseRef updated', {
             newPhase,
