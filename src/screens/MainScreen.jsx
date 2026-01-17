@@ -173,23 +173,54 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   // RoomPhase timeout - reset if stuck in SPINNING or RESOLUTION
   useEffect(() => {
     if (roomPhase === 'SPINNING') {
+      console.log('[TIMEOUT-SET] Setting SPINNING timeout (8s)', {
+        roomPhase,
+        timestamp: Date.now()
+      })
       const timeout = setTimeout(() => {
         // If still in SPINNING after 8 seconds, force transition to RESOLUTION
         // This handles cases where WebSocket message was missed
-        console.warn('RoomPhase stuck in SPINNING, forcing transition to RESOLUTION')
+        console.warn('[TIMEOUT-FIRED] RoomPhase stuck in SPINNING, forcing transition to RESOLUTION', {
+          roomPhase,
+          currentPhaseRef: currentPhaseRef.current,
+          buttonPhase,
+          timestamp: Date.now()
+        })
         currentPhaseRef.current = 'RESOLUTION' // Update ref first
         setButtonPhase('RESOLUTION') // Update button phase state immediately
         setRoomPhase('RESOLUTION')
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
       
-      return () => clearTimeout(timeout)
+      return () => {
+        console.log('[TIMEOUT-CLEAR] Clearing SPINNING timeout', {
+          roomPhase,
+          timestamp: Date.now()
+        })
+        clearTimeout(timeout)
+      }
     } else if (roomPhase === 'RESOLUTION') {
+      console.log('[TIMEOUT-SET] Setting RESOLUTION timeout (10s)', {
+        roomPhase,
+        buttonPhase,
+        currentPhaseRef: currentPhaseRef.current,
+        timestamp: Date.now()
+      })
       const timeout = setTimeout(() => {
         // If still in RESOLUTION after 10 seconds, force transition to WAITING
         // This handles cases where WAITING message was missed
-        console.warn('RoomPhase stuck in RESOLUTION, forcing transition to WAITING')
+        console.warn('[TIMEOUT-FIRED] RoomPhase stuck in RESOLUTION, forcing transition to WAITING', {
+          roomPhase,
+          currentPhaseRef: currentPhaseRef.current,
+          buttonPhase,
+          timestamp: Date.now()
+        })
         currentPhaseRef.current = 'WAITING' // Update ref first
         setButtonPhase('WAITING') // Update button phase state immediately
+        console.log('[TIMEOUT-FIRED] Updated phases to WAITING', {
+          newRefPhase: currentPhaseRef.current,
+          newButtonPhase: 'WAITING',
+          timestamp: Date.now()
+        })
         setRoomPhase('WAITING')
         // Clear winner when forcing WAITING
         setWinner(null)
@@ -197,16 +228,26 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         animationCompletedTimeRef.current = null
       }, 10000) // 10 seconds (6 seconds backend delay + 4 seconds buffer)
       
-      return () => clearTimeout(timeout)
+      return () => {
+        console.log('[TIMEOUT-CLEAR] Clearing RESOLUTION timeout', {
+          roomPhase,
+          buttonPhase,
+          currentPhaseRef: currentPhaseRef.current,
+          timestamp: Date.now()
+        })
+        clearTimeout(timeout)
+      }
     }
-  }, [roomPhase])
+  }, [roomPhase, buttonPhase])
 
   // Log when roomPhase state actually changes (after React re-render)
   useEffect(() => {
     console.log('[PHASE-STATE-UPDATE] roomPhase state changed', {
       newPhase: roomPhase,
       refPhase: currentPhaseRef.current,
+      buttonPhase,
       refMatchesState: currentPhaseRef.current === roomPhase,
+      buttonMatchesState: buttonPhase === roomPhase,
       timestamp: Date.now()
     })
     
@@ -216,11 +257,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       console.log('[PHASE-STATE-UPDATE] Button state check after state update', {
         statePhase: roomPhase,
         refPhase: currentPhaseRef.current,
+        buttonPhase,
         timeSinceUpdate: Date.now(),
-        shouldMatch: currentPhaseRef.current === roomPhase
+        shouldMatch: currentPhaseRef.current === roomPhase && buttonPhase === roomPhase
       })
     }, 0)
-  }, [roomPhase])
+  }, [roomPhase, buttonPhase])
+
+  // Log when buttonPhase state actually changes (after React re-render)
+  useEffect(() => {
+    console.log('[BUTTON-PHASE-STATE-UPDATE] buttonPhase state changed', {
+      newButtonPhase: buttonPhase,
+      refPhase: currentPhaseRef.current,
+      roomPhase,
+      refMatchesButton: currentPhaseRef.current === buttonPhase,
+      buttonMatchesRoom: buttonPhase === roomPhase,
+      timestamp: Date.now()
+    })
+  }, [buttonPhase])
   
   // WebSocket connection and state updates
   useEffect(() => {
@@ -286,25 +340,39 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           // For WAITING, always allow the transition
           // The state machine guard was too aggressive and causing stuck states on mobile
           // Tape clearing is handled by the animation callback, so we don't need to block WAITING
-          console.log('[PHASE-TRANSITION] Allowing WAITING transition', {
+          console.log('[WAITING-RECEIVED] WebSocket WAITING message received', {
             currentPhase,
+            currentButtonPhase: buttonPhase,
+            currentRefPhase: currentPhaseRef.current,
             animationCompletedTime: !!animationCompletedTimeRef.current,
-            timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null
+            timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null,
+            timestamp: Date.now()
           })
           const beforeRef = currentPhaseRef.current
+          const beforeButtonPhase = buttonPhase
           const beforeState = roomPhase
           const updateTimestamp = Date.now()
           currentPhaseRef.current = newPhase // Update ref FIRST (synchronously)
           setButtonPhase(newPhase) // Update button phase state immediately to force re-render
-          setRoomPhase(newPhase) // Then update state (asynchronously)
-          console.log('[PHASE-UPDATE] WAITING - setRoomPhase called, currentPhaseRef updated', {
+          console.log('[WAITING-UPDATE] Updated phases to WAITING', {
             newPhase,
             refBefore: beforeRef,
             refAfter: currentPhaseRef.current,
+            buttonPhaseBefore: beforeButtonPhase,
+            buttonPhaseAfter: newPhase,
             stateBefore: beforeState,
             stateAfter: roomPhase, // This will still be old value (async)
             timestamp: updateTimestamp,
-            note: 'Ref updated synchronously, state update is async'
+            note: 'Ref and buttonPhase updated synchronously, state update is async'
+          })
+          setRoomPhase(newPhase) // Then update state (asynchronously)
+          console.log('[WAITING-UPDATE] setRoomPhase called for WAITING', {
+            newPhase,
+            refValue: currentPhaseRef.current,
+            buttonPhaseValue: newPhase,
+            stateValue: roomPhase, // This will still be old value (async)
+            timestamp: updateTimestamp,
+            note: 'State update is async, will trigger re-render'
           })
           // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
           // This ensures roomPhase state is updated before any ref resets, preventing button state issues
