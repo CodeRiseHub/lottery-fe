@@ -123,6 +123,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         if (user) {
           if (user.id) {
             setCurrentUserId(user.id)
+            // Update remote logger with user ID
+            const { setUserId } = await import('../utils/remoteLogger')
+            setUserId(user.id)
           }
           if (user.balanceA !== undefined) {
             setUserBalance(user.balanceA)

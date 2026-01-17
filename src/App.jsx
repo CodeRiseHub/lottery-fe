@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { bootstrapSession } from './auth/authService'
 import { getSessionToken } from './auth/sessionManager'
 import { fetchCurrentUser } from './api'
+import { initRemoteLogger, setUserId } from './utils/remoteLogger'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import MainScreen from './screens/MainScreen'
@@ -27,6 +28,9 @@ function App() {
   const [userData, setUserData] = useState(null)
 
   useEffect(() => {
+    // Initialize remote logger early to capture all logs
+    initRemoteLogger()
+    
     // Initialize Telegram WebApp
     if (window.Telegram?.WebApp) {
       const webApp = window.Telegram.WebApp
@@ -97,6 +101,9 @@ function App() {
             const user = await fetchCurrentUser()
             // Token is valid, store user data and skip bootstrap
             setUserData(user)
+            if (user?.id) {
+              setUserId(user.id)
+            }
             console.debug("[App] Session token validated successfully")
             setAuthInitialized(true)
             return
