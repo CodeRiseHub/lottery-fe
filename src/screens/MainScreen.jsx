@@ -44,6 +44,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const animationRunningRef = useRef(false) // Track if animation is currently running
   const animationStartTimeRef = useRef(null) // Track when animation started (for timeout)
   const animationCompletedTimeRef = useRef(null) // Track when animation completed (for state machine guards)
+  const currentPhaseRef = useRef('WAITING') // Track current phase synchronously for button state
   // Bet limits in ticket units (for UI display)
   const minBet = 1000
   const maxBet = 1000000
@@ -176,6 +177,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // This handles cases where WebSocket message was missed
         console.warn('RoomPhase stuck in SPINNING, forcing transition to RESOLUTION')
         setRoomPhase('RESOLUTION')
+        currentPhaseRef.current = 'RESOLUTION'
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
       
       return () => clearTimeout(timeout)
@@ -185,6 +187,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         // This handles cases where WAITING message was missed
         console.warn('RoomPhase stuck in RESOLUTION, forcing transition to WAITING')
         setRoomPhase('WAITING')
+        currentPhaseRef.current = 'WAITING'
         // Clear winner when forcing WAITING
         setWinner(null)
         // Reset animation completion time
@@ -245,6 +248,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             winnerId: state.winner?.userId || null
           })
           setRoomPhase(newPhase)
+          currentPhaseRef.current = newPhase // Update ref immediately for button state
         } else if (newPhase === 'WAITING') {
           // For WAITING, always allow the transition
           // The state machine guard was too aggressive and causing stuck states on mobile
@@ -255,21 +259,25 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
             timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null
           })
           setRoomPhase(newPhase)
+          currentPhaseRef.current = newPhase // Update ref immediately for button state
           // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
           // This ensures roomPhase state is updated before any ref resets, preventing button state issues
         } else if (currentPhase === newPhase) {
           // Same phase - always allow (might be a refresh or duplicate message)
           console.log('[PHASE-TRANSITION] Same phase, allowing:', newPhase)
           setRoomPhase(newPhase)
+          currentPhaseRef.current = newPhase // Update ref immediately for button state
         } else if (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase)) {
           // Valid transition according to state machine
           console.log('[PHASE-TRANSITION] Valid transition:', currentPhase, '->', newPhase)
           setRoomPhase(newPhase)
+          currentPhaseRef.current = newPhase // Update ref immediately for button state
         } else {
           // Invalid transition - log warning but allow it (might be due to missed messages)
           // This is important for mobile where messages might arrive out of order
           console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase} - allowing anyway to prevent stuck state`)
           setRoomPhase(newPhase) // Still update to prevent stuck state
+          currentPhaseRef.current = newPhase // Update ref immediately for button state
         }
         
         // Update room user count for all rooms (always update, even if no participants)
@@ -734,10 +742,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     // Don't allow joining if already joined (unless in WAITING phase where a new round can start)
     // Also check if we have participants but phase is not WAITING - this means we're in an active round
     const userHasJoined = currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId)
-    const hasActiveRound = userBets.length > 0 && roomPhase !== 'WAITING' && roomPhase !== 'RESOLUTION'
+    const hasActiveRound = userBets.length > 0 && currentPhaseRef.current !== 'WAITING' && currentPhaseRef.current !== 'RESOLUTION'
     
-    if (roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || hasActiveRound || (userHasJoined && roomPhase !== 'WAITING')) {
-      console.log('[handleJoin] Join blocked:', { roomPhase, isJoining, userHasJoined, hasActiveRound, userBetsLength: userBets.length })
+    if (currentPhaseRef.current === 'SPINNING' || currentPhaseRef.current === 'RESOLUTION' || isJoining || hasActiveRound || (userHasJoined && currentPhaseRef.current !== 'WAITING')) {
+      console.log('[handleJoin] Join blocked:', { roomPhase: currentPhaseRef.current, isJoining, userHasJoined, hasActiveRound, userBetsLength: userBets.length })
       return
     }
 
@@ -962,16 +970,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION' || isJoining || (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && roomPhase !== 'WAITING')}
+                    disabled={!wsConnected || currentPhaseRef.current === 'SPINNING' || currentPhaseRef.current === 'RESOLUTION' || isJoining || (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING')}
                   >
                     <span className="education__button-text" id="textButton">
                       {!wsConnected ? 'Connecting...' : 
-                       roomPhase === 'SPINNING' ? 'Spinning...' : 
-                       roomPhase === 'RESOLUTION' ? 'Round Ended' :
+                       currentPhaseRef.current === 'SPINNING' ? 'Spinning...' : 
+                       currentPhaseRef.current === 'RESOLUTION' ? 'Round Ended' :
                        isJoining ? 'Joining...' :
                        countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
-                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && roomPhase === 'WAITING') ? 'Joined' : 
-                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && roomPhase !== 'WAITING' && roomPhase !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'}
+                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current === 'WAITING') ? 'Joined' : 
+                       (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && currentPhaseRef.current !== 'WAITING' && currentPhaseRef.current !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'}
                     </span>
                   </button>
           </div>
