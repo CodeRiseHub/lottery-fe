@@ -38,8 +38,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   const [winner, setWinner] = useState(null)
   const [wsConnected, setWsConnected] = useState(false)
   const [userBalance, setUserBalance] = useState(0) // Balance in bigint format
-  const [userTickets, setUserTickets] = useState(0) // User's tickets in current round
-  const [isJoining, setIsJoining] = useState(false) // Track if user is attempting to join
+  const [isJoining, setIsJoining] = useState(false) // Track if JOIN request was sent but not yet acknowledged (reset on reconnect)
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
@@ -112,10 +111,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
   }
 
   // Calculate user's win chance percentage
+  // Derive user bet from userBets (authoritative server data) instead of local state
   const calculateWinChance = () => {
-    // totalTickets and userTickets are already in ticket units (converted from bigint)
-    if (totalTickets === 0 || userTickets === 0) return 0
-    return ((userTickets / totalTickets) * 100).toFixed(2)
+    if (totalTickets === 0 || !currentUserId) return 0
+    
+    // Find current user's bet from participants list
+    const userBet = userBets.find(bet => bet.id === currentUserId)
+    if (!userBet || userBet.bet === 0) return 0
+    
+    // userBet.bet is in bigint format, convert to display units
+    const userBetDisplay = userBet.bet / 1000000
+    if (userBetDisplay === 0) return 0
+    
+    return ((userBetDisplay / totalTickets) * 100).toFixed(2)
   }
 
   // Fetch user balance and ID on mount
@@ -432,9 +440,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           })
         }
         
-        // Update room user count for all rooms (always update, even if no participants)
+        // Update room user count for all rooms
+        // TODO (Issue 3): Currently using registeredPlayers (round participants), but should use room-level connected users
+        // Backend needs to provide a separate field (e.g., connectedUsers or onlineUsers) that tracks
+        // all users connected to the room, not just those registered in the current round.
+        // This field should:
+        // - Increase when user enters room
+        // - Decrease when user leaves room
+        // - NOT reset per round
+        // Until backend provides this, room dropdown will show round participants instead of room users
         if (state.roomNumber !== undefined && state.roomNumber !== null) {
-          const userCount = state.registeredPlayers || 0
+          const userCount = state.registeredPlayers || 0 // This is round participants, not room users
           setRooms(prevRooms => 
             prevRooms.map(room => 
               room.number === state.roomNumber 
@@ -458,18 +474,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           }))
           setUserBets(bets)
           
-          // Find current user's bet
-          // Bet from backend is in bigint format, convert to display units
-          const currentUserBetBigint = currentUserId 
-            ? state.participants.find(p => p.userId === currentUserId)?.bet || 0
-            : 0
-          const currentUserBet = currentUserBetBigint / 1000000
-          setUserTickets(currentUserBet)
-          
-          // If user has joined (is in participants) but isJoining is still true, reset it
-          // This handles the case when app reopens and user was already joined
+          // Derive JOIN/JOINED state from server data (authoritative source)
+          // If user is in participants, they are JOINED - reset isJoining
+          // This handles reconnect case where user was already joined before app closed
           if (currentUserId && state.participants.some(p => p.userId === currentUserId) && isJoining) {
-            console.log('[STATE-UPDATE] User already joined, resetting isJoining state after reconnection')
+            console.log('[STATE-UPDATE] User already joined (from server), resetting isJoining state')
             setIsJoining(false)
           }
 
@@ -496,7 +505,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           }
         } else {
           setUserBets([])
-          setUserTickets(0)
           // Don't clear tape here - let animation callback handle it
           // Only clear if we're in WAITING phase AND animation completed more than 1 second ago
           // This prevents race condition between animation completion and WAITING state
@@ -634,7 +642,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
           if (!animationRunningRef.current && (!state.participants || state.participants.length === 0)) {
             console.log('[WAITING-HANDLER] Clearing tape (no animation, no participants)')
             setUserBets([])
-            setUserTickets(0)
             if (lineContainerRef.current) {
               lineContainerRef.current.innerHTML = ''
             }
@@ -692,8 +699,23 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       },
       (connected) => {
         // Connection state callback
+        const wasConnected = wsConnected
         setWsConnected(connected)
         console.log('[MainScreen] WebSocket connection state:', connected)
+        
+        // On reconnect (was disconnected, now connected), reset volatile state
+        // This ensures UI is reconstructed from server snapshot, not stale local state
+        if (!wasConnected && connected) {
+          console.log('[RECONNECT] WebSocket reconnected, resetting volatile state')
+          setIsJoining(false) // Reset joining state - server will send authoritative state
+          // Clear volatile UI state - will be repopulated from first server message
+          setUserBets([])
+          setRegisteredUsers(0)
+          setWinner(null)
+          setCountdownActive(false)
+          setCountdownRemaining(null)
+          // Note: roomPhase and buttonPhase will be updated from server state
+        }
       },
       (balanceBigint) => {
         // Balance update callback from WebSocket
@@ -1012,7 +1034,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
               <span className="lottery-stats__label">Registered:</span>
               <span className="lottery-stats__value">{registeredUsers} 👤</span>
             </div>
-            {currentUserId && userTickets > 0 && totalTickets > 0 && (
+            {currentUserId && userBets.some(bet => bet.id === currentUserId) && totalTickets > 0 && (
               <div className="lottery-stats__item">
                 <span className="lottery-stats__label">Your Chance:</span>
                 <span className="lottery-stats__value">{calculateWinChance()}%</span>
