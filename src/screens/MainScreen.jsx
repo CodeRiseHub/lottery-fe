@@ -88,12 +88,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
       // Mark middle item (exactly at center for animation)
       const isMiddle = i === Math.floor(totalItems / 2)
       
-      // Use participant's userId to determine avatar (placeholder)
-      const avatarIndex = participant.userId % 3
-      const avatars = [avatar1, avatar2, avatar3]
-      const avatarUrl = avatars[avatarIndex]
+      // Use avatar URL from backend, fallback to placeholder if not available
+      let avatarUrl = participant.avatarUrl
+      if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.userId)) {
+        // Fallback to placeholder avatars if backend didn't provide a valid URL
+        const avatarIndex = participant.userId % 3
+        const avatars = [avatar1, avatar2, avatar3]
+        avatarUrl = avatars[avatarIndex]
+      }
       
-      // Create block with avatar placeholder (exactly like lottery-draft-fe structure)
+      // Create block with avatar (exactly like lottery-draft-fe structure)
       items.push(
         `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''}>
           <img src="${avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%;" />
@@ -285,7 +289,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
         if (state.participants && state.participants.length > 0) {
           const bets = state.participants.map(p => ({
             id: p.userId,
-            avatar: defaultAvatar,
+            avatar: p.avatarUrl || defaultAvatar, // Use backend avatar URL, fallback to default
             name: `User ${p.userId}`,
             tickets: p.tickets
           }))
