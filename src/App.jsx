@@ -82,50 +82,62 @@ function App() {
     }
 
     // Initialize auth on app startup
+    // Always call /current first, then /session if 401, then /current again
     async function initializeAuth() {
       try {
-        // Check if we have a stored session token
-        const existingToken = getSessionToken()
-        console.debug("[App] Token check:", {
-          hasToken: !!existingToken,
-          tokenLength: existingToken?.length,
-          isTelegram: !!window.Telegram?.WebApp,
-          hasCloudStorage: !!window.Telegram?.WebApp?.CloudStorage,
-          cloudStorageType: typeof window.Telegram?.WebApp?.CloudStorage
-        })
-        
-        if (existingToken) {
-          // Validate the token by making a lightweight API call
-          console.debug("[App] Existing session token found, validating...")
-          try {
-            const user = await fetchCurrentUser()
-            // Token is valid, store user data and skip bootstrap
-            setUserData(user)
-            if (user?.id) {
-              setUserId(user.id)
-            }
-            console.debug("[App] Session token validated successfully")
-            setAuthInitialized(true)
-            return
-          } catch (error) {
-            // Token is invalid or expired (401), clear it and bootstrap new one
-            console.debug("[App] Session token validation failed (401), clearing and re-authenticating:", error)
+        // Step 1: Always try to fetch current user first (regardless of token existence)
+        console.debug("[App] Attempting to fetch current user...")
+        try {
+          const user = await fetchCurrentUser()
+          // Success - user is authenticated
+          setUserData(user)
+          if (user?.id) {
+            setUserId(user.id)
+          }
+          console.debug("[App] User authenticated successfully")
+          setAuthInitialized(true)
+          return
+        } catch (error) {
+          // Step 2: If /current returns 401, user is not authenticated
+          // Check if it's a 401 error (authentication required)
+          const is401 = error?.response?.status === 401 || 
+                       error?.message?.includes('401') || 
+                       error?.message?.includes('Authentication') ||
+                       error?.message?.includes('Unauthorized')
+          
+          if (is401) {
+            console.debug("[App] /current returned 401, bootstrapping new session...")
+            // Clear any invalid token
             const { clearSessionToken } = await import('./auth/sessionManager')
             clearSessionToken()
-            // Continue to bootstrap below
+            
+            // Step 3: Bootstrap new session via /session
+            const result = await bootstrapSession()
+            if (result) {
+              console.debug("[App] Session bootstrapped successfully")
+              
+              // Step 4: Call /current again after bootstrap
+              try {
+                const user = await fetchCurrentUser()
+                setUserData(user)
+                if (user?.id) {
+                  setUserId(user.id)
+                }
+                console.debug("[App] User data fetched after bootstrap")
+              } catch (fetchError) {
+                console.error("[App] Failed to fetch user data after bootstrap:", fetchError)
+                // Continue anyway - user might be in dev mode
+              }
+            } else {
+              console.warn("[App] No session created (dev mode or no Telegram initData)")
+            }
+          } else {
+            // Not a 401 error - some other error occurred
+            console.error("[App] Failed to fetch current user (non-401 error):", error)
           }
         }
-
-        // No token exists or token is invalid, bootstrap a new session
-        console.debug("[App] No valid session token, bootstrapping...")
-        const result = await bootstrapSession()
-        if (result) {
-          console.debug("[App] Session bootstrapped successfully")
-        } else {
-          console.warn("[App] No session created (dev mode or no Telegram initData)")
-        }
       } catch (error) {
-        console.error("[App] Failed to bootstrap session:", error)
+        console.error("[App] Failed to initialize auth:", error)
         // Continue anyway - user might be in dev mode without Telegram
       } finally {
         setAuthInitialized(true)
