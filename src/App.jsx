@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { bootstrapSession } from './auth/authService'
 import { getSessionToken } from './auth/sessionManager'
 import { fetchCurrentUser } from './api'
@@ -23,7 +23,7 @@ function App() {
   const [tg, setTg] = useState(null)
   const [currentScreen, setCurrentScreen] = useState('main') // 'main' is the Game screen
   const [screenProps, setScreenProps] = useState({})
-  const [balance, setBalance] = useState('0.000000')
+  const [balance, setBalance] = useState('0.0000')
   const [authInitialized, setAuthInitialized] = useState(false)
   const [userData, setUserData] = useState(null)
 
@@ -157,11 +157,11 @@ function App() {
     setScreenProps({})
   }
 
-  const handleBalanceUpdate = (formattedBalance) => {
+  const handleBalanceUpdate = useCallback((formattedBalance) => {
     // formattedBalance is already a formatted string (e.g., "1.5627")
     console.log('[App] handleBalanceUpdate called with:', formattedBalance, 'current balance state:', balance)
     setBalance(formattedBalance)
-  }
+  }, [])
 
   if (!authInitialized) {
     return (

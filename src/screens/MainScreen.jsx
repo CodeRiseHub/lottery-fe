@@ -47,6 +47,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   const animationStartTimeRef = useRef(null) // Track when animation started (for timeout)
   const animationCompletedTimeRef = useRef(null) // Track when animation completed (for state machine guards)
   const currentPhaseRef = useRef('WAITING') // Track current phase synchronously for button state
+  const onBalanceUpdateRef = useRef(onBalanceUpdate) // Store latest onBalanceUpdate callback
 
   // Generate tape with empty blocks (like lottery-draft-fe but without text/avatars)
   const generateTapeHTML = (participants, stopIndex) => {
@@ -124,7 +125,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     return ((userBetDisplay / totalTickets) * 100).toFixed(2)
   }
 
-  // Set user ID and balance from userData prop (fetched by App.jsx)
+  // Keep onBalanceUpdateRef up to date
+  useEffect(() => {
+    onBalanceUpdateRef.current = onBalanceUpdate
+  }, [onBalanceUpdate])
+
+  // Set user ID and balance from userData prop (fetched by App.jsx) - only run when userData changes
   useEffect(() => {
     if (userData) {
       if (userData.id) {
@@ -136,12 +142,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       }
       if (userData.balanceA !== undefined) {
         setUserBalance(userData.balanceA)
-        if (onBalanceUpdate) {
-          onBalanceUpdate(formatBalance(userData.balanceA))
+        // Use ref to avoid dependency on onBalanceUpdate (which changes on every render)
+        if (onBalanceUpdateRef.current) {
+          onBalanceUpdateRef.current(formatBalance(userData.balanceA))
         }
       }
     }
-  }, [userData, onBalanceUpdate])
+  }, [userData]) // Only depend on userData, not onBalanceUpdate
 
   // Animation flag timeout - reset if stuck for more than 10 seconds
   useEffect(() => {
