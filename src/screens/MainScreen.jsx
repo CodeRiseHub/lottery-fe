@@ -103,10 +103,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   }
 
   // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
-  const generateTapeHTML = (participants, stopIndex) => {
+  const generateTapeHTML = (participants, stopIndex, winnerFromState) => {
     console.log('[WINNER-LOG] Starting tape generation', {
       participantsCount: participants?.length || 0,
       stopIndex,
+      winnerFromState: winnerFromState ? { userId: winnerFromState.userId } : null,
       timestamp: Date.now()
     })
 
@@ -124,22 +125,60 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       participants: participants.map(p => ({ userId: p.userId, bet: p.bet }))
     })
 
-    // CRITICAL: Identify the winner from stopIndex
-    // stopIndex is a position in the cumulative bet range, find which participant contains it
+    // CRITICAL: Identify the winner
+    // Priority: 1) Use winner from state (backend authoritative), 2) Calculate from stopIndex
+    // NEVER default to first participant - if we can't determine winner, log error and return empty
     let cumulative = 0
     let winnerParticipant = null
     const participantRanges = []
     
+    // First, build participant ranges for logging
     for (const participant of participants) {
       const start = cumulative
       cumulative += (participant.bet || 0)
       const end = cumulative
       participantRanges.push({ userId: participant.userId, start, end, bet: participant.bet })
-      
-      if (stopIndex >= start && stopIndex < end) {
-        winnerParticipant = participant
-        break
+    }
+    
+    // Try to identify winner: first from state, then from stopIndex
+    if (winnerFromState && winnerFromState.userId) {
+      // Use winner from backend state (authoritative source)
+      winnerParticipant = participants.find(p => p.userId === winnerFromState.userId)
+      console.log('[WINNER-LOG] Using winner from state', {
+        winnerUserId: winnerFromState.userId,
+        found: winnerParticipant !== undefined
+      })
+    } else if (stopIndex !== null && stopIndex !== undefined && stopIndex >= 0) {
+      // Calculate winner from stopIndex (fallback if state winner not available)
+      cumulative = 0
+      for (const participant of participants) {
+        const start = cumulative
+        cumulative += (participant.bet || 0)
+        const end = cumulative
+        
+        if (stopIndex >= start && stopIndex < end) {
+          winnerParticipant = participant
+          break
+        }
       }
+      console.log('[WINNER-LOG] Calculated winner from stopIndex', {
+        stopIndex,
+        winnerUserId: winnerParticipant?.userId
+      })
+    }
+    
+    // CRITICAL: If we can't determine the winner, log error and don't generate tape
+    // This prevents showing the wrong winner in the tape
+    if (!winnerParticipant) {
+      console.error('[WINNER-LOG] CRITICAL: Cannot determine winner - missing both state winner and stopIndex', {
+        hasWinnerFromState: winnerFromState !== null && winnerFromState !== undefined,
+        winnerFromStateUserId: winnerFromState?.userId,
+        stopIndex,
+        participantsCount: participants.length,
+        participantUserIds: participants.map(p => p.userId)
+      })
+      // Return empty string - better to show no tape than wrong winner
+      return ''
     }
 
     console.log('[WINNER-LOG] Winner identification', {
@@ -694,7 +733,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
             const animationStartTime = Date.now()
             
             if (lineContainerRef.current) {
-              const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
+              // Use winner from state if available (backend authoritative), otherwise use local winner state
+              const winnerToUse = state.winner || winner
+              const tapeHTML = generateTapeHTML(state.participants, state.stopIndex, winnerToUse)
               if (tapeHTML) {
                 lineContainerRef.current.innerHTML = tapeHTML
               }
