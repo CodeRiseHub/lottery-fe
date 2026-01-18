@@ -1049,27 +1049,27 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
             {/* Countdown ring - shown when countdown is active */}
             {countdownActive && countdownRemaining !== null ? (
               <div className="lottery-stats__item" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div style={{ position: 'relative', width: '60px', height: '60px' }}>
-                  <svg width="60" height="60" style={{ transform: 'rotate(-90deg)' }}>
+                <div style={{ position: 'relative', width: '40px', height: '40px' }}>
+                  <svg width="40" height="40" style={{ transform: 'rotate(90deg)' }}>
                     {/* Background circle */}
                     <circle
-                      cx="30"
-                      cy="30"
-                      r="28"
+                      cx="20"
+                      cy="20"
+                      r="18"
                       fill="none"
                       stroke="rgba(255, 255, 255, 0.2)"
                       strokeWidth="2"
                     />
-                    {/* Progress circle */}
+                    {/* Progress circle - counterclockwise animation */}
                     <circle
-                      cx="30"
-                      cy="30"
-                      r="28"
+                      cx="20"
+                      cy="20"
+                      r="18"
                       fill="none"
                       stroke="#6cc5a1"
                       strokeWidth="2"
-                      strokeDasharray={`${2 * Math.PI * 28}`}
-                      strokeDashoffset={`${2 * Math.PI * 28 * (1 - countdownProgress / 100)}`}
+                      strokeDasharray={`${2 * Math.PI * 18}`}
+                      strokeDashoffset={`${2 * Math.PI * 18 * (countdownProgress / 100)}`}
                       strokeLinecap="round"
                       style={{ transition: 'stroke-dashoffset 0.1s linear' }}
                     />
@@ -1079,7 +1079,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    fontSize: '20px',
+                    fontSize: '16px',
                     fontWeight: 'bold',
                     color: '#6cc5a1'
                   }}>
