@@ -6,6 +6,7 @@ import defaultAvatar from '../assets/images/default.png'
 import avatar1 from '../assets/avatars/avatar1.svg'
 import avatar2 from '../assets/avatars/avatar2.svg'
 import avatar3 from '../assets/avatars/avatar3.svg'
+import starIcon from '../assets/images/header/star.png'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
@@ -1085,18 +1086,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
 
           <div className="lottery-stats">
             <div className="lottery-stats__item">
-              <span className="lottery-stats__label">Registered:</span>
-              <span className="lottery-stats__value">{registeredUsers} 👤</span>
+              <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {registeredUsers} <span style={{ fontSize: '18px' }}>👤</span>
+              </span>
             </div>
-            {currentUserId && userBets.some(bet => bet.id === currentUserId) && totalTickets > 0 && (
-              <div className="lottery-stats__item">
-                <span className="lottery-stats__label">Your Chance:</span>
-                <span className="lottery-stats__value">{calculateWinChance()}%</span>
-              </div>
-            )}
             <div className="lottery-stats__item">
-              <span className="lottery-stats__label">Total Tickets:</span>
-              <span className="lottery-stats__value">{formatNumber(totalTickets)}</span>
+              <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {formatNumber(totalTickets)} <img src={starIcon} alt="star" width="18" height="18" />
+              </span>
             </div>
           </div>
 

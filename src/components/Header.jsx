@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import ticketIcon from '../assets/images/header/ticket.png'
+import starIcon from '../assets/images/header/star.png'
 import gearIcon from '../assets/images/header/gear-icon.png'
 import enLangIcon from '../assets/images/lang/en.png'
 import ruLangIcon from '../assets/images/lang/ru.png'
@@ -123,7 +123,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
         <div className="header__container container">
           <div className="header__balance">
             <img
-              src={ticketIcon}
+              src={starIcon}
               alt="Ticket"
               className="header__icon"
               width="35"

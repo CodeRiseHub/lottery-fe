@@ -4352,7 +4352,7 @@ font {
 .lottery-stats {
   display: flex;
   justify-content: space-around;
-  padding: 16px 0;
+  padding: 10px 0;
   margin: 16px 0;
   background: var(--background-secondary);
   border-radius: 8px;
@@ -4362,7 +4362,7 @@ font {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 0;
 }
 
 .lottery-stats__label {
