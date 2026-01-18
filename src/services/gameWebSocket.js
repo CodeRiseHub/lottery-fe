@@ -254,8 +254,9 @@ class GameWebSocketService {
     this.updateConnectionState(false)
 
     setTimeout(() => {
-      // Pass the connection state callback to reconnect
-      this.connect(roomNumber, onStateUpdate, onError, this.connectionStateCallback)
+      // Pass all callbacks including balance update callback to reconnect
+      // Use stored onBalanceUpdateCallback to preserve it across reconnects
+      this.connect(roomNumber, onStateUpdate, onError, this.connectionStateCallback, this.onBalanceUpdateCallback)
       // Reset reconnecting flag after connection attempt starts
       // (will be reset to false on successful connect or after max attempts)
     }, this.reconnectDelay)
