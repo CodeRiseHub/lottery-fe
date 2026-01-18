@@ -1070,6 +1070,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
             </button>
           </div>
 
+          {/* Countdown display - shown when countdown is active */}
+          {countdownActive && countdownRemaining !== null && (
+            <div style={{
+              textAlign: 'center',
+              padding: '15px 0',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              color: '#6cc5a1'
+            }}>
+              Joining... {Math.ceil(countdownRemaining)}s
+            </div>
+          )}
+
           <div className="lottery-stats">
             <div className="lottery-stats__item">
               <span className="lottery-stats__label">Registered:</span>
@@ -1251,7 +1264,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                          buttonPhase === 'SPINNING' ? 'Spinning...' : 
                          buttonPhase === 'RESOLUTION' ? 'Round Ended' :
                          isJoining ? 'Placing bet...' :
-                         countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
                          'BET'
                         console.log('[BUTTON-RENDER] Button text calculated', {
                           buttonText,
@@ -1269,8 +1281,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                           conditionMatched: !wsConnected ? 'Connecting' :
                             buttonPhase === 'SPINNING' ? 'SPINNING' :
                             buttonPhase === 'RESOLUTION' ? 'RESOLUTION' :
-                            isJoining ? 'Placing bet' :
-                            countdownActive && countdownRemaining !== null ? 'Countdown' : 'BET'
+                            isJoining ? 'Placing bet' : 'BET'
                         })
                         return buttonText
                       })()}
