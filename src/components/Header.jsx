@@ -124,7 +124,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
           <div className="header__balance">
             <img
               src={starIcon}
-              alt="Ticket"
+              alt="Star"
               className="header__icon"
               width="35"
               height="34"

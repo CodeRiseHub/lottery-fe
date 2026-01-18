@@ -188,6 +188,18 @@ export async function fetchCompletedRounds(roomNumber) {
   return authFetch(`/api/game/room/${roomNumber}/completed-rounds`, { method: "GET" });
 }
 
+/**
+ * Deposits stars to user's balance.
+ * @param {number} stars - Number of stars to deposit
+ */
+export async function depositStars(stars) {
+  console.debug("[API] Depositing stars:", stars);
+  return authFetch("/api/users/deposit", {
+    method: "POST",
+    body: JSON.stringify({ stars })
+  });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 

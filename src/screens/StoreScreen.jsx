@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { depositStars, fetchCurrentUser } from '../api'
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
   const [amount, setAmount] = useState('3')
-  const [tickets, setTickets] = useState('---')
+  const [stars, setStars] = useState('---')
   const [textError, setTextError] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const minSumUSD = 3
   const maxSumUSD = 100000
@@ -57,12 +59,12 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
       setTextError('')
     }
 
-    // Calculate tickets: 1 USD = 10 tickets
-    let ticketsValue = sumInUSD * 10
-    setTickets(numberFormatRuf(ticketsValue))
+    // Calculate stars: 1 USD = 10 stars
+    let starsValue = sumInUSD * 10
+    setStars(numberFormatRuf(starsValue))
   }
 
-  const handleBuyTickets = () => {
+  const handleBuyStars = async () => {
     if (!amount || amount === '') return
 
     let sumInUSD = parseFloat(amount) || 0
@@ -72,16 +74,34 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
       return
     }
 
-    // Calculate tickets: 1 USD = 10 tickets
-    let ticketsValue = sumInUSD * 10
-    
-    // Update balance (add tickets to current balance)
-    if (onBalanceUpdate) {
-      onBalanceUpdate(ticketsValue)
+    if (isProcessing) {
+      return
     }
+
+    // Calculate stars: 1 USD = 10 stars
+    let starsValue = sumInUSD * 10
     
-    // TODO: Show success message
-    alert(`Successfully purchased ${ticketsValue} tickets!`)
+    setIsProcessing(true)
+    setTextError('')
+
+    try {
+      // Call backend API to deposit stars
+      await depositStars(starsValue)
+      
+      // Fetch updated user data to get new balance
+      const userData = await fetchCurrentUser()
+      if (userData && onBalanceUpdate) {
+        // Format balance for display (balanceA is in bigint format)
+        const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+        onBalanceUpdate(balanceDisplay)
+      }
+      
+      alert(`Successfully purchased ${starsValue} stars!`)
+    } catch (error) {
+      setTextError(error.response?.message || error.message || 'Failed to purchase stars. Please try again.')
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   return (
@@ -113,9 +133,9 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
             <p className="upgrade__sub-title">You will receive:</p>
             <p className="upgrade__result">
               <span className="upgrade__number" id="power_gpu">
-                {tickets}
+                {stars}
               </span>
-              <span className="upgrade__unit">&nbsp;Tickets</span>
+              <span className="upgrade__unit">&nbsp;Stars</span>
             </p>
             <span className="upgrade__button-border">
               <a
@@ -124,10 +144,11 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
                 id="payNext"
                 onClick={(e) => {
                   e.preventDefault()
-                  handleBuyTickets()
+                  handleBuyStars()
                 }}
+                style={{ opacity: isProcessing ? 0.6 : 1, pointerEvents: isProcessing ? 'none' : 'auto' }}
               >
-                BUY TICKETS
+                {isProcessing ? 'PROCESSING...' : 'BUY STARS'}
               </a>
             </span>
           </div>

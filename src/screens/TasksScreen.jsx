@@ -83,13 +83,13 @@ export default function TasksScreen({ onBack, onNavigate }) {
   }
 
   const referralTasks = [
-    { id: 1, friends: 1, reward: '2 Tickets', progress: '1008 / 1', modalId: 'taskInviteModal_1' },
-    { id: 2, friends: 3, reward: '5 Tickets', progress: '1008 / 3', modalId: 'taskInviteModal_2' },
-    { id: 3, friends: 7, reward: '15 Tickets', progress: '1008 / 7', modalId: 'taskInviteModal_3' },
-    { id: 4, friends: 15, reward: '25 Tickets', progress: '1008 / 15', modalId: 'taskInviteModal_4' },
-    { id: 5, friends: 30, reward: '40 Tickets', progress: '1008 / 30', modalId: 'taskInviteModal_5' },
-    { id: 6, friends: 50, reward: '60 Tickets', progress: '1008 / 50', modalId: 'taskInviteModal_6' },
-    { id: 7, friends: 100, reward: '150 Tickets', progress: '1008 / 100', modalId: 'taskInviteModal_7' }
+    { id: 1, friends: 1, reward: '2 Stars', progress: '1008 / 1', modalId: 'taskInviteModal_1' },
+    { id: 2, friends: 3, reward: '5 Stars', progress: '1008 / 3', modalId: 'taskInviteModal_2' },
+    { id: 3, friends: 7, reward: '15 Stars', progress: '1008 / 7', modalId: 'taskInviteModal_3' },
+    { id: 4, friends: 15, reward: '25 Stars', progress: '1008 / 15', modalId: 'taskInviteModal_4' },
+    { id: 5, friends: 30, reward: '40 Stars', progress: '1008 / 30', modalId: 'taskInviteModal_5' },
+    { id: 6, friends: 50, reward: '60 Stars', progress: '1008 / 50', modalId: 'taskInviteModal_6' },
+    { id: 7, friends: 100, reward: '150 Stars', progress: '1008 / 100', modalId: 'taskInviteModal_7' }
   ]
 
   const followTasks = [
@@ -97,7 +97,7 @@ export default function TasksScreen({ onBack, onNavigate }) {
       id: 12,
       title: 'Follow our News channel',
       description: 'Follow our News channel',
-      reward: '5 Tickets',
+      reward: '5 Stars',
       url: 'https://t.me/SecretMinerInfo',
       modalId: 'taskFollowModal_12',
       icon: infoChannelIcon
@@ -109,7 +109,7 @@ export default function TasksScreen({ onBack, onNavigate }) {
       id: 11,
       title: 'Top Up Balance: $5',
       description: 'Top Up Balance: $5',
-      reward: '100 Tickets',
+      reward: '100 Stars',
       progress: null, // Will show "Check" button instead
       url: '/account/speed_up?unlock=5',
       modalId: 'taskInviteModal_11'
