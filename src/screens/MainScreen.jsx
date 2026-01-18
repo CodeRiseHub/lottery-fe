@@ -1129,33 +1129,102 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
             )}
             
             {/* Winner display - only show when winner exists */}
-            {winner && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '110px',
-                color: 'white',
-                padding: '20px',
-                textAlign: 'center',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background
-                borderRadius: '8px'
-              }}>
-                <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
-                  Winner: {winner.screenName || `User ${winner.userId}`}
+            {winner && (() => {
+              // Get avatar URL, fallback to placeholder if not available
+              let avatarUrl = winner.avatarUrl
+              if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(winner.userId)) {
+                const avatarIndex = winner.userId % 3
+                const avatars = [avatar1, avatar2, avatar3]
+                avatarUrl = avatars[avatarIndex]
+              }
+              
+              return (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  minHeight: '110px',
+                  color: 'white',
+                  padding: '20px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background
+                  borderRadius: '8px'
+                }}>
+                  {/* Winner name - centered on top */}
+                  <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center' }}>
+                    Winner: {winner.screenName || `User ${winner.userId}`}
+                  </div>
+                  
+                  {/* Bet row - avatar left, text right */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    width: '100%',
+                    marginBottom: '8px'
+                  }}>
+                    <img 
+                      src={avatarUrl} 
+                      alt="Winner avatar" 
+                      style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%',
+                        marginRight: '10px'
+                      }} 
+                    />
+                    <div style={{ fontSize: '16px', textAlign: 'right', flex: 1 }}>
+                      Bet: {formatBalance(winner.bet)}
+                    </div>
+                  </div>
+                  
+                  {/* Win row - avatar left, text right */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    width: '100%',
+                    marginBottom: '8px'
+                  }}>
+                    <img 
+                      src={avatarUrl} 
+                      alt="Winner avatar" 
+                      style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%',
+                        marginRight: '10px'
+                      }} 
+                    />
+                    <div style={{ fontSize: '16px', color: '#6cc5a1', textAlign: 'right', flex: 1 }}>
+                      Win: {formatBalance(winner.payout)}
+                    </div>
+                  </div>
+                  
+                  {/* Chance row - avatar left, text right */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    width: '100%'
+                  }}>
+                    <img 
+                      src={avatarUrl} 
+                      alt="Winner avatar" 
+                      style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%',
+                        marginRight: '10px'
+                      }} 
+                    />
+                    <div style={{ fontSize: '14px', opacity: 0.8, textAlign: 'right', flex: 1 }}>
+                      Chance: {totalTickets > 0 ? (((winner.bet / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '16px', marginBottom: '5px' }}>
-                  Bet: {formatBalance(winner.bet)}
-                </div>
-                <div style={{ fontSize: '16px', marginBottom: '5px', color: '#6cc5a1' }}>
-                  Win: {formatBalance(winner.payout)}
-                </div>
-                <div style={{ fontSize: '14px', opacity: 0.8 }}>
-                  Chance: {totalTickets > 0 ? (((winner.bet / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
-                </div>
-              </div>
-            )}
+              )
+            })()}
           </div>
 
           <div className="spin__bets">
