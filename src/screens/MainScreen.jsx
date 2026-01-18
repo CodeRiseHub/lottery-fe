@@ -50,7 +50,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   const currentPhaseRef = useRef('WAITING') // Track current phase synchronously for button state
   const onBalanceUpdateRef = useRef(onBalanceUpdate) // Store latest onBalanceUpdate callback
 
-  // Generate tape with empty blocks (like lottery-draft-fe but without text/avatars)
+  // Shuffle array using Fisher-Yates algorithm
+  const shuffleArray = (array) => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
+  // Generate tape with shuffled avatars proportional to win chances
   const generateTapeHTML = (participants, stopIndex) => {
     if (!participants || participants.length === 0) {
       return '' // Return empty - will show "Waiting for users..." message
@@ -61,36 +71,148 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       return ''
     }
 
-    const items = []
-    
-    // Calculate cumulative positions for each participant
+    // CRITICAL: Identify the winner from stopIndex
+    // stopIndex is a position in the cumulative bet range, find which participant contains it
     let cumulative = 0
-    const participantRanges = participants.map(p => {
+    let winnerParticipant = null
+    for (const participant of participants) {
       const start = cumulative
-      cumulative += (p.bet || 0)
+      cumulative += (participant.bet || 0)
       const end = cumulative
-      return { ...p, start, end }
-    })
+      if (stopIndex >= start && stopIndex < end) {
+        winnerParticipant = participant
+        break
+      }
+    }
 
-    // Generate tape items - repeat participants proportionally
-    // Use enough items to ensure smooth scrolling (like lottery-draft-fe has ~100+ items)
-    const totalItems = 200
-    for (let i = 0; i < totalItems; i++) {
-      // Map position to bet range (all in bigint format)
-      const position = (i / totalItems) * totalBet
+    // Filter participants based on rules
+    const MIN_CHANCE_THRESHOLD = 0.001 // 0.1%
+    const MAX_ITEMS = 500
+    const USER_COUNT_THRESHOLD = 50
+    
+    let filteredParticipants = participants
+    
+    // If more than 50 users, filter by win chance (> 0.1%)
+    if (participants.length > USER_COUNT_THRESHOLD) {
+      filteredParticipants = participants.filter(p => {
+        const winChance = totalBet > 0 ? (p.bet || 0) / totalBet : 0
+        // Always include winner, even if below threshold
+        return p.userId === winnerParticipant?.userId || winChance > MIN_CHANCE_THRESHOLD
+      })
+    }
+    
+    // Ensure winner is always included (safety check)
+    if (winnerParticipant && !filteredParticipants.find(p => p.userId === winnerParticipant.userId)) {
+      filteredParticipants.push(winnerParticipant)
+    }
+    
+    // Recalculate total bet for filtered participants
+    const filteredTotalBet = filteredParticipants.reduce((sum, p) => sum + (p.bet || 0), 0)
+    
+    // Calculate total items (max 500)
+    const totalItems = Math.min(MAX_ITEMS, Math.max(200, filteredParticipants.length * 10))
+    
+    // Calculate proportional avatar counts for each participant based on win chance
+    // First pass: calculate ideal counts (may be fractional)
+    const participantCounts = filteredParticipants.map(participant => {
+      const winChance = filteredTotalBet > 0 ? (participant.bet || 0) / filteredTotalBet : 0
+      const idealCount = winChance * totalItems
+      const isWinner = participant.userId === winnerParticipant?.userId
+      return {
+        participant,
+        idealCount,
+        winChance,
+        isWinner
+      }
+    })
+    
+    // Second pass: use largest remainder method to distribute counts fairly
+    // Ensure winner gets at least 1 avatar
+    const countsWithRemainders = participantCounts.map(({ participant, idealCount, isWinner }) => {
+      const floorCount = Math.floor(idealCount)
+      const remainder = idealCount - floorCount
+      // Winner must have at least 1, others need at least 1 if they have a bet
+      const minCount = isWinner ? 1 : (participant.bet > 0 ? 1 : 0)
+      return {
+        participant,
+        floorCount: Math.max(minCount, floorCount),
+        remainder,
+        isWinner
+      }
+    })
+    
+    // Calculate total allocated so far
+    let totalAllocated = countsWithRemainders.reduce((sum, c) => sum + c.floorCount, 0)
+    let remaining = totalItems - totalAllocated
+    
+    // If we exceed 500 items, remove lowest chance participants (but keep winner)
+    if (totalAllocated > MAX_ITEMS) {
+      // Sort by win chance (ascending), but winner always first
+      const sortedByChance = [...countsWithRemainders].sort((a, b) => {
+        if (a.isWinner) return -1
+        if (b.isWinner) return 1
+        return a.winChance - b.winChance
+      })
       
-      // Find which participant this position belongs to
-      const participant = participantRanges.find(p => position >= p.start && position < p.end)
-      
-      if (!participant) {
-        // If no participant found, skip this item
-        continue
+      // Remove participants with lowest chances until we fit in MAX_ITEMS
+      const toKeep = []
+      let newTotal = 0
+      for (const item of sortedByChance) {
+        if (item.isWinner || (newTotal + item.floorCount <= MAX_ITEMS)) {
+          toKeep.push(item)
+          newTotal += item.floorCount
+        }
       }
       
-      // Mark middle item (exactly at center for animation)
-      const isMiddle = i === Math.floor(totalItems / 2)
+      // Recalculate with only kept participants
+      const keptParticipants = toKeep.map(item => item.participant)
+      const keptTotalBet = keptParticipants.reduce((sum, p) => sum + (p.bet || 0), 0)
       
-      // Use avatar URL from backend, fallback to placeholder if not available
+      // Recalculate counts for kept participants
+      const recalculatedCounts = keptParticipants.map(participant => {
+        const winChance = keptTotalBet > 0 ? (participant.bet || 0) / keptTotalBet : 0
+        const idealCount = winChance * MAX_ITEMS
+        const isWinner = participant.userId === winnerParticipant?.userId
+        return {
+          participant,
+          idealCount,
+          winChance,
+          isWinner,
+          floorCount: Math.max(isWinner ? 1 : (participant.bet > 0 ? 1 : 0), Math.floor(idealCount)),
+          remainder: idealCount - Math.floor(idealCount)
+        }
+      })
+      
+      totalAllocated = recalculatedCounts.reduce((sum, c) => sum + c.floorCount, 0)
+      remaining = MAX_ITEMS - totalAllocated
+      countsWithRemainders.length = 0
+      countsWithRemainders.push(...recalculatedCounts)
+    }
+    
+    // Sort by remainder (descending) to allocate remaining items fairly
+    // Winner gets priority in remainder allocation
+    const sortedByRemainder = [...countsWithRemainders].sort((a, b) => {
+      if (a.isWinner && !b.isWinner) return -1
+      if (!a.isWinner && b.isWinner) return 1
+      return b.remainder - a.remainder
+    })
+    
+    // Allocate remaining items to participants with highest remainders
+    const finalCounts = countsWithRemainders.map(item => {
+      const indexInSorted = sortedByRemainder.findIndex(s => s.participant.userId === item.participant.userId)
+      const shouldGetExtra = indexInSorted < remaining && remaining > 0
+      return {
+        participant: item.participant,
+        count: item.floorCount + (shouldGetExtra ? 1 : 0),
+        isWinner: item.isWinner
+      }
+    })
+    
+    // Build avatar items array
+    const avatarItems = []
+    
+    finalCounts.forEach(({ participant, count, isWinner }) => {
+      // Get avatar URL
       let avatarUrl = participant.avatarUrl
       if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.userId)) {
         // Fallback to placeholder avatars if backend didn't provide a valid URL
@@ -99,13 +221,31 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
         avatarUrl = avatars[avatarIndex]
       }
       
-      // Create block with avatar (exactly like lottery-draft-fe structure)
+      // Add avatar items for this participant
+      for (let i = 0; i < count; i++) {
+        avatarItems.push({
+          avatarUrl,
+          userId: participant.userId,
+          isWinner
+        })
+      }
+    })
+    
+    // Shuffle the avatars randomly
+    const shuffledAvatars = shuffleArray(avatarItems)
+    
+    // Generate HTML from shuffled avatars
+    const items = []
+    const middleIndex = Math.floor(shuffledAvatars.length / 2)
+    
+    shuffledAvatars.forEach((item, index) => {
+      const isMiddle = index === middleIndex
       items.push(
         `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''}>
-          <img src="${avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%;" />
+          <img src="${item.avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%;" />
         </div>`
       )
-    }
+    })
     
     return items.join('')
   }
