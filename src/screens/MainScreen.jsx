@@ -60,7 +60,47 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     return shuffled
   }
 
-  // Generate tape with shuffled avatars proportional to win chances
+  // Generate pre-spin tape: one block per participant with avatar and win chance
+  const generatePreSpinTapeHTML = (participants) => {
+    if (!participants || participants.length === 0) {
+      return '' // Return empty - will show "Waiting for users..." message
+    }
+
+    const totalBet = participants.reduce((sum, p) => sum + (p.bet || 0), 0)
+    if (totalBet === 0) {
+      return ''
+    }
+
+    const items = []
+    
+    participants.forEach((participant) => {
+      // Calculate win chance percentage
+      const winChance = totalBet > 0 ? ((participant.bet || 0) / totalBet) * 100 : 0
+      
+      // Get avatar URL
+      let avatarUrl = participant.avatarUrl
+      if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.userId)) {
+        // Fallback to placeholder avatars if backend didn't provide a valid URL
+        const avatarIndex = participant.userId % 3
+        const avatars = [avatar1, avatar2, avatar3]
+        avatarUrl = avatars[avatarIndex]
+      }
+      
+      // Create block with avatar and chance below
+      items.push(
+        `<div class='spin__game-item' style="flex-direction: column; padding: 8px;">
+          <img src="${avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%; margin-bottom: 4px;" />
+          <div style="text-align: center; color: #fff; font-size: 12px; font-family: 'Chakra Petch', sans-serif; line-height: 1.2;">
+            ${winChance.toFixed(2)}%
+          </div>
+        </div>`
+      )
+    })
+    
+    return items.join('')
+  }
+
+  // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
   const generateTapeHTML = (participants, stopIndex) => {
     if (!participants || participants.length === 0) {
       return '' // Return empty - will show "Waiting for users..." message
@@ -656,7 +696,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           // Only update tape for WAITING and COUNTDOWN phases
           // Set HTML synchronously when DOM is ready (no requestAnimationFrame needed)
           if ((state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
-            const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
+            const tapeHTML = generatePreSpinTapeHTML(state.participants)
             console.log('[TAPE-GEN]', {
               phase: state.phase,
               participants: state.participants?.length || 0,
