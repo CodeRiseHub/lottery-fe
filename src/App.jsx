@@ -196,7 +196,12 @@ function App() {
         {currentScreen === 'referral' && <ReferralScreen onBack={handleBack} />}
         {currentScreen === 'transactionHistory' && <TransactionHistoryScreen onBack={handleBack} />}
         {currentScreen === 'store' && (
-          <StoreScreen onBack={handleBack} onNavigate={handleNavigate} onBalanceUpdate={handleBalanceUpdate} />
+          <StoreScreen 
+            onBack={handleBack} 
+            onNavigate={handleNavigate} 
+            onBalanceUpdate={handleBalanceUpdate}
+            onUserDataUpdate={setUserData}
+          />
         )}
         {currentScreen === 'tasks' && <TasksScreen onBack={handleBack} onNavigate={handleNavigate} />}
         {currentScreen === 'payout' && <PayoutScreen onBack={handleBack} onNavigate={handleNavigate} />}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { depositStars, fetchCurrentUser } from '../api'
 
-export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
+export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [amount, setAmount] = useState('3')
   const [stars, setStars] = useState('---')
   const [textError, setTextError] = useState('')
@@ -90,10 +90,17 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate }) {
       
       // Fetch updated user data to get new balance
       const userData = await fetchCurrentUser()
-      if (userData && onBalanceUpdate) {
+      if (userData) {
+        // Update userData in App.jsx so Header and other screens have the latest data
+        if (onUserDataUpdate) {
+          onUserDataUpdate(userData)
+        }
+        
         // Format balance for display (balanceA is in bigint format)
-        const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
-        onBalanceUpdate(balanceDisplay)
+        if (onBalanceUpdate) {
+          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+          onBalanceUpdate(balanceDisplay)
+        }
       }
       
       alert(`Successfully purchased ${starsValue} stars!`)

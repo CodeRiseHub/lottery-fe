@@ -46,22 +46,23 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
     }
   }, [userData]) // Only depend on userData
 
-  // Update balance from balanceProp (from WebSocket updates) - always prioritize this
+  // Update balance from balanceProp (from WebSocket updates or deposit) - always prioritize this
   useEffect(() => {
-    console.log('[Header] Balance update effect triggered:', {
-      balanceProp,
-      userDataBalance: userData?.balanceA,
-      currentBalanceState: balance,
-      initialized: initializedRef.current
-    })
-    if (balanceProp !== undefined && balanceProp !== null) {
-      // balanceProp is already formatted string from MainScreen/App
+    if (balanceProp !== undefined && balanceProp !== null && balanceProp !== '') {
+      // balanceProp is already formatted string from MainScreen/App/StoreScreen
       // Always prioritize balanceProp over userData for updates
       console.log('[Header] Setting balance from balanceProp:', balanceProp)
       setBalance(balanceProp)
       initializedRef.current = true // Mark as initialized once we get a balanceProp update
+    } else if (initializedRef.current && userData && userData.balanceA !== undefined) {
+      // Fallback: if balanceProp is not available but userData is updated, use userData
+      const formatted = formatBalance(userData.balanceA)
+      if (formatted !== balance) {
+        console.log('[Header] Updating balance from userData (fallback):', formatted)
+        setBalance(formatted)
+      }
     }
-  }, [balanceProp]) // Only depend on balanceProp for updates
+  }, [balanceProp, userData, balance]) // Depend on both balanceProp and userData
 
   const currentLangData = languages.find(l => l.code === currentLang) || languages[0]
 
