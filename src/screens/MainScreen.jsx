@@ -13,7 +13,7 @@ import { formatBalance } from '../utils/balanceFormatter'
 import '../utils/modals'
 
 export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
-  const [currentBet, setCurrentBet] = useState(1000)
+  const [currentBet, setCurrentBet] = useState(1) // Will be updated from state
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
   const [showKeyboardModal, setShowKeyboardModal] = useState(false)
@@ -39,15 +39,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   const [userBalance, setUserBalance] = useState(0) // Balance in bigint format
   const [isJoining, setIsJoining] = useState(false) // Track if JOIN request was sent but not yet acknowledged (reset on reconnect)
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
+  const [minBet, setMinBet] = useState(1) // Room-specific min bet (from backend state)
+  const [maxBet, setMaxBet] = useState(100) // Room-specific max bet (from backend state)
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
   const animationRunningRef = useRef(false) // Track if animation is currently running
   const animationStartTimeRef = useRef(null) // Track when animation started (for timeout)
   const animationCompletedTimeRef = useRef(null) // Track when animation completed (for state machine guards)
   const currentPhaseRef = useRef('WAITING') // Track current phase synchronously for button state
-  // Bet limits in ticket units (for UI display)
-  const minBet = 1000
-  const maxBet = 1000000
 
   // Generate tape with empty blocks (like lottery-draft-fe but without text/avatars)
   const generateTapeHTML = (participants, stopIndex) => {
@@ -470,6 +469,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           )
           if (currentRoom.number === state.roomNumber) {
             setCurrentRoom(prev => ({ ...prev, users: userCount }))
+          }
+        }
+        
+        // Update bet limits from state (room-specific)
+        if (state.minBet !== undefined && state.maxBet !== undefined) {
+          const newMinBet = state.minBet / 1000000 // Convert from bigint to display value
+          const newMaxBet = state.maxBet / 1000000
+          setMinBet(newMinBet)
+          setMaxBet(newMaxBet)
+          
+          // Update currentBet to minBet if it's outside the new limits or if room changed
+          if (currentBet < newMinBet || currentBet > newMaxBet || currentRoom.number !== state.roomNumber) {
+            setCurrentBet(newMinBet)
           }
         }
         
@@ -1102,7 +1114,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                 borderRadius: '8px'
               }}>
                 <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
-                  Winner: User {winner.userId}
+                  Winner: {winner.screenName || `User ${winner.userId}`}
                 </div>
                 <div style={{ fontSize: '16px', marginBottom: '5px' }}>
                   Bet: {formatBalance(winner.bet)}
@@ -1130,7 +1142,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
               <input
                 type="text"
                 className="spin__input"
-                placeholder="1000"
+                placeholder={minBet.toString()}
                 id="amountBet"
                 value={currentBet}
                 readOnly
