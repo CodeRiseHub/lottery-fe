@@ -104,6 +104,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
 
   // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
   const generateTapeHTML = (participants, stopIndex) => {
+    console.log('[WINNER-LOG] Starting tape generation', {
+      participantsCount: participants?.length || 0,
+      stopIndex,
+      timestamp: Date.now()
+    })
+
     if (!participants || participants.length === 0) {
       return '' // Return empty - will show "Waiting for users..." message
     }
@@ -113,19 +119,39 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       return ''
     }
 
+    console.log('[WINNER-LOG] Total bet calculated', {
+      totalBet,
+      participants: participants.map(p => ({ userId: p.userId, bet: p.bet }))
+    })
+
     // CRITICAL: Identify the winner from stopIndex
     // stopIndex is a position in the cumulative bet range, find which participant contains it
     let cumulative = 0
     let winnerParticipant = null
+    const participantRanges = []
+    
     for (const participant of participants) {
       const start = cumulative
       cumulative += (participant.bet || 0)
       const end = cumulative
+      participantRanges.push({ userId: participant.userId, start, end, bet: participant.bet })
+      
       if (stopIndex >= start && stopIndex < end) {
         winnerParticipant = participant
         break
       }
     }
+
+    console.log('[WINNER-LOG] Winner identification', {
+      stopIndex,
+      totalBet,
+      participantRanges,
+      identifiedWinner: winnerParticipant ? {
+        userId: winnerParticipant.userId,
+        bet: winnerParticipant.bet,
+        range: participantRanges.find(r => r.userId === winnerParticipant.userId)
+      } : null
+    })
 
     // Filter participants based on rules
     const MIN_CHANCE_THRESHOLD = 0.001 // 0.1%
@@ -150,6 +176,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     
     // Recalculate total bet for filtered participants
     const filteredTotalBet = filteredParticipants.reduce((sum, p) => sum + (p.bet || 0), 0)
+    
+    console.log('[WINNER-LOG] Filtering results', {
+      originalParticipantsCount: participants.length,
+      filteredParticipantsCount: filteredParticipants.length,
+      originalTotalBet: totalBet,
+      filteredTotalBet,
+      winnerInFiltered: winnerParticipant ? filteredParticipants.find(p => p.userId === winnerParticipant.userId) !== undefined : false
+    })
     
     // Calculate total items (max 500)
     const totalItems = Math.min(MAX_ITEMS, Math.max(200, filteredParticipants.length * 10))
@@ -281,23 +315,69 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     const middleIndex = Math.floor(shuffledAvatars.length / 2)
     const winnerIndex = shuffledAvatars.findIndex(item => item.isWinner)
     
+    console.log('[WINNER-LOG] Before swap', {
+      totalAvatars: shuffledAvatars.length,
+      middleIndex,
+      winnerIndex,
+      winnerAvatarsCount: shuffledAvatars.filter(item => item.isWinner).length,
+      middleAvatarBefore: shuffledAvatars[middleIndex] ? {
+        userId: shuffledAvatars[middleIndex].userId,
+        isWinner: shuffledAvatars[middleIndex].isWinner
+      } : null,
+      winnerAvatarAtMiddle: winnerIndex === middleIndex
+    })
+    
     if (winnerIndex !== -1 && winnerIndex !== middleIndex) {
       // Swap winner's avatar to middle position
       const temp = shuffledAvatars[middleIndex]
       shuffledAvatars[middleIndex] = shuffledAvatars[winnerIndex]
       shuffledAvatars[winnerIndex] = temp
+      console.log('[WINNER-LOG] Swapped winner to middle', {
+        winnerIndex,
+        middleIndex,
+        swappedFrom: temp ? { userId: temp.userId, isWinner: temp.isWinner } : null,
+        swappedTo: shuffledAvatars[middleIndex] ? {
+          userId: shuffledAvatars[middleIndex].userId,
+          isWinner: shuffledAvatars[middleIndex].isWinner
+        } : null
+      })
     } else if (winnerIndex === -1) {
       // Fallback: if no winner found (shouldn't happen), find any winner participant's avatar
-      console.warn('[TAPE-GEN] No winner avatar found in shuffled array, attempting fallback')
+      console.error('[WINNER-LOG] No winner avatar found in shuffled array, attempting fallback', {
+        winnerParticipant: winnerParticipant ? { userId: winnerParticipant.userId } : null,
+        allUserIds: shuffledAvatars.map(item => item.userId),
+        allIsWinner: shuffledAvatars.map(item => item.isWinner)
+      })
       if (winnerParticipant) {
         const fallbackIndex = shuffledAvatars.findIndex(item => item.userId === winnerParticipant.userId)
+        console.log('[WINNER-LOG] Fallback search', {
+          fallbackIndex,
+          middleIndex,
+          willSwap: fallbackIndex !== -1 && fallbackIndex !== middleIndex
+        })
         if (fallbackIndex !== -1 && fallbackIndex !== middleIndex) {
           const temp = shuffledAvatars[middleIndex]
           shuffledAvatars[middleIndex] = shuffledAvatars[fallbackIndex]
           shuffledAvatars[fallbackIndex] = temp
+          console.log('[WINNER-LOG] Fallback swap completed', {
+            fallbackIndex,
+            middleIndex
+          })
         }
       }
+    } else {
+      console.log('[WINNER-LOG] Winner already at middle, no swap needed')
     }
+    
+    console.log('[WINNER-LOG] Final middle element', {
+      middleIndex,
+      finalMiddleAvatar: shuffledAvatars[middleIndex] ? {
+        userId: shuffledAvatars[middleIndex].userId,
+        isWinner: shuffledAvatars[middleIndex].isWinner,
+        expectedWinnerId: winnerParticipant?.userId
+      } : null,
+      matches: shuffledAvatars[middleIndex]?.userId === winnerParticipant?.userId
+    })
     
     // Generate HTML from shuffled avatars
     const items = []
@@ -361,7 +441,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       if (animationRunningRef.current && animationStartTimeRef.current) {
         const elapsed = Date.now() - animationStartTimeRef.current
         if (elapsed > 10000) { // 10 seconds timeout
-          console.warn('Animation flag stuck, resetting')
           animationRunningRef.current = false
           animationStartTimeRef.current = null
         }
@@ -376,7 +455,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     if (currentUserId && userBets.length > 0) {
       const userHasJoined = userBets.some(bet => bet.id === currentUserId)
       if (userHasJoined && isJoining) {
-        console.log('[EFFECT] User already joined, resetting isJoining state')
         setIsJoining(false)
       }
     }
@@ -386,21 +464,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   // Only depend on roomPhase to ensure timeout is always set when phase changes
   useEffect(() => {
     if (roomPhase === 'SPINNING') {
-      console.log('[TIMEOUT-SET] Setting SPINNING timeout (8s)', {
-        roomPhase,
-        currentPhaseRef: currentPhaseRef.current,
-        buttonPhase,
-        timestamp: Date.now()
-      })
       const timeout = setTimeout(() => {
         // If still in SPINNING after 8 seconds, force transition to RESOLUTION
         // This handles cases where WebSocket message was missed
-        console.warn('[TIMEOUT-FIRED] RoomPhase stuck in SPINNING, forcing transition to RESOLUTION', {
-          roomPhase,
-          currentPhaseRef: currentPhaseRef.current,
-          buttonPhase,
-          timestamp: Date.now()
-        })
         setButtonPhase('RESOLUTION') // Update button phase state FIRST (triggers re-render)
         setButtonUpdateCounter(prev => prev + 1) // Force re-render
         setRoomPhase('RESOLUTION') // Update room phase state
@@ -408,37 +474,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
       
       return () => {
-        console.log('[TIMEOUT-CLEAR] Clearing SPINNING timeout', {
-          roomPhase,
-          timestamp: Date.now()
-        })
         clearTimeout(timeout)
       }
     } else if (roomPhase === 'RESOLUTION') {
-      console.log('[TIMEOUT-SET] Setting RESOLUTION timeout (10s)', {
-        roomPhase,
-        buttonPhase,
-        currentPhaseRef: currentPhaseRef.current,
-        timestamp: Date.now()
-      })
       const timeout = setTimeout(() => {
         // If still in RESOLUTION after 10 seconds, force transition to WAITING
         // This handles cases where WAITING message was missed
-        console.warn('[TIMEOUT-FIRED] RoomPhase stuck in RESOLUTION, forcing transition to WAITING', {
-          roomPhase,
-          currentPhaseRef: currentPhaseRef.current,
-          buttonPhase,
-          timestamp: Date.now()
-        })
         setButtonPhase('WAITING') // Update button phase state FIRST (triggers re-render)
         setButtonUpdateCounter(prev => prev + 1) // Force re-render
         setRoomPhase('WAITING') // Update room phase state
         currentPhaseRef.current = 'WAITING' // Update ref AFTER state (for guards/timers only)
-        console.log('[TIMEOUT-FIRED] Updated phases to WAITING', {
-          newRefPhase: currentPhaseRef.current,
-          newButtonPhase: 'WAITING',
-          timestamp: Date.now()
-        })
         // Clear winner when forcing WAITING
         setWinner(null)
         // Reset animation completion time
@@ -446,52 +491,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       }, 10000) // 10 seconds (6 seconds backend delay + 4 seconds buffer)
       
       return () => {
-        console.log('[TIMEOUT-CLEAR] Clearing RESOLUTION timeout', {
-          roomPhase,
-          buttonPhase,
-          currentPhaseRef: currentPhaseRef.current,
-          timestamp: Date.now()
-        })
         clearTimeout(timeout)
       }
     }
   }, [roomPhase]) // Only depend on roomPhase to ensure timeout is always set
-
-  // Log when roomPhase state actually changes (after React re-render)
-  useEffect(() => {
-    console.log('[PHASE-STATE-UPDATE] roomPhase state changed', {
-      newPhase: roomPhase,
-      refPhase: currentPhaseRef.current,
-      buttonPhase,
-      refMatchesState: currentPhaseRef.current === roomPhase,
-      buttonMatchesState: buttonPhase === roomPhase,
-      timestamp: Date.now()
-    })
-    
-    // Force a re-render check by logging button state
-    // This helps track if button re-renders after state change
-    setTimeout(() => {
-      console.log('[PHASE-STATE-UPDATE] Button state check after state update', {
-        statePhase: roomPhase,
-        refPhase: currentPhaseRef.current,
-        buttonPhase,
-        timeSinceUpdate: Date.now(),
-        shouldMatch: currentPhaseRef.current === roomPhase && buttonPhase === roomPhase
-      })
-    }, 0)
-  }, [roomPhase, buttonPhase])
-
-  // Log when buttonPhase state actually changes (after React re-render)
-  useEffect(() => {
-    console.log('[BUTTON-PHASE-STATE-UPDATE] buttonPhase state changed', {
-      newButtonPhase: buttonPhase,
-      refPhase: currentPhaseRef.current,
-      roomPhase,
-      refMatchesButton: currentPhaseRef.current === buttonPhase,
-      buttonMatchesRoom: buttonPhase === roomPhase,
-      timestamp: Date.now()
-    })
-  }, [buttonPhase])
   
   // WebSocket connection and state updates
   useEffect(() => {
@@ -502,15 +505,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       roomNumber,
       (state) => {
         // Update state from server (authoritative source)
-        console.log('[STATE-RECEIVED] Server state message received', {
-          phase: state.phase,
-          participants: state.participants?.length || 0,
-          registeredPlayers: state.registeredPlayers || 0,
-          totalBet: state.totalBet || 0,
-          hasWinner: !!state.winner,
-          roomNumber: state.roomNumber,
-          timestamp: Date.now()
-        })
         setRegisteredUsers(state.registeredPlayers || 0)
         // totalBet from backend is in bigint format, convert to display units
         const totalBetBigint = state.totalBet || 0
@@ -520,17 +514,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
         // Ensure valid phase transitions and synchronize with winner data
         const newPhase = state.phase || 'WAITING'
         const currentPhase = roomPhase
-        
-        console.log('[PHASE-TRANSITION]', {
-          from: currentPhase,
-          to: newPhase,
-          hasWinner: !!state.winner,
-          participants: state.participants?.length || 0,
-          animationRunning: animationRunningRef.current,
-          animationCompletedTime: animationCompletedTimeRef.current,
-          timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null,
-          timestamp: Date.now()
-        })
         
         // Validate phase transition (prevent skipping phases)
         // Allow: WAITING -> COUNTDOWN -> SPINNING -> RESOLUTION -> WAITING
@@ -547,109 +530,39 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
         if (newPhase === 'RESOLUTION') {
           // Update phase immediately when RESOLUTION arrives
           // Winner data can be set separately when it arrives (handled below)
-          console.log('[PHASE-TRANSITION] Updating to RESOLUTION', {
-            hasWinner: !!state.winner,
-            winnerId: state.winner?.userId || null
-          })
-          const updateTimestamp = Date.now()
           setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          console.log('[PHASE-UPDATE] RESOLUTION - setRoomPhase called, state updated first', {
-            newPhase,
-            refValue: currentPhaseRef.current,
-            stateValue: roomPhase, // This will be old value (async)
-            timestamp: updateTimestamp,
-            note: 'State updated first, ref updated after'
-          })
         } else if (newPhase === 'WAITING') {
           // For WAITING, always allow the transition
           // The state machine guard was too aggressive and causing stuck states on mobile
           // Tape clearing is handled by the animation callback, so we don't need to block WAITING
-          console.log('[WAITING-RECEIVED] WebSocket WAITING message received', {
-            currentPhase,
-            currentButtonPhase: buttonPhase,
-            currentRefPhase: currentPhaseRef.current,
-            animationCompletedTime: !!animationCompletedTimeRef.current,
-            timeSinceCompletion: animationCompletedTimeRef.current ? Date.now() - animationCompletedTimeRef.current : null,
-            timestamp: Date.now()
-          })
-          const beforeRef = currentPhaseRef.current
-          const beforeButtonPhase = buttonPhase
-          const beforeState = roomPhase
-          const updateTimestamp = Date.now()
           setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Always increment counter to force re-render, even if buttonPhase is already WAITING
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          console.log('[WAITING-UPDATE] Updated phases to WAITING', {
-            newPhase,
-            refBefore: beforeRef,
-            refAfter: currentPhaseRef.current,
-            buttonPhaseBefore: beforeButtonPhase,
-            buttonPhaseAfter: newPhase,
-            stateBefore: beforeState,
-            stateAfter: roomPhase, // This will still be old value (async)
-            timestamp: updateTimestamp,
-            note: 'State updated first, ref updated after'
-          })
-          console.log('[WAITING-UPDATE] setRoomPhase called for WAITING', {
-            newPhase,
-            refValue: currentPhaseRef.current,
-            buttonPhaseValue: newPhase,
-            stateValue: roomPhase, // This will still be old value (async)
-            timestamp: updateTimestamp,
-            note: 'State update is async, will trigger re-render'
-          })
           // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
           // This ensures roomPhase state is updated before any ref resets, preventing button state issues
         } else if (currentPhase === newPhase) {
           // Same phase - always allow (might be a refresh or duplicate message)
-          console.log('[PHASE-TRANSITION] Same phase, allowing:', newPhase)
-          const updateTimestamp = Date.now()
           setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          console.log('[PHASE-UPDATE] Same phase - setRoomPhase called, state updated first', {
-            newPhase,
-            refValue: currentPhaseRef.current,
-            stateValue: roomPhase, // This will be old value (async)
-            timestamp: updateTimestamp,
-            note: 'State updated first, ref updated after'
-          })
         } else if (validTransitions[currentPhase] && validTransitions[currentPhase].includes(newPhase)) {
           // Valid transition according to state machine
-          console.log('[PHASE-TRANSITION] Valid transition:', currentPhase, '->', newPhase)
-          const updateTimestamp = Date.now()
           setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          console.log('[PHASE-UPDATE] Valid transition - setRoomPhase called, state updated first', {
-            newPhase,
-            refValue: currentPhaseRef.current,
-            stateValue: roomPhase, // This will be old value (async)
-            timestamp: updateTimestamp,
-            note: 'State updated first, ref updated after'
-          })
         } else {
-          // Invalid transition - log warning but allow it (might be due to missed messages)
+          // Invalid transition - allow it (might be due to missed messages)
           // This is important for mobile where messages might arrive out of order
-          console.warn(`Invalid phase transition: ${currentPhase} -> ${newPhase} - allowing anyway to prevent stuck state`)
-          const updateTimestamp = Date.now()
           setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          console.log('[PHASE-UPDATE] Invalid transition - setRoomPhase called, state updated first', {
-            newPhase,
-            refValue: currentPhaseRef.current,
-            stateValue: roomPhase, // This will be old value (async)
-            timestamp: updateTimestamp,
-            note: 'State updated first, ref updated after'
-          })
         }
         
         // Update room user counts for all rooms
@@ -711,29 +624,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           // If user is in participants, they are JOINED - reset isJoining
           // This handles reconnect case where user was already joined before app closed
           if (currentUserId && state.participants.some(p => p.userId === currentUserId) && isJoining) {
-            console.log('[STATE-UPDATE] User already joined (from server), resetting isJoining state')
             setIsJoining(false)
           }
-
 
           // Update tape with participants (but NOT during SPINNING - that's handled separately)
           // Only update tape for WAITING and COUNTDOWN phases
           // Set HTML synchronously when DOM is ready (no requestAnimationFrame needed)
           if ((state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
             const tapeHTML = generatePreSpinTapeHTML(state.participants)
-            console.log('[TAPE-GEN]', {
-              phase: state.phase,
-              participants: state.participants?.length || 0,
-              hasHTML: !!tapeHTML,
-              htmlLength: tapeHTML?.length || 0,
-              containerExists: !!lineContainerRef.current,
-              timestamp: Date.now()
-            })
             if (tapeHTML) {
               lineContainerRef.current.innerHTML = tapeHTML
-              console.log('[TAPE-GEN] HTML set successfully')
-            } else {
-              console.warn('[TAPE-GEN] No HTML generated, participants:', state.participants)
             }
           }
         } else {
@@ -746,22 +646,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
             const animationCompletedTime = animationCompletedTimeRef.current
             const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
             
-            console.log('[TAPE-CLEAR-CHECK]', {
-              phase: state.phase,
-              participants: state.participants?.length || 0,
-              animationCompletedTime: !!animationCompletedTime,
-              timeSinceCompletion,
-              willClear: !animationCompletedTime || timeSinceCompletion > 1000,
-              timestamp: now
-            })
-            
             // Only clear if animation completed more than 1 second ago, or never ran
             if (!animationCompletedTime || timeSinceCompletion > 1000) {
-              console.log('[TAPE-CLEAR-CHECK] Clearing tape')
               lineContainerRef.current.innerHTML = ''
               animationCompletedTimeRef.current = null // Reset after clearing
-            } else {
-              console.log('[TAPE-CLEAR-CHECK] Skipping clear - animation completed', timeSinceCompletion, 'ms ago')
             }
           }
         }
@@ -782,7 +670,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
         // If user has joined but isJoining is still true (e.g., after reconnection), reset it
         // This ensures button shows "Joined" instead of "Joining..." when user reconnects
         if (userHasJoined && isJoining) {
-          console.log('[STATE-UPDATE] User has joined, resetting isJoining state')
           setIsJoining(false)
         }
 
@@ -805,27 +692,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
             // Set HTML content immediately (synchronously, no requestAnimationFrame)
             // Ensure container exists and is mounted before setting HTML
             const animationStartTime = Date.now()
-            console.log('[ANIMATION-START]', {
-              participants: state.participants?.length || 0,
-              stopIndex: state.stopIndex,
-              containerExists: !!lineContainerRef.current,
-              timestamp: animationStartTime
-            })
             
             if (lineContainerRef.current) {
               const tapeHTML = generateTapeHTML(state.participants, state.stopIndex)
-              console.log('[ANIMATION-START] Generated tape HTML:', {
-                hasHTML: !!tapeHTML,
-                htmlLength: tapeHTML?.length || 0
-              })
               if (tapeHTML) {
                 lineContainerRef.current.innerHTML = tapeHTML
-                console.log('[ANIMATION-START] HTML set to container')
-              } else {
-                console.error('[ANIMATION-START] No HTML generated!')
               }
-            } else {
-              console.error('[ANIMATION-START] Container not found!')
             }
             
             // Mark animation as running and record start time
@@ -849,18 +721,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           const animationCompletedTime = animationCompletedTimeRef.current
           const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
           
-          console.log('[WAITING-HANDLER]', {
-            animationRunning: animationRunningRef.current,
-            animationCompletedTime: !!animationCompletedTime,
-            timeSinceCompletion,
-            participants: state.participants?.length || 0,
-            timestamp: now
-          })
-          
           if (animationCompletedTime && timeSinceCompletion < 1000) {
             // Animation just completed (< 1 second ago), skip WAITING processing
             // Tape clearing is handled by animation callback
-            console.log('[WAITING-HANDLER] BLOCKED - animation completed', timeSinceCompletion, 'ms ago')
             return // Skip this state update to prevent race condition
           }
           
@@ -868,12 +731,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           // This ensures roomPhase state is updated before resetting the ref
           if (animationCompletedTimeRef.current) {
             animationCompletedTimeRef.current = null
-            console.log('[WAITING-HANDLER] Reset animationCompletedTimeRef (new round starting)')
           }
           
           // If animation wasn't running (single participant refund), allow tape clearing
           if (!animationRunningRef.current && (!state.participants || state.participants.length === 0)) {
-            console.log('[WAITING-HANDLER] Clearing tape (no animation, no participants)')
             setUserBets([])
             if (lineContainerRef.current) {
               lineContainerRef.current.innerHTML = ''
@@ -896,13 +757,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           // This ensures tape is cleared before winner overlay is shown
           // The animation callback will also try to clear, but this ensures it happens immediately
           if (animationRunningRef.current && lineContainerRef.current) {
-            console.log('[RESOLUTION] Clearing tape synchronously (animation still running)')
             lineContainerRef.current.innerHTML = ''
             // Don't reset animationRunningRef here - let the callback do it
             // This prevents the callback from trying to clear a non-existent container
           } else if (!animationRunningRef.current && lineContainerRef.current) {
             // Animation wasn't running (single participant refund), clear immediately
-            console.log('[RESOLUTION] Clearing tape (no animation)')
             lineContainerRef.current.innerHTML = ''
           }
         }
@@ -934,36 +793,22 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
         // Connection state callback
         const wasConnected = wsConnected
         setWsConnected(connected)
-        console.log('[MainScreen] WebSocket connection state:', connected)
         
         // On reconnect (was disconnected, now connected), reset only local joining state
         // Server will automatically send current room state when client subscribes
         if (!wasConnected && connected) {
-          console.log('[RECONNECT] WebSocket reconnected, resetting local joining state')
           setIsJoining(false) // Reset local joining state - this is purely frontend state
           // Server will send state automatically on subscription via WebSocketSubscriptionListener
-          console.log('[RECONNECT] Waiting for server state message (sent automatically on subscribe)')
         }
       },
       (balanceBigint) => {
         // Balance update callback from WebSocket
         if (balanceBigint !== null && balanceBigint !== undefined) {
           const formattedBalance = formatBalance(balanceBigint)
-          console.log('[MainScreen] Balance update from WebSocket:', {
-            balanceBigint,
-            formattedBalance,
-            previousBalance: userBalance,
-            previousFormatted: formatBalance(userBalance)
-          })
           setUserBalance(balanceBigint)
           if (onBalanceUpdate) {
-            console.log('[MainScreen] Calling onBalanceUpdate with:', formattedBalance)
             onBalanceUpdate(formattedBalance)
-          } else {
-            console.warn('[MainScreen] onBalanceUpdate callback is not available!')
           }
-        } else {
-          console.warn('[MainScreen] Received null/undefined balance from WebSocket')
         }
       }
     )
@@ -1050,14 +895,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
 
   const scrollToCenter = ($container, $element, duration, onComplete) => {
     if (typeof window.$ === 'undefined') {
-      console.error('jQuery not available for scrollToCenter')
       return
     }
     
     const container = $container[0]
     const element = $element[0]
     if (!container || !element) {
-      console.warn('scrollToCenter: container or element not found', { container, element })
       return
     }
 
@@ -1075,7 +918,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
 
   const startSpinAnimation = (stopIndex, duration) => {
     if (typeof window.$ === 'undefined') {
-      console.error('jQuery not loaded')
       animationRunningRef.current = false // Reset flag on error
       animationStartTimeRef.current = null
       animationCompletedTimeRef.current = null
@@ -1098,53 +940,23 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
         // Clear tape after animation completes (not based on arbitrary timeout)
         // This is the SINGLE SOURCE OF TRUTH for tape clearing
         // This ensures tape is cleared exactly when animation finishes
-        const animationEndTime = Date.now()
-        const animationDuration = animationEndTime - (animationStartTimeRef.current || animationEndTime)
-        console.log('[ANIMATION-COMPLETE] Animation finished, clearing tape in 500ms', {
-          animationDuration,
-          timestamp: animationEndTime
-        })
-        
         setTimeout(() => {
-          const clearTime = Date.now()
-          console.log('[ANIMATION-COMPLETE] Clearing tape now', {
-            containerExists: !!lineContainerRef.current,
-            timeSinceAnimationEnd: clearTime - animationEndTime,
-            timestamp: clearTime
-          })
-          
           if (lineContainerRef.current) {
             // Check if tape is already cleared (might have been cleared by RESOLUTION handler)
             const alreadyCleared = lineContainerRef.current.innerHTML === ''
             if (!alreadyCleared) {
               lineContainerRef.current.innerHTML = ''
-              console.log('[ANIMATION-COMPLETE] Tape cleared successfully')
-            } else {
-              console.log('[ANIMATION-COMPLETE] Tape already cleared (by RESOLUTION handler)')
             }
-          } else {
-            console.warn('[ANIMATION-COMPLETE] Container not found when clearing (may have been unmounted)')
           }
           
           // Reset animation flag after animation fully completes
           animationRunningRef.current = false
           animationStartTimeRef.current = null
           // Record completion time for state machine guards
-          animationCompletedTimeRef.current = clearTime
-          console.log('[ANIMATION-COMPLETE] Animation lifecycle complete', {
-            completedTime: clearTime,
-            totalDuration: clearTime - (animationStartTimeRef.current || clearTime)
-          })
+          animationCompletedTimeRef.current = Date.now()
         }, 500) // Small delay to show blink animation
       })
     } else {
-      console.error('Animation elements not found:', {
-        container: $container.length,
-        middleElement: $middleElement.length,
-        allNoScrolQ: window.$('.noScrolQ').length,
-        allMiddleQ: window.$('#middleQ').length,
-        lineContainer: window.$('#lineContainer').length
-      })
       animationRunningRef.current = false // Reset flag on error
       animationStartTimeRef.current = null
       animationCompletedTimeRef.current = null
@@ -1154,7 +966,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   const handleJoin = () => {
     // Only block if round is spinning or in resolution, or if request is in progress
     if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining) {
-      console.log('[handleJoin] Join blocked:', { buttonPhase, isJoining })
       return
     }
 
@@ -1185,19 +996,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       // Update balance immediately (will be confirmed by server)
       const newBalance = userBalance - betBigint
       const formattedNewBalance = formatBalance(newBalance)
-      console.log('[MainScreen] Local balance update on bet:', {
-        previousBalance: userBalance,
-        previousFormatted: formatBalance(userBalance),
-        betBigint,
-        newBalance,
-        formattedNewBalance
-      })
       setUserBalance(newBalance)
       if (onBalanceUpdate) {
-        console.log('[MainScreen] Calling onBalanceUpdate on bet with:', formattedNewBalance)
         onBalanceUpdate(formattedNewBalance)
-      } else {
-        console.warn('[MainScreen] onBalanceUpdate callback is not available on bet!')
       }
     } catch (error) {
       setIsJoining(false) // Reset on immediate error
@@ -1253,7 +1054,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           setCompletedRounds(rounds)
         }
       } catch (error) {
-        console.error('[MainScreen] Failed to fetch completed rounds:', error)
         setCompletedRounds([])
       }
     }
@@ -1262,7 +1062,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   }, [currentRoom.number, winner]) // Reload when room changes or when winner is set (round ends)
 
   const handleRoomChange = (room) => {
-    console.log('[ROOM-CHANGE] Switching from room', currentRoom.number, 'to room', room.number)
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
     // The useEffect with currentRoom.number dependency will trigger reconnection
@@ -1483,24 +1282,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                          buttonPhase === 'RESOLUTION' ? 'Round Ended' :
                          isJoining ? 'Placing bet...' :
                          'BET'
-                        console.log('[BUTTON-RENDER] Button text calculated', {
-                          buttonText,
-                          buttonPhase,
-                          refPhase: currentPhaseRef.current,
-                          statePhase: roomPhase,
-                          isJoining,
-                          wsConnected,
-                          userBetsLength: userBets.length,
-                          userHasJoined: currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId),
-                          countdownActive,
-                          countdownRemaining,
-                          timestamp: Date.now(),
-                          // Track which condition matched
-                          conditionMatched: !wsConnected ? 'Connecting' :
-                            buttonPhase === 'SPINNING' ? 'SPINNING' :
-                            buttonPhase === 'RESOLUTION' ? 'RESOLUTION' :
-                            isJoining ? 'Placing bet' : 'BET'
-                        })
                         return buttonText
                       })()}
                     </span>
