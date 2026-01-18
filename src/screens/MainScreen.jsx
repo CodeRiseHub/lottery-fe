@@ -276,9 +276,31 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     // Shuffle the avatars randomly
     const shuffledAvatars = shuffleArray(avatarItems)
     
+    // CRITICAL: Ensure winner's avatar is at the middle position
+    // Find a winner's avatar and swap it to the middle
+    const middleIndex = Math.floor(shuffledAvatars.length / 2)
+    const winnerIndex = shuffledAvatars.findIndex(item => item.isWinner)
+    
+    if (winnerIndex !== -1 && winnerIndex !== middleIndex) {
+      // Swap winner's avatar to middle position
+      const temp = shuffledAvatars[middleIndex]
+      shuffledAvatars[middleIndex] = shuffledAvatars[winnerIndex]
+      shuffledAvatars[winnerIndex] = temp
+    } else if (winnerIndex === -1) {
+      // Fallback: if no winner found (shouldn't happen), find any winner participant's avatar
+      console.warn('[TAPE-GEN] No winner avatar found in shuffled array, attempting fallback')
+      if (winnerParticipant) {
+        const fallbackIndex = shuffledAvatars.findIndex(item => item.userId === winnerParticipant.userId)
+        if (fallbackIndex !== -1 && fallbackIndex !== middleIndex) {
+          const temp = shuffledAvatars[middleIndex]
+          shuffledAvatars[middleIndex] = shuffledAvatars[fallbackIndex]
+          shuffledAvatars[fallbackIndex] = temp
+        }
+      }
+    }
+    
     // Generate HTML from shuffled avatars
     const items = []
-    const middleIndex = Math.floor(shuffledAvatars.length / 2)
     
     shuffledAvatars.forEach((item, index) => {
       const isMiddle = index === middleIndex
@@ -1502,8 +1524,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                 }
                 
                 // Convert bet and payout from bigint to display format
-                const betDisplay = round.winnerBet ? round.winnerBet / 1000000 : 0
-                const payoutDisplay = round.payout ? round.payout / 1000000 : 0
+                // Values are already in bigint format, so pass directly to formatBalance
+                const betDisplay = round.winnerBet || 0
+                const payoutDisplay = round.payout || 0
                 const chanceDisplay = round.winChance ? round.winChance.toFixed(2) : '0.00'
                 
                 return (
