@@ -25,7 +25,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [registeredUsers, setRegisteredUsers] = useState(0)
-  const [totalTickets, setTotalTickets] = useState(0)
+  const [totalBet, setTotalBet] = useState(0)
   const [currentRoom, setCurrentRoom] = useState({ number: 1, users: 0 })
   const [rooms, setRooms] = useState([
     { number: 1, users: 0 },
@@ -104,13 +104,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
 
   // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
   const generateTapeHTML = (participants, stopIndex, winnerFromState) => {
-    console.log('[WINNER-LOG] Starting tape generation', {
-      participantsCount: participants?.length || 0,
-      stopIndex,
-      winnerFromState: winnerFromState ? { userId: winnerFromState.userId } : null,
-      timestamp: Date.now()
-    })
-
     if (!participants || participants.length === 0) {
       return '' // Return empty - will show "Waiting for users..." message
     }
@@ -119,11 +112,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     if (totalBet === 0) {
       return ''
     }
-
-    console.log('[WINNER-LOG] Total bet calculated', {
-      totalBet,
-      participants: participants.map(p => ({ userId: p.userId, bet: p.bet }))
-    })
 
     // CRITICAL: Identify the winner
     // Priority: 1) Use winner from state (backend authoritative), 2) Calculate from stopIndex
@@ -144,10 +132,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     if (winnerFromState && winnerFromState.userId) {
       // Use winner from backend state (authoritative source)
       winnerParticipant = participants.find(p => p.userId === winnerFromState.userId)
-      console.log('[WINNER-LOG] Using winner from state', {
-        winnerUserId: winnerFromState.userId,
-        found: winnerParticipant !== undefined
-      })
     } else if (stopIndex !== null && stopIndex !== undefined && stopIndex >= 0) {
       // Calculate winner from stopIndex (fallback if state winner not available)
       cumulative = 0
@@ -161,36 +145,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           break
         }
       }
-      console.log('[WINNER-LOG] Calculated winner from stopIndex', {
-        stopIndex,
-        winnerUserId: winnerParticipant?.userId
-      })
     }
     
-    // CRITICAL: If we can't determine the winner, log error and don't generate tape
+    // CRITICAL: If we can't determine the winner, don't generate tape
     // This prevents showing the wrong winner in the tape
     if (!winnerParticipant) {
-      console.error('[WINNER-LOG] CRITICAL: Cannot determine winner - missing both state winner and stopIndex', {
-        hasWinnerFromState: winnerFromState !== null && winnerFromState !== undefined,
-        winnerFromStateUserId: winnerFromState?.userId,
-        stopIndex,
-        participantsCount: participants.length,
-        participantUserIds: participants.map(p => p.userId)
-      })
       // Return empty string - better to show no tape than wrong winner
       return ''
     }
-
-    console.log('[WINNER-LOG] Winner identification', {
-      stopIndex,
-      totalBet,
-      participantRanges,
-      identifiedWinner: winnerParticipant ? {
-        userId: winnerParticipant.userId,
-        bet: winnerParticipant.bet,
-        range: participantRanges.find(r => r.userId === winnerParticipant.userId)
-      } : null
-    })
 
     // Filter participants based on rules
     const MIN_CHANCE_THRESHOLD = 0.001 // 0.1%
@@ -215,14 +177,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     
     // Recalculate total bet for filtered participants
     const filteredTotalBet = filteredParticipants.reduce((sum, p) => sum + (p.bet || 0), 0)
-    
-    console.log('[WINNER-LOG] Filtering results', {
-      originalParticipantsCount: participants.length,
-      filteredParticipantsCount: filteredParticipants.length,
-      originalTotalBet: totalBet,
-      filteredTotalBet,
-      winnerInFiltered: winnerParticipant ? filteredParticipants.find(p => p.userId === winnerParticipant.userId) !== undefined : false
-    })
     
     // Calculate total items (max 500)
     const totalItems = Math.min(MAX_ITEMS, Math.max(200, filteredParticipants.length * 10))
@@ -354,69 +308,22 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     const middleIndex = Math.floor(shuffledAvatars.length / 2)
     const winnerIndex = shuffledAvatars.findIndex(item => item.isWinner)
     
-    console.log('[WINNER-LOG] Before swap', {
-      totalAvatars: shuffledAvatars.length,
-      middleIndex,
-      winnerIndex,
-      winnerAvatarsCount: shuffledAvatars.filter(item => item.isWinner).length,
-      middleAvatarBefore: shuffledAvatars[middleIndex] ? {
-        userId: shuffledAvatars[middleIndex].userId,
-        isWinner: shuffledAvatars[middleIndex].isWinner
-      } : null,
-      winnerAvatarAtMiddle: winnerIndex === middleIndex
-    })
-    
     if (winnerIndex !== -1 && winnerIndex !== middleIndex) {
       // Swap winner's avatar to middle position
       const temp = shuffledAvatars[middleIndex]
       shuffledAvatars[middleIndex] = shuffledAvatars[winnerIndex]
       shuffledAvatars[winnerIndex] = temp
-      console.log('[WINNER-LOG] Swapped winner to middle', {
-        winnerIndex,
-        middleIndex,
-        swappedFrom: temp ? { userId: temp.userId, isWinner: temp.isWinner } : null,
-        swappedTo: shuffledAvatars[middleIndex] ? {
-          userId: shuffledAvatars[middleIndex].userId,
-          isWinner: shuffledAvatars[middleIndex].isWinner
-        } : null
-      })
     } else if (winnerIndex === -1) {
       // Fallback: if no winner found (shouldn't happen), find any winner participant's avatar
-      console.error('[WINNER-LOG] No winner avatar found in shuffled array, attempting fallback', {
-        winnerParticipant: winnerParticipant ? { userId: winnerParticipant.userId } : null,
-        allUserIds: shuffledAvatars.map(item => item.userId),
-        allIsWinner: shuffledAvatars.map(item => item.isWinner)
-      })
       if (winnerParticipant) {
         const fallbackIndex = shuffledAvatars.findIndex(item => item.userId === winnerParticipant.userId)
-        console.log('[WINNER-LOG] Fallback search', {
-          fallbackIndex,
-          middleIndex,
-          willSwap: fallbackIndex !== -1 && fallbackIndex !== middleIndex
-        })
         if (fallbackIndex !== -1 && fallbackIndex !== middleIndex) {
           const temp = shuffledAvatars[middleIndex]
           shuffledAvatars[middleIndex] = shuffledAvatars[fallbackIndex]
           shuffledAvatars[fallbackIndex] = temp
-          console.log('[WINNER-LOG] Fallback swap completed', {
-            fallbackIndex,
-            middleIndex
-          })
         }
       }
-    } else {
-      console.log('[WINNER-LOG] Winner already at middle, no swap needed')
     }
-    
-    console.log('[WINNER-LOG] Final middle element', {
-      middleIndex,
-      finalMiddleAvatar: shuffledAvatars[middleIndex] ? {
-        userId: shuffledAvatars[middleIndex].userId,
-        isWinner: shuffledAvatars[middleIndex].isWinner,
-        expectedWinnerId: winnerParticipant?.userId
-      } : null,
-      matches: shuffledAvatars[middleIndex]?.userId === winnerParticipant?.userId
-    })
     
     // Generate HTML from shuffled avatars
     const items = []
@@ -436,7 +343,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   // Calculate user's win chance percentage
   // Derive user bet from userBets (authoritative server data) instead of local state
   const calculateWinChance = () => {
-    if (totalTickets === 0 || !currentUserId) return 0
+    if (totalBet === 0 || !currentUserId) return 0
     
     // Find current user's bet from participants list
     const userBet = userBets.find(bet => bet.id === currentUserId)
@@ -446,7 +353,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     const userBetDisplay = userBet.bet / 1000000
     if (userBetDisplay === 0) return 0
     
-    return ((userBetDisplay / totalTickets) * 100).toFixed(2)
+    return ((userBetDisplay / totalBet) * 100).toFixed(2)
   }
 
   // Keep onBalanceUpdateRef up to date
@@ -548,7 +455,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
         // totalBet from backend is in bigint format, convert to display units
         const totalBetBigint = state.totalBet || 0
         const totalBetDisplay = totalBetBigint / 1000000
-        setTotalTickets(totalBetDisplay)
+        setTotalBet(totalBetDisplay)
         // Update roomPhase with state validation and synchronization
         // Ensure valid phase transitions and synchronize with winner data
         const newPhase = state.phase || 'WAITING'
@@ -649,7 +556,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           }
         }
         
-        // Update participants and calculate user's tickets
+        // Update participants and calculate user's bet
         if (state.participants && state.participants.length > 0) {
           const bets = state.participants.map(p => ({
             id: p.userId,
@@ -1016,7 +923,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       return
     }
 
-    // Convert bet from ticket units to bigint format (database format)
+    // Convert bet from display units to bigint format (database format)
     // Backend expects and works with bigint format throughout
     const betBigint = currentBet * 1000000
     
@@ -1132,28 +1039,59 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
             </button>
           </div>
 
-          {/* Countdown display - shown when countdown is active */}
-          {countdownActive && countdownRemaining !== null && (
-            <div style={{
-              textAlign: 'center',
-              padding: '15px 0',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: '#6cc5a1'
-            }}>
-              Joining... {Math.ceil(countdownRemaining)}s
-            </div>
-          )}
-
           <div className="lottery-stats">
             <div className="lottery-stats__item">
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {registeredUsers} <span style={{ fontSize: '18px' }}>👤</span>
               </span>
             </div>
+            
+            {/* Countdown ring - shown when countdown is active */}
+            {countdownActive && countdownRemaining !== null ? (
+              <div className="lottery-stats__item" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={{ position: 'relative', width: '60px', height: '60px' }}>
+                  <svg width="60" height="60" style={{ transform: 'rotate(-90deg)' }}>
+                    {/* Background circle */}
+                    <circle
+                      cx="30"
+                      cy="30"
+                      r="28"
+                      fill="none"
+                      stroke="rgba(255, 255, 255, 0.2)"
+                      strokeWidth="2"
+                    />
+                    {/* Progress circle */}
+                    <circle
+                      cx="30"
+                      cy="30"
+                      r="28"
+                      fill="none"
+                      stroke="#6cc5a1"
+                      strokeWidth="2"
+                      strokeDasharray={`${2 * Math.PI * 28}`}
+                      strokeDashoffset={`${2 * Math.PI * 28 * (1 - countdownProgress / 100)}`}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.1s linear' }}
+                    />
+                  </svg>
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#6cc5a1'
+                  }}>
+                    {Math.ceil(countdownRemaining)}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            
             <div className="lottery-stats__item">
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {formatNumber(totalTickets)} <img src={starIcon} alt="star" width="18" height="18" />
+                {formatNumber(totalBet)} <img src={starIcon} alt="star" width="18" height="18" />
               </span>
             </div>
           </div>
@@ -1271,7 +1209,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                           Win: {formatBalance(winner.payout)}
                         </div>
                         <div style={{ fontSize: '14px', opacity: 0.8, textAlign: 'center' }}>
-                          Chance: {totalTickets > 0 ? (((winner.bet / 1000000) / totalTickets) * 100).toFixed(2) : 0}%
+                          Chance: {totalBet > 0 ? (((winner.bet / 1000000) / totalBet) * 100).toFixed(2) : 0}%
                         </div>
                       </div>
                     </div>

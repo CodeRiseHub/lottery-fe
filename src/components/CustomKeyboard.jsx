@@ -1,18 +1,54 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) {
   const [inputValue, setInputValue] = useState(value && !isNaN(value) ? value.toString() : '0')
+  const [hasStartedTyping, setHasStartedTyping] = useState(false)
+  const inputRef = useRef(null)
 
   useEffect(() => {
-    // Update input value when value prop changes
-    if (value && !isNaN(value)) {
+    // Update input value when value prop changes (only if user hasn't started typing)
+    if (!hasStartedTyping && value && !isNaN(value)) {
       setInputValue(value.toString())
     }
-  }, [value])
+  }, [value, hasStartedTyping])
+
+  // Focus input when keyboard opens
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [])
 
   const handleNumberClick = (num) => {
-    const newValue = inputValue === '0' ? num.toString() : inputValue + num
-    setInputValue(newValue)
+    if (!hasStartedTyping) {
+      // Clear existing value when user starts typing
+      setInputValue(num.toString())
+      setHasStartedTyping(true)
+    } else {
+      // Append to current value
+      const newValue = inputValue === '0' ? num.toString() : inputValue + num
+      setInputValue(newValue)
+    }
+  }
+
+  const handleKeyDown = (e) => {
+    // Handle real keyboard input
+    if (e.key >= '0' && e.key <= '9') {
+      e.preventDefault()
+      handleNumberClick(e.key)
+    } else if (e.key === '.') {
+      e.preventDefault()
+      handleDecimalClick()
+    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+      e.preventDefault()
+      handleBackspace()
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      handleConfirm()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      onClose()
+    }
   }
 
   const handleDecimalClick = () => {
@@ -49,14 +85,31 @@ export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) 
       }}
     >
       <div className="modal modal--keyboard" onClick={(e) => e.stopPropagation()}>
-        <p className="modal__keyboard-title">Ticket amount</p>
+        <p className="modal__keyboard-title">Enter amount</p>
         
         <div className="modal__keyboard-input-container">
           <input
+            ref={inputRef}
             type="text"
             className="modal__keyboard-input"
             value={inputValue}
-            readOnly
+            onChange={(e) => {
+              // Allow direct input from keyboard
+              const newValue = e.target.value
+              if (/^\d*\.?\d*$/.test(newValue) || newValue === '') {
+                if (!hasStartedTyping && newValue !== '') {
+                  setHasStartedTyping(true)
+                }
+                setInputValue(newValue || '0')
+              }
+            }}
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              // When input is focused, mark as started typing if it has a value
+              if (inputValue && inputValue !== '0') {
+                setHasStartedTyping(true)
+              }
+            }}
           />
         </div>
 
