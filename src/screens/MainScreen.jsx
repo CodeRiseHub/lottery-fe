@@ -11,6 +11,7 @@ import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
 import { formatBalance } from '../utils/balanceFormatter'
+import { fetchCompletedRounds } from '../api'
 import '../utils/modals'
 
 export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
@@ -32,6 +33,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     { number: 3, users: 0 }
   ])
   const [userBets, setUserBets] = useState([])
+  const [completedRounds, setCompletedRounds] = useState([])
   const [roomPhase, setRoomPhase] = useState('WAITING')
   const [buttonPhase, setButtonPhase] = useState('WAITING') // Separate state for button rendering to force re-render
   const [buttonUpdateCounter, setButtonUpdateCounter] = useState(0) // Counter to force button re-render
@@ -1220,6 +1222,23 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     return Math.floor(number).toLocaleString('ru-RU')
   }
 
+  // Fetch completed rounds when room changes or when a round ends
+  useEffect(() => {
+    const loadCompletedRounds = async () => {
+      try {
+        const rounds = await fetchCompletedRounds(currentRoom.number)
+        if (rounds && Array.isArray(rounds)) {
+          setCompletedRounds(rounds)
+        }
+      } catch (error) {
+        console.error('[MainScreen] Failed to fetch completed rounds:', error)
+        setCompletedRounds([])
+      }
+    }
+    
+    loadCompletedRounds()
+  }, [currentRoom.number, winner]) // Reload when room changes or when winner is set (round ends)
+
   const handleRoomChange = (room) => {
     console.log('[ROOM-CHANGE] Switching from room', currentRoom.number, 'to room', room.number)
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
@@ -1466,31 +1485,64 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                   </button>
           </div>
 
-          <p className="spin__subtitle">User's Bets</p>
+          <p className="spin__subtitle">Completed Rounds</p>
           <div className="spin__bets-list">
-            {userBets.map((bet) => (
-              <div
-                key={bet.id}
-                className={`spin__bets-item ${bet.bet > 0 ? 'spin__bets-item--success' : ''}`}
-              >
-                <img
-                  src={bet.avatar}
-                  alt="user"
-                  width="56"
-                  onError={(e) => {
-                    e.target.onerror = null
-                    e.target.src = defaultAvatar
-                  }}
-                />
-                <div className="spin__bets-info">
-                  <p className="spin__bets-name">{bet.name}</p>
-                  <p className="spin__bets-amount">
-                    {bet.bet > 0 ? '+' : ''}
-                    {formatNumber(bet.bet)} Tickets
-                  </p>
-                </div>
+            {completedRounds.length === 0 ? (
+              <div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.5)', padding: '20px' }}>
+                No completed rounds yet
               </div>
-            ))}
+            ) : (
+              completedRounds.map((round) => {
+                // Get avatar URL, fallback to placeholder if not available
+                let avatarUrl = round.winnerAvatarUrl
+                if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(round.winnerUserId)) {
+                  const avatarIndex = round.winnerUserId % 3
+                  const avatars = [avatar1, avatar2, avatar3]
+                  avatarUrl = avatars[avatarIndex]
+                }
+                
+                // Convert bet and payout from bigint to display format
+                const betDisplay = round.winnerBet ? round.winnerBet / 1000000 : 0
+                const payoutDisplay = round.payout ? round.payout / 1000000 : 0
+                const chanceDisplay = round.winChance ? round.winChance.toFixed(2) : '0.00'
+                
+                return (
+                  <div
+                    key={round.roundId}
+                    className="spin__bets-item spin__bets-item--success"
+                  >
+                    <img
+                      src={avatarUrl}
+                      alt="winner"
+                      width="56"
+                      height="56"
+                      style={{ borderRadius: '50%' }}
+                      onError={(e) => {
+                        e.target.onerror = null
+                        e.target.src = defaultAvatar
+                      }}
+                    />
+                    <div className="spin__bets-info" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <p className="spin__bets-name">{round.winnerScreenName || `User ${round.winnerUserId}`}</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>Bet:</span>
+                          <span>{formatBalance(betDisplay)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#6cc5a1' }}>
+                          <span>Win:</span>
+                          <span>{formatBalance(payoutDisplay)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>Chance:</span>
+                          <span>{chanceDisplay}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
           </div>
         </div>
       </section>

@@ -180,6 +180,14 @@ export async function logout() {
   }
 }
 
+/**
+ * Fetches the last 10 completed rounds for a specific room.
+ */
+export async function fetchCompletedRounds(roomNumber) {
+  console.debug("[API] Fetching completed rounds for room", roomNumber);
+  return authFetch(`/api/game/room/${roomNumber}/completed-rounds`, { method: "GET" });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 
