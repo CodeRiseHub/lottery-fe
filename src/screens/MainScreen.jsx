@@ -9,11 +9,10 @@ import avatar3 from '../assets/avatars/avatar3.svg'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
-import { fetchCurrentUser } from '../api'
 import { formatBalance } from '../utils/balanceFormatter'
 import '../utils/modals'
 
-export default function MainScreen({ onNavigate, onBalanceUpdate }) {
+export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   const [currentBet, setCurrentBet] = useState(1000)
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
@@ -126,31 +125,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate }) {
     return ((userBetDisplay / totalTickets) * 100).toFixed(2)
   }
 
-  // Fetch user balance and ID on mount
+  // Set user ID and balance from userData prop (fetched by App.jsx)
   useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const user = await fetchCurrentUser()
-        if (user) {
-          if (user.id) {
-            setCurrentUserId(user.id)
-            // Update remote logger with user ID
-            const { setUserId } = await import('../utils/remoteLogger')
-            setUserId(user.id)
-          }
-          if (user.balanceA !== undefined) {
-            setUserBalance(user.balanceA)
-            if (onBalanceUpdate) {
-              onBalanceUpdate(formatBalance(user.balanceA))
-            }
-          }
+    if (userData) {
+      if (userData.id) {
+        setCurrentUserId(userData.id)
+        // Update remote logger with user ID
+        import('../utils/remoteLogger').then(({ setUserId }) => {
+          setUserId(userData.id)
+        })
+      }
+      if (userData.balanceA !== undefined) {
+        setUserBalance(userData.balanceA)
+        if (onBalanceUpdate) {
+          onBalanceUpdate(formatBalance(userData.balanceA))
         }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error)
       }
     }
-    fetchUserData()
-  }, [onBalanceUpdate])
+  }, [userData, onBalanceUpdate])
 
   // Animation flag timeout - reset if stuck for more than 10 seconds
   useEffect(() => {

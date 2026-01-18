@@ -169,7 +169,7 @@ function App() {
     <div className="bg">
       <Header onNavigate={handleNavigate} balance={balance} onBalanceUpdate={handleBalanceUpdate} userData={userData} />
       <main>
-        {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} onBalanceUpdate={handleBalanceUpdate} />}
+        {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} onBalanceUpdate={handleBalanceUpdate} userData={userData} />}
         {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} />}
         {currentScreen === 'faq' && <FAQScreen onBack={handleNavigate} />}
         {currentScreen === 'support' && <SupportScreen onBack={handleBack} onNavigate={handleNavigate} />}
