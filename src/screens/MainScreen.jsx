@@ -947,13 +947,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   }
 
   const handleJoin = () => {
-    // Don't allow joining if already joined (unless in WAITING phase where a new round can start)
-    // Also check if we have participants but phase is not WAITING - this means we're in an active round
-    const userHasJoined = currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId)
-    const hasActiveRound = userBets.length > 0 && buttonPhase !== 'WAITING' && buttonPhase !== 'RESOLUTION'
-    
-    if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || hasActiveRound || (userHasJoined && buttonPhase !== 'WAITING')) {
-      console.log('[handleJoin] Join blocked:', { buttonPhase, isJoining, userHasJoined, hasActiveRound, userBetsLength: userBets.length })
+    // Only block if round is spinning or in resolution, or if request is in progress
+    if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining) {
+      console.log('[handleJoin] Join blocked:', { buttonPhase, isJoining })
       return
     }
 
@@ -974,7 +970,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       return
     }
 
-    // Set joining state
+    // Set joining state temporarily (will be reset after state update)
     setIsJoining(true)
 
     try {
@@ -984,7 +980,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       // Update balance immediately (will be confirmed by server)
       const newBalance = userBalance - betBigint
       const formattedNewBalance = formatBalance(newBalance)
-      console.log('[MainScreen] Local balance update on join:', {
+      console.log('[MainScreen] Local balance update on bet:', {
         previousBalance: userBalance,
         previousFormatted: formatBalance(userBalance),
         betBigint,
@@ -993,14 +989,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       })
       setUserBalance(newBalance)
       if (onBalanceUpdate) {
-        console.log('[MainScreen] Calling onBalanceUpdate on join with:', formattedNewBalance)
+        console.log('[MainScreen] Calling onBalanceUpdate on bet with:', formattedNewBalance)
         onBalanceUpdate(formattedNewBalance)
       } else {
-        console.warn('[MainScreen] onBalanceUpdate callback is not available on join!')
+        console.warn('[MainScreen] onBalanceUpdate callback is not available on bet!')
       }
     } catch (error) {
       setIsJoining(false) // Reset on immediate error
-      setErrorMessage(error.message || 'Failed to join round')
+      setErrorMessage(error.message || 'Failed to place bet')
       setShowErrorModal(true)
     }
   }
@@ -1246,7 +1242,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || buttonPhase === 'SPINNING' || isJoining || (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase !== 'WAITING')}
+                    disabled={!wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining}
                     style={buttonPhase === 'RESOLUTION' ? { pointerEvents: 'none', opacity: 0.6 } : {}}
                   >
                     <span className="education__button-text" id="textButton">
@@ -1254,10 +1250,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                         const buttonText = !wsConnected ? 'Connecting...' : 
                          buttonPhase === 'SPINNING' ? 'Spinning...' : 
                          buttonPhase === 'RESOLUTION' ? 'Round Ended' :
-                         isJoining ? 'Joining...' :
+                         isJoining ? 'Placing bet...' :
                          countdownActive && countdownRemaining !== null ? `Joining... ${Math.ceil(countdownRemaining)}s` : 
-                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase === 'WAITING') ? 'Joined' : 
-                         (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase !== 'WAITING' && buttonPhase !== 'RESOLUTION') ? 'Spinning...' : 'JOIN'
+                         'BET'
                         console.log('[BUTTON-RENDER] Button text calculated', {
                           buttonText,
                           buttonPhase,
@@ -1274,10 +1269,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                           conditionMatched: !wsConnected ? 'Connecting' :
                             buttonPhase === 'SPINNING' ? 'SPINNING' :
                             buttonPhase === 'RESOLUTION' ? 'RESOLUTION' :
-                            isJoining ? 'Joining' :
-                            countdownActive && countdownRemaining !== null ? 'Countdown' :
-                            (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase === 'WAITING') ? 'Joined' :
-                            (currentUserId && userBets.length > 0 && userBets.some(bet => bet.id === currentUserId) && buttonPhase !== 'WAITING' && buttonPhase !== 'RESOLUTION') ? 'Spinning-Fallback' : 'JOIN'
+                            isJoining ? 'Placing bet' :
+                            countdownActive && countdownRemaining !== null ? 'Countdown' : 'BET'
                         })
                         return buttonText
                       })()}
@@ -1332,7 +1325,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                 - Demo mode = no real money, just for fun. <br />
                 - Real mode allows you to place bets with real money.
               </span>
-              <span> Set your bet and tap "JOIN".</span>
+              <span> Set your bet and tap "BET".</span>
               <span> Possible multipliers: x0, x1.5, x3, x10, x50, x100 </span>
             </p>
           </div>

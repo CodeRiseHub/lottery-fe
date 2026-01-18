@@ -79,3 +79,4 @@ export function hasSession() {
   return getSessionToken() !== null;
 }
 
+
