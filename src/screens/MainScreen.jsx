@@ -1040,21 +1040,23 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
           </div>
 
           <div className="lottery-stats">
-            <div className="lottery-stats__item">
+            {/* Left half - registered users centered */}
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {registeredUsers} <span style={{ fontSize: '18px' }}>👤</span>
               </span>
             </div>
             
-            {/* Countdown ring - always render container to maintain layout, show/hide content */}
-            <div className="lottery-stats__item" style={{ 
+            {/* Center - countdown ring */}
+            <div style={{ 
               display: 'flex', 
               justifyContent: 'center', 
               alignItems: 'center',
               width: countdownActive && countdownRemaining !== null ? '36px' : '0',
               minWidth: countdownActive && countdownRemaining !== null ? '36px' : '0',
               overflow: 'hidden',
-              transition: 'width 0.2s, min-width 0.2s'
+              transition: 'width 0.2s, min-width 0.2s',
+              padding: countdownActive && countdownRemaining !== null ? '2px 0' : '0'
             }}>
               {countdownActive && countdownRemaining !== null ? (
                 <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
@@ -1098,7 +1100,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
               ) : null}
             </div>
             
-            <div className="lottery-stats__item">
+            {/* Right half - total bet centered */}
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {formatNumber(totalBet)} <img src={starIcon} alt="star" width="18" height="18" />
               </span>
