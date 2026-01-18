@@ -1046,30 +1046,38 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
               </span>
             </div>
             
-            {/* Countdown ring - shown when countdown is active */}
-            {countdownActive && countdownRemaining !== null ? (
-              <div className="lottery-stats__item" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div style={{ position: 'relative', width: '40px', height: '40px' }}>
-                  <svg width="40" height="40" style={{ transform: 'rotate(90deg)' }}>
+            {/* Countdown ring - always render container to maintain layout, show/hide content */}
+            <div className="lottery-stats__item" style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              width: countdownActive && countdownRemaining !== null ? '36px' : '0',
+              minWidth: countdownActive && countdownRemaining !== null ? '36px' : '0',
+              overflow: 'hidden',
+              transition: 'width 0.2s, min-width 0.2s'
+            }}>
+              {countdownActive && countdownRemaining !== null ? (
+                <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
+                  <svg width="32" height="32" style={{ transform: 'rotate(-90deg)' }}>
                     {/* Background circle */}
                     <circle
-                      cx="20"
-                      cy="20"
-                      r="18"
+                      cx="16"
+                      cy="16"
+                      r="14"
                       fill="none"
                       stroke="rgba(255, 255, 255, 0.2)"
                       strokeWidth="2"
                     />
-                    {/* Progress circle - counterclockwise animation */}
+                    {/* Progress circle - counterclockwise animation from top */}
                     <circle
-                      cx="20"
-                      cy="20"
-                      r="18"
+                      cx="16"
+                      cy="16"
+                      r="14"
                       fill="none"
                       stroke="#6cc5a1"
                       strokeWidth="2"
-                      strokeDasharray={`${2 * Math.PI * 18}`}
-                      strokeDashoffset={`${2 * Math.PI * 18 * (countdownProgress / 100)}`}
+                      strokeDasharray={`${2 * Math.PI * 14}`}
+                      strokeDashoffset={`${2 * Math.PI * 14 * (countdownProgress / 100)}`}
                       strokeLinecap="round"
                       style={{ transition: 'stroke-dashoffset 0.1s linear' }}
                     />
@@ -1079,15 +1087,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    fontSize: '16px',
+                    fontSize: '13px',
                     fontWeight: 'bold',
-                    color: '#6cc5a1'
+                    color: '#6cc5a1',
+                    lineHeight: '1'
                   }}>
                     {Math.ceil(countdownRemaining)}
                   </div>
                 </div>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
             
             <div className="lottery-stats__item">
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

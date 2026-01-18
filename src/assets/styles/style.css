@@ -4351,18 +4351,23 @@ font {
 /* Lottery Stats */
 .lottery-stats {
   display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
   margin: 16px 0;
   background: var(--background-secondary);
   border-radius: 8px;
+  min-height: 40px;
 }
 
 .lottery-stats__item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0;
+  flex: 0 0 auto;
+  height: 100%;
 }
 
 .lottery-stats__label {
