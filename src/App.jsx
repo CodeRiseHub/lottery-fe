@@ -159,6 +159,7 @@ function App() {
 
   const handleBalanceUpdate = (formattedBalance) => {
     // formattedBalance is already a formatted string (e.g., "1.5627")
+    console.log('[App] handleBalanceUpdate called with:', formattedBalance, 'current balance state:', balance)
     setBalance(formattedBalance)
   }
 

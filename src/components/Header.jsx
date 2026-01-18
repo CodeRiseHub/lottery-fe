@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ticketIcon from '../assets/images/header/ticket.png'
 import gearIcon from '../assets/images/header/gear-icon.png'
 import enLangIcon from '../assets/images/lang/en.png'
@@ -33,16 +33,35 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
   const [showAccountDetail, setShowAccountDetail] = useState(false)
   const [currentLang, setCurrentLang] = useState('EN')
   const [balance, setBalance] = useState('0.0000')
+  const initializedRef = useRef(false)
 
+  // Initialize balance from userData only once on mount
   useEffect(() => {
-    if (balanceProp !== undefined) {
-      // balanceProp is already formatted string from MainScreen
-      setBalance(balanceProp)
-    } else if (userData && userData.balanceA !== undefined) {
-      // Format balance from bigint
-      setBalance(formatBalance(userData.balanceA))
+    if (!initializedRef.current && userData && userData.balanceA !== undefined) {
+      // Only set from userData on initial load
+      const formatted = formatBalance(userData.balanceA)
+      console.log('[Header] Initial balance from userData:', formatted)
+      setBalance(formatted)
+      initializedRef.current = true
     }
-  }, [balanceProp, userData])
+  }, [userData]) // Only depend on userData
+
+  // Update balance from balanceProp (from WebSocket updates) - always prioritize this
+  useEffect(() => {
+    console.log('[Header] Balance update effect triggered:', {
+      balanceProp,
+      userDataBalance: userData?.balanceA,
+      currentBalanceState: balance,
+      initialized: initializedRef.current
+    })
+    if (balanceProp !== undefined && balanceProp !== null) {
+      // balanceProp is already formatted string from MainScreen/App
+      // Always prioritize balanceProp over userData for updates
+      console.log('[Header] Setting balance from balanceProp:', balanceProp)
+      setBalance(balanceProp)
+      initializedRef.current = true // Mark as initialized once we get a balanceProp update
+    }
+  }, [balanceProp]) // Only depend on balanceProp for updates
 
   const currentLangData = languages.find(l => l.code === currentLang) || languages[0]
 

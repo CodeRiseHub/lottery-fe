@@ -736,11 +736,22 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       (balanceBigint) => {
         // Balance update callback from WebSocket
         if (balanceBigint !== null && balanceBigint !== undefined) {
+          const formattedBalance = formatBalance(balanceBigint)
+          console.log('[MainScreen] Balance update from WebSocket:', {
+            balanceBigint,
+            formattedBalance,
+            previousBalance: userBalance,
+            previousFormatted: formatBalance(userBalance)
+          })
           setUserBalance(balanceBigint)
           if (onBalanceUpdate) {
-            onBalanceUpdate(formatBalance(balanceBigint))
+            console.log('[MainScreen] Calling onBalanceUpdate with:', formattedBalance)
+            onBalanceUpdate(formattedBalance)
+          } else {
+            console.warn('[MainScreen] onBalanceUpdate callback is not available!')
           }
-          console.debug('[MainScreen] Balance updated from WebSocket:', balanceBigint)
+        } else {
+          console.warn('[MainScreen] Received null/undefined balance from WebSocket')
         }
       }
     )
@@ -965,9 +976,20 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
       
       // Update balance immediately (will be confirmed by server)
       const newBalance = userBalance - betBigint
+      const formattedNewBalance = formatBalance(newBalance)
+      console.log('[MainScreen] Local balance update on join:', {
+        previousBalance: userBalance,
+        previousFormatted: formatBalance(userBalance),
+        betBigint,
+        newBalance,
+        formattedNewBalance
+      })
       setUserBalance(newBalance)
       if (onBalanceUpdate) {
-        onBalanceUpdate(formatBalance(newBalance))
+        console.log('[MainScreen] Calling onBalanceUpdate on join with:', formattedNewBalance)
+        onBalanceUpdate(formattedNewBalance)
+      } else {
+        console.warn('[MainScreen] onBalanceUpdate callback is not available on join!')
       }
     } catch (error) {
       setIsJoining(false) // Reset on immediate error
