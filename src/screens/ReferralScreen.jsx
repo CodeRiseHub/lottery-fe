@@ -4,10 +4,14 @@ import refIcon from '../assets/images/ref.png'
 import pagLeftIcon from '../assets/images/tasks/pag-left.png'
 import pagRightIcon from '../assets/images/tasks/pag-right.png'
 
-export default function ReferralScreen({ onBack }) {
+export default function ReferralScreen({ onBack, userData }) {
   const [activeTab, setActiveTab] = useState('invite')
   const [activeLevel, setActiveLevel] = useState(1)
-  const [referralLink] = useState('https://t.me/secretminerbot?start=123')
+  
+  // Generate referral link dynamically using user ID
+  const referralLink = userData?.id 
+    ? `https://t.me/secret_lottery_bot?start=${userData.id}`
+    : 'https://t.me/secret_lottery_bot?start=0'
   
   // Different referrals for each level (just reordered for demo)
   const referralsByLevel = {

@@ -169,7 +169,7 @@ function App() {
             onBack={() => handleNavigate('support')}
           />
         )}
-        {currentScreen === 'referral' && <ReferralScreen onBack={handleBack} />}
+        {currentScreen === 'referral' && <ReferralScreen onBack={handleBack} userData={userData} />}
         {currentScreen === 'transactionHistory' && <TransactionHistoryScreen onBack={handleBack} />}
         {currentScreen === 'store' && (
           <StoreScreen 
