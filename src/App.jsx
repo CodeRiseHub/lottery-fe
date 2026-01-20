@@ -184,7 +184,14 @@ function App() {
             onUserDataUpdate={setUserData}
           />
         )}
-        {currentScreen === 'tasks' && <TasksScreen onBack={handleBack} onNavigate={handleNavigate} />}
+        {currentScreen === 'tasks' && (
+          <TasksScreen 
+            onBack={handleBack} 
+            onNavigate={handleNavigate}
+            onBalanceUpdate={handleBalanceUpdate}
+            onUserDataUpdate={setUserData}
+          />
+        )}
         {currentScreen === 'payout' && <PayoutScreen onBack={handleBack} onNavigate={handleNavigate} />}
         {currentScreen === 'payoutConfirmation' && (
           <PayoutConfirmationScreen

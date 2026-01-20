@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { initTabs } from '../utils/tabs'
-import { fetchTasks, claimTask } from '../api'
+import { fetchTasks, claimTask, fetchCurrentUser } from '../api'
 import friendIcon from '../assets/images/friend.png'
 import storeIcon from '../assets/images/tasks/store.png'
 import infoChannelIcon from '../assets/info_channel.png'
 
-export default function TasksScreen({ onBack, onNavigate }) {
+export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [activeTab, setActiveTab] = useState('referral')
   const [referralTasks, setReferralTasks] = useState([])
   const [followTasks, setFollowTasks] = useState([])
@@ -126,6 +126,22 @@ export default function TasksScreen({ onBack, onNavigate }) {
     setClaimingTaskId(taskId)
     try {
       await claimTask(taskId)
+      
+      // Fetch updated user data to get new balance
+      const userData = await fetchCurrentUser()
+      if (userData) {
+        // Update userData in App.jsx so Header and other screens have the latest data
+        if (onUserDataUpdate) {
+          onUserDataUpdate(userData)
+        }
+        
+        // Format balance for display (balanceA is in bigint format)
+        if (onBalanceUpdate) {
+          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+          onBalanceUpdate(balanceDisplay)
+        }
+      }
+      
       // Reload tasks to update claimed status
       if (activeTab === 'referral') {
         const tasks = await fetchTasks('referral')
@@ -164,6 +180,28 @@ export default function TasksScreen({ onBack, onNavigate }) {
     if (!rewardAmount) return '0'
     // Convert from bigint (divide by 1,000,000)
     return (rewardAmount / 1_000_000).toString()
+  }
+
+  // Helper to build progress string for tasks
+  const buildProgressString = (task) => {
+    if (task.claimed) {
+      return 'CLAIMED'
+    }
+    
+    if (task.progress) {
+      // Backend provided progress string (for referral tasks)
+      return task.progress
+    }
+    
+    if (task.type === 'other' && task.currentValue != null) {
+      // For other tasks, convert bigint values to USD for display
+      const currentUSD = task.currentValue / 1_000_000
+      const requirementUSD = task.requirement / 1_000_000
+      return `${currentUSD} / ${requirementUSD}`
+    }
+    
+    // For follow tasks or if no progress available, return null to show Check button
+    return null
   }
 
   return (
@@ -271,12 +309,17 @@ export default function TasksScreen({ onBack, onNavigate }) {
                       <p className="task__description">
                         {task.description || `${task.title} using your unique referral link`}
                       </p>
-                      <div className="task__progress-wrapper">
-                        <span className="task__progress-border" style={{ width: '100%' }}>
-                          <span className="task__progress"></span>
-                        </span>
-                        <p className="task__progress-count">{task.progress}</p>
-                      </div>
+                      {(() => {
+                        const progressText = buildProgressString(task)
+                        return progressText ? (
+                          <div className="task__progress-wrapper">
+                            <span className="task__progress-border" style={{ width: '100%' }}>
+                              <span className="task__progress"></span>
+                            </span>
+                            <p className="task__progress-count">{progressText}</p>
+                          </div>
+                        ) : null
+                      })()}
 
                       <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
 
@@ -333,9 +376,18 @@ export default function TasksScreen({ onBack, onNavigate }) {
                           <p className="invite__title invite__title-two">{task.title}</p>
                           <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
                         </div>
-                        <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
-                          Check
-                        </button>
+                        {(() => {
+                          const progressText = buildProgressString(task)
+                          return progressText ? (
+                            <div className="invite__progress" id={`progSList_${task.id}`}>
+                              {progressText}
+                            </div>
+                          ) : (
+                            <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
+                              Check
+                            </button>
+                          )
+                        })()}
                       </div>
                     </div>
                   )
@@ -386,7 +438,10 @@ export default function TasksScreen({ onBack, onNavigate }) {
                         <button 
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
                           id={`task_id_${task.id}`}
-                          onClick={() => handleCheckTask(task.id)}
+                          onClick={() => {
+                            // For follow tasks, Check button does nothing for now
+                            alert('Follow task check is not implemented yet.')
+                          }}
                           disabled={task.claimed || claimingTaskId === task.id}
                         >
                           <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
@@ -428,9 +483,18 @@ export default function TasksScreen({ onBack, onNavigate }) {
                           <p className="invite__title invite__title-one">{task.title}</p>
                           <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
                         </div>
-                        <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
-                          Check
-                        </button>
+                        {(() => {
+                          const progressText = buildProgressString(task)
+                          return progressText ? (
+                            <div className="invite__progress" id={`progSList_${task.id}`}>
+                              {progressText}
+                            </div>
+                          ) : (
+                            <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
+                              Check
+                            </button>
+                          )
+                        })()}
                       </div>
                     </div>
                   )
@@ -468,7 +532,17 @@ export default function TasksScreen({ onBack, onNavigate }) {
                       </div>
 
                       <p className="task__description">{task.description || task.title}</p>
-
+                      {(() => {
+                        const progressText = buildProgressString(task)
+                        return progressText ? (
+                          <div className="task__progress-wrapper">
+                            <span className="task__progress-border" style={{ width: '100%' }}>
+                              <span className="task__progress"></span>
+                            </span>
+                            <p className="task__progress-count">{progressText}</p>
+                          </div>
+                        ) : null
+                      })()}
                       <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
 
                       <div className="task__actions">
