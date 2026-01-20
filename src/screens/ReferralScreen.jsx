@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { initTabs } from '../utils/tabs'
+import { fetchReferrals } from '../api'
 import refIcon from '../assets/images/ref.png'
 import pagLeftIcon from '../assets/images/tasks/pag-left.png'
 import pagRightIcon from '../assets/images/tasks/pag-right.png'
@@ -7,39 +8,77 @@ import pagRightIcon from '../assets/images/tasks/pag-right.png'
 export default function ReferralScreen({ onBack, userData }) {
   const [activeTab, setActiveTab] = useState('invite')
   const [activeLevel, setActiveLevel] = useState(1)
+  const [referrals, setReferrals] = useState([])
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const referralsListRef = useRef(null)
   
   // Generate referral link dynamically using user ID
   const referralLink = userData?.id 
     ? `https://t.me/secret_lottery_bot?start=${userData.id}`
     : 'https://t.me/secret_lottery_bot?start=0'
   
-  // Different referrals for each level (just reordered for demo)
-  const referralsByLevel = {
-    1: [
-      { name: 'Ali Hassan', commission: '0.0000 USD' },
-      { name: 'rashd abed', commission: '0.0000 USD' },
-      { name: 'ali2 hassan2', commission: '0.0000 USD' },
-      { name: '🐍Hicham5 Ach', commission: '0.0000 USD' },
-      { name: 'Charlotte Mills', commission: '0.0000 USD' }
-    ],
-    2: [
-      { name: 'Charlotte Mills', commission: '0.0000 USD' },
-      { name: '🐍Hicham5 Ach', commission: '0.0000 USD' },
-      { name: 'ali2 hassan2', commission: '0.0000 USD' },
-      { name: 'rashd abed', commission: '0.0000 USD' },
-      { name: 'Ali Hassan', commission: '0.0000 USD' }
-    ],
-    3: [
-      { name: 'ali2 hassan2', commission: '0.0000 USD' },
-      { name: 'Ali Hassan', commission: '0.0000 USD' },
-      { name: 'Charlotte Mills', commission: '0.0000 USD' },
-      { name: 'rashd abed', commission: '0.0000 USD' },
-      { name: '🐍Hicham5 Ach', commission: '0.0000 USD' }
-    ]
+  // Format commission: divide by 1,000,000 and format as USD
+  const formatCommission = (commission) => {
+    if (!commission || commission === 0) {
+      return '0.0000 USD'
+    }
+    const value = commission / 1_000_000
+    return `${value.toFixed(4)} USD`
   }
   
-  const referrals = referralsByLevel[activeLevel] || referralsByLevel[1]
-  const showPagination = referrals.length > 50 // Will be controlled by backend later
+  // Fetch referrals when level or page changes
+  useEffect(() => {
+    const loadReferrals = async () => {
+      if (!userData?.id) return
+      
+      setLoading(true)
+      try {
+        const response = await fetchReferrals(activeLevel, currentPage, 50)
+        setReferrals(response.referrals || [])
+        setCurrentPage(response.currentPage || 0)
+        setTotalPages(response.totalPages || 0)
+        setTotalElements(response.totalElements || 0)
+        
+        // Scroll to referrals list after data is loaded
+        setTimeout(() => {
+          if (referralsListRef.current) {
+            referralsListRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }, 100)
+      } catch (error) {
+        setReferrals([])
+        setCurrentPage(0)
+        setTotalPages(0)
+        setTotalElements(0)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadReferrals()
+  }, [activeLevel, currentPage, userData?.id])
+  
+  const showPagination = totalPages > 1
+  
+  const handleLevelChange = (level) => {
+    setActiveLevel(level)
+    setCurrentPage(0) // Reset to first page when level changes
+  }
+  
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+  
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -158,7 +197,7 @@ export default function ReferralScreen({ onBack, userData }) {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault()
-                        setActiveLevel(1)
+                        handleLevelChange(1)
                       }}
                     >
                       1 Level
@@ -171,7 +210,7 @@ export default function ReferralScreen({ onBack, userData }) {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault()
-                        setActiveLevel(2)
+                        handleLevelChange(2)
                       }}
                     >
                       2 Level
@@ -184,7 +223,7 @@ export default function ReferralScreen({ onBack, userData }) {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault()
-                        setActiveLevel(3)
+                        handleLevelChange(3)
                       }}
                     >
                       3 Level
@@ -193,27 +232,41 @@ export default function ReferralScreen({ onBack, userData }) {
                 </p>
               </div>
               
-              <div className="earn__list">
+              <div className="earn__list" ref={referralsListRef}>
                 <div className="earn__list-header">
                   <p className="earn__list-col">Name</p>
                   <p className="earn__list-col">Commission</p>
                 </div>
 
-                {referrals.map((referral, index) => (
-                  <div key={index} className="earn__list-item">
-                    <p className="earn__list-name">{referral.name}</p>
-                    <p className="earn__list-amount">{referral.commission}</p>
-                  </div>
-                ))}
+                {loading ? (
+                  <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+                ) : referrals.length === 0 ? (
+                  <div style={{ padding: '20px', textAlign: 'center' }}>No referrals found</div>
+                ) : (
+                  referrals.map((referral, index) => (
+                    <div key={index} className="earn__list-item">
+                      <p className="earn__list-name">{referral.name}</p>
+                      <p className="earn__list-amount">{formatCommission(referral.commission)}</p>
+                    </div>
+                  ))
+                )}
               </div>
               
               {showPagination && (
                 <div className="earn__pagination">
-                  <button className="earn__pagination-button">
+                  <button 
+                    className="earn__pagination-button"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 0 || loading}
+                  >
                     <img className="pagination__icon" src={pagLeftIcon} alt="prev" />
                   </button>
-                  <p className="earn__pagination-info">Page 1 of 1</p>
-                  <button className="earn__pagination-button">
+                  <p className="earn__pagination-info">Page {currentPage + 1} of {totalPages}</p>
+                  <button 
+                    className="earn__pagination-button"
+                    onClick={handleNextPage}
+                    disabled={currentPage >= totalPages - 1 || loading}
+                  >
                     <img className="pagination__icon" src={pagRightIcon} alt="Next" />
                   </button>
                 </div>

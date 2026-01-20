@@ -176,6 +176,19 @@ export async function depositStars(stars) {
   });
 }
 
+/**
+ * Fetches referrals for a specific level with pagination.
+ * @param {number} level - The referral level (1, 2, or 3)
+ * @param {number} page - Page number (0-indexed, defaults to 0)
+ * @param {number} size - Page size (defaults to 50)
+ * @returns {Promise<{referrals: Array<{name: string, commission: number}>, currentPage: number, totalPages: number, totalElements: number}>}
+ */
+export async function fetchReferrals(level, page = 0, size = 50) {
+  return authFetch(`/api/users/referrals?level=${level}&page=${page}&size=${size}`, {
+    method: "GET"
+  });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 
