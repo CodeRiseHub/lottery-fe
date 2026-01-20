@@ -18,7 +18,6 @@ export function storeSessionToken(token) {
   
   // Always store in memory for current session (fastest)
   window.__lotterySessionToken = token;
-  console.debug("[SessionManager] Token stored in memory");
   
   // Try Telegram CloudStorage (persists in Telegram WebView)
   if (isTelegramWebAppAvailable()) {
@@ -29,24 +28,20 @@ export function storeSessionToken(token) {
       if (tg.CloudStorage) {
         try {
           tg.CloudStorage.setItem(SESSION_STORAGE_KEY, token);
-          console.debug("[SessionManager] Token stored in Telegram CloudStorage");
         } catch (e) {
-          console.warn("[SessionManager] CloudStorage.setItem failed:", e);
+          // Ignore CloudStorage errors
         }
-      } else {
-        console.debug("[SessionManager] Telegram CloudStorage not available");
       }
     } catch (e) {
-      console.warn("[SessionManager] Failed to access Telegram storage:", e);
+      // Ignore Telegram storage errors
     }
   }
   
   // Also store in localStorage as backup (works in browsers, may work in some Telegram versions)
   try {
     localStorage.setItem(SESSION_STORAGE_KEY, token);
-    console.debug("[SessionManager] Token stored in localStorage (backup)");
   } catch (e) {
-    console.warn("[SessionManager] Failed to store in localStorage:", e);
+    // Ignore localStorage errors
   }
 }
 
@@ -62,7 +57,6 @@ export function getSessionToken() {
   if (window.__lotterySessionToken) {
     const token = String(window.__lotterySessionToken).trim();
     if (token && token !== 'null' && token !== 'undefined') {
-      console.debug("[SessionManager] Token retrieved from memory");
       return token;
     }
   }
@@ -79,16 +73,11 @@ export function getSessionToken() {
         if (tokenStr && tokenStr !== 'null' && tokenStr !== 'undefined' && tokenStr !== '[object Object]') {
           // Restore to memory for faster access
           window.__lotterySessionToken = tokenStr;
-          console.debug("[SessionManager] Token retrieved from Telegram CloudStorage");
           return tokenStr;
-        } else {
-          console.debug("[SessionManager] No valid token found in Telegram CloudStorage");
         }
-      } else {
-        console.debug("[SessionManager] Telegram CloudStorage.getItem not available");
       }
     } catch (e) {
-      console.warn("[SessionManager] Failed to read from Telegram CloudStorage:", e);
+      // Ignore CloudStorage errors
     }
   }
   
@@ -101,19 +90,13 @@ export function getSessionToken() {
       if (tokenStr && tokenStr !== 'null' && tokenStr !== 'undefined' && tokenStr !== '[object Object]') {
         // Restore to memory for faster access
         window.__lotterySessionToken = tokenStr;
-        console.debug("[SessionManager] Token retrieved from localStorage");
         return tokenStr;
-      } else {
-        console.debug("[SessionManager] Invalid token format in localStorage");
       }
-    } else {
-      console.debug("[SessionManager] No token found in localStorage");
     }
   } catch (e) {
-    console.warn("[SessionManager] Failed to read from localStorage:", e);
+    // Ignore localStorage errors
   }
   
-  console.debug("[SessionManager] No token found in any storage");
   return null;
 }
 
@@ -124,7 +107,6 @@ export function clearSessionToken() {
   if (typeof window === "undefined") return;
   
   window.__lotterySessionToken = null;
-  console.debug("[SessionManager] Token cleared from memory");
   
   // Clear from Telegram CloudStorage
   if (isTelegramWebAppAvailable()) {
@@ -133,19 +115,17 @@ export function clearSessionToken() {
       
       if (tg.CloudStorage && typeof tg.CloudStorage.removeItem === 'function') {
         tg.CloudStorage.removeItem(SESSION_STORAGE_KEY);
-        console.debug("[SessionManager] Token cleared from Telegram CloudStorage");
       }
     } catch (e) {
-      console.warn("[SessionManager] Failed to clear Telegram CloudStorage:", e);
+      // Ignore CloudStorage errors
     }
   }
   
   // Clear from localStorage
   try {
     localStorage.removeItem(SESSION_STORAGE_KEY);
-    console.debug("[SessionManager] Token cleared from localStorage");
   } catch (e) {
-    console.warn("[SessionManager] Failed to clear localStorage:", e);
+    // Ignore localStorage errors
   }
 }
 

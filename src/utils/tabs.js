@@ -1,6 +1,5 @@
 export function initTabs() {
     if (typeof window.$ === 'undefined') {
-        console.warn('jQuery not loaded, tabs will not work');
         return;
     }
 

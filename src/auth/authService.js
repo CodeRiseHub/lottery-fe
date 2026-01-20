@@ -9,13 +9,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080
 function getRawInitData() {
   const tg = window.Telegram?.WebApp;
   const raw = tg?.initData;
-
-  if (!raw) {
-    console.warn("[Auth] Telegram WebApp.initData is EMPTY!");
-  } else {
-    console.debug(`[Auth] Telegram WebApp.initData present (${raw.length} chars)`);
-  }
-
   return raw || "";
 }
 
@@ -29,11 +22,8 @@ export async function bootstrapSession() {
   if (!initData || initData.trim() === "") {
     // In dev mode without Telegram, we can't authenticate
     // Return null to indicate no session (but don't throw)
-    console.warn("[Auth] No Telegram initData available - skipping session bootstrap");
     return null;
   }
-
-  console.debug("[Auth] Bootstrapping session...");
 
   const response = await fetch(`${API_BASE_URL}/api/auth/tma/session`, {
     method: "POST",
@@ -63,8 +53,6 @@ export async function bootstrapSession() {
 
   // Store the session token
   storeSessionToken(access_token);
-
-  console.debug(`[Auth] Session created, expires in ${expires_in} seconds`);
 
   return {
     access_token,

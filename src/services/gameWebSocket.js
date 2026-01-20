@@ -35,13 +35,10 @@ class GameWebSocketService {
 
     const token = getSessionToken()
     if (!token) {
-      console.error('[WebSocket] No session token available')
       this.updateConnectionState(false)
       onError?.('Authentication required')
       return
     }
-
-    console.log('[WebSocket] Connecting to room', roomNumber)
     this.updateConnectionState(false) // Set to connecting state
 
     // Create SockJS connection
@@ -49,11 +46,10 @@ class GameWebSocketService {
     
     // Handle SockJS connection events
     socket.onopen = () => {
-      console.log('[WebSocket] SockJS connection opened')
+      // Connection opened
     }
     
     socket.onclose = (event) => {
-      console.log('[WebSocket] SockJS connection closed', event)
       this.connected = false
       this.updateConnectionState(false)
       // Only reconnect if it wasn't a clean close and we're not already reconnecting
@@ -63,7 +59,6 @@ class GameWebSocketService {
     }
     
     socket.onerror = (error) => {
-      console.error('[WebSocket] SockJS connection error:', error)
       this.connected = false
       this.updateConnectionState(false)
       onError?.('WebSocket connection failed. Please check your connection.')
@@ -76,7 +71,6 @@ class GameWebSocketService {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: (frame) => {
-        console.log('[WebSocket] STOMP connected', frame)
         this.connected = true
         this.reconnectAttempts = 0 // Reset reconnection attempts on successful connection
         this.reconnecting = false // Reset reconnecting flag on successful connection
@@ -86,14 +80,12 @@ class GameWebSocketService {
         this.subscribeToRoom(roomNumber, onStateUpdate, onError)
       },
       onStompError: (frame) => {
-        console.error('[WebSocket] STOMP error:', frame)
         this.connected = false
         this.updateConnectionState(false)
         const errorMsg = frame.headers?.['message'] || frame.body || 'WebSocket connection error'
         onError?.(errorMsg)
       },
       onWebSocketClose: (event) => {
-        console.log('[WebSocket] WebSocket closed', event)
         this.connected = false
         this.updateConnectionState(false)
         // Only reconnect if it wasn't a clean close and we're not already reconnecting
@@ -102,7 +94,6 @@ class GameWebSocketService {
         }
       },
       onDisconnect: () => {
-        console.log('[WebSocket] Disconnected')
         this.connected = false
         this.updateConnectionState(false)
       },
@@ -115,7 +106,6 @@ class GameWebSocketService {
     try {
       this.client.activate()
     } catch (error) {
-      console.error('[WebSocket] Failed to activate client:', error)
       this.connected = false
       this.updateConnectionState(false)
       onError?.('Failed to start WebSocket connection')
@@ -137,7 +127,6 @@ class GameWebSocketService {
    */
   subscribeToRoom(roomNumber, onStateUpdate, onError) {
     if (!this.client || !this.connected) {
-      console.warn('[WebSocket] Cannot subscribe: not connected')
       return
     }
 
@@ -145,7 +134,6 @@ class GameWebSocketService {
     if (this.currentRoomNumber !== null && this.currentRoomNumber !== roomNumber) {
       const previousSub = this.subscriptions.get(`room-${this.currentRoomNumber}`)
       if (previousSub) {
-        console.log(`[WebSocket] Unsubscribing from previous room ${this.currentRoomNumber}`)
         previousSub.unsubscribe()
         this.subscriptions.delete(`room-${this.currentRoomNumber}`)
       }
@@ -157,17 +145,15 @@ class GameWebSocketService {
       (message) => {
         try {
           const state = JSON.parse(message.body)
-          console.debug('[WebSocket] Room state update:', state)
           onStateUpdate?.(state)
         } catch (e) {
-          console.error('[WebSocket] Error parsing message:', e)
+          // Ignore parsing errors
         }
       }
     )
 
     this.subscriptions.set(`room-${roomNumber}`, subscription)
     this.currentRoomNumber = roomNumber // Track current room
-    console.log(`[WebSocket] Subscribed to room ${roomNumber}`)
 
     // Also subscribe to error queue (user-specific)
     const errorSub = this.client.subscribe(
@@ -175,13 +161,11 @@ class GameWebSocketService {
       (message) => {
         try {
           const error = JSON.parse(message.body)
-          console.error('[WebSocket] Error from server:', error)
           // Extract user-friendly error message
           const errorMsg = error.error || error.message || 'An error occurred. Please try again.'
           // Call error handler - this should reset joining state
           onError?.(errorMsg)
         } catch (e) {
-          console.error('[WebSocket] Error parsing error message:', e)
           onError?.('An error occurred. Please try again.')
         }
       }
@@ -194,13 +178,12 @@ class GameWebSocketService {
       (message) => {
         try {
           const balanceUpdate = JSON.parse(message.body)
-          console.debug('[WebSocket] Balance update received:', balanceUpdate)
           // Notify callback if provided
           if (this.onBalanceUpdateCallback) {
             this.onBalanceUpdateCallback(balanceUpdate.balanceA)
           }
         } catch (e) {
-          console.error('[WebSocket] Error parsing balance update:', e)
+          // Ignore parsing errors
         }
       }
     )
@@ -218,8 +201,6 @@ class GameWebSocketService {
       throw new Error('WebSocket not connected')
     }
 
-    console.log(`[WebSocket] Joining round: room=${roomNumber}, bet=${betAmount}`)
-
     this.client.publish({
       destination: `/app/game/join`,
       body: JSON.stringify({
@@ -235,12 +216,10 @@ class GameWebSocketService {
   handleReconnect(roomNumber, onStateUpdate, onError) {
     // Prevent multiple simultaneous reconnection attempts
     if (this.reconnecting) {
-      console.log('[WebSocket] Reconnection already in progress, skipping...')
       return
     }
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('[WebSocket] Max reconnection attempts reached')
       this.reconnecting = false
       this.updateConnectionState(false)
       onError?.('Failed to reconnect. Please refresh the page.')
@@ -249,7 +228,6 @@ class GameWebSocketService {
 
     this.reconnecting = true
     this.reconnectAttempts++
-    console.log(`[WebSocket] Reconnecting (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
     // Update connection state to show we're trying to reconnect
     this.updateConnectionState(false)
 
@@ -280,12 +258,11 @@ class GameWebSocketService {
       try {
         this.client.deactivate()
       } catch (e) {
-        console.warn('[WebSocket] Error during deactivate:', e)
+        // Ignore deactivate errors
       }
       this.client = null
       this.connected = false
       this.updateConnectionState(false)
-      console.log('[WebSocket] Disconnected')
     }
   }
 

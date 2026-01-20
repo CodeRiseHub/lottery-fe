@@ -44,7 +44,6 @@ export default function SupportScreen({ onBack, onNavigate }) {
     }
 
     // TODO: Implement API call to submit support request
-    console.log('Submitting support request:', { subject, message })
     
     // Navigate to support chat screen with ticket info
     if (onNavigate) {

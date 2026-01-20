@@ -13,13 +13,6 @@ let reauthPromise = null;
 function getRawInitData() {
   const tg = window.Telegram?.WebApp;
   const raw = tg?.initData;
-
-  if (!raw) {
-    console.warn("[API] Telegram WebApp.initData is EMPTY!");
-  } else {
-    console.debug(`[API] Telegram WebApp.initData present (${raw.length} chars)`);
-  }
-
   return raw || "";
 }
 
@@ -32,7 +25,6 @@ async function authFetch(path, options = {}) {
   
   // Ensure token is a string, not an object
   if (sessionToken && typeof sessionToken !== 'string') {
-    console.warn("[API] Token is not a string, converting:", typeof sessionToken);
     sessionToken = String(sessionToken).trim();
     if (sessionToken === 'null' || sessionToken === 'undefined' || sessionToken === '[object Object]') {
       sessionToken = null;
@@ -54,19 +46,13 @@ async function authFetch(path, options = {}) {
         }
         // Retry with new token
         return authFetch(path, options);
-      } else {
-        // No initData available (dev mode), continue without auth
-        console.warn("[API] No session token and bootstrap returned null - request may fail");
       }
     } catch (e) {
-      console.error("[API] Failed to bootstrap session:", e);
       throw new Error("Authentication required");
     }
   }
 
   const url = `${API_BASE_URL}${path}`;
-
-  console.debug("[API] Calling:", API_BASE_URL + path, "with token type:", typeof sessionToken);
 
   const response = await fetch(url, {
     ...options,
@@ -79,8 +65,6 @@ async function authFetch(path, options = {}) {
 
   // Handle 401 Unauthorized - session expired or invalid
   if (response.status === 401) {
-    console.warn("[API] Received 401, session may be expired. Re-authenticating...");
-    
     // Clear invalid token
     clearSessionToken();
     
@@ -103,7 +87,6 @@ async function authFetch(path, options = {}) {
     } catch (e) {
       isReauthenticating = false;
       reauthPromise = null;
-      console.error("[API] Re-authentication failed:", e);
     }
     
     // If re-auth failed, throw error
@@ -126,8 +109,6 @@ async function authFetch(path, options = {}) {
       errorBody = "<unable to parse error body>";
     }
 
-    console.error("[API] Request FAILED:", response.status, errorBody);
-    
     const error = new Error(errorData?.message || `Request failed with status ${response.status}`);
     error.response = {
       status: response.status,
@@ -150,7 +131,6 @@ async function authFetch(path, options = {}) {
     try {
       return JSON.parse(text);
     } catch (e) {
-      console.warn("[API] Failed to parse JSON response:", e);
       return null;
     }
   }
@@ -162,7 +142,6 @@ async function authFetch(path, options = {}) {
  * Fetches current user information from backend.
  */
 export async function fetchCurrentUser() {
-  console.debug("[API] Fetching current user...");
   return authFetch("/api/users/current", { method: "GET" });
 }
 
@@ -170,11 +149,10 @@ export async function fetchCurrentUser() {
  * Logs out by invalidating the session.
  */
 export async function logout() {
-  console.debug("[API] Logging out...");
   try {
     await authFetch("/api/auth/logout", { method: "POST" });
   } catch (e) {
-    console.warn("[API] Logout request failed:", e);
+    // Ignore logout errors
   } finally {
     clearSessionToken();
   }
@@ -184,7 +162,6 @@ export async function logout() {
  * Fetches the last 10 completed rounds for a specific room.
  */
 export async function fetchCompletedRounds(roomNumber) {
-  console.debug("[API] Fetching completed rounds for room", roomNumber);
   return authFetch(`/api/game/room/${roomNumber}/completed-rounds`, { method: "GET" });
 }
 
@@ -193,7 +170,6 @@ export async function fetchCompletedRounds(roomNumber) {
  * @param {number} stars - Number of stars to deposit
  */
 export async function depositStars(stars) {
-  console.debug("[API] Depositing stars:", stars);
   return authFetch("/api/users/deposit", {
     method: "POST",
     body: JSON.stringify({ stars })

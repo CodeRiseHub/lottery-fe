@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react'
 import { bootstrapSession } from './auth/authService'
 import { getSessionToken } from './auth/sessionManager'
 import { fetchCurrentUser } from './api'
-import { initRemoteLogger, setUserId } from './utils/remoteLogger'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import MainScreen from './screens/MainScreen'
@@ -28,9 +27,6 @@ function App() {
   const [userData, setUserData] = useState(null)
 
   useEffect(() => {
-    // Initialize remote logger early to capture all logs
-    initRemoteLogger()
-    
     // Initialize Telegram WebApp
     if (window.Telegram?.WebApp) {
       const webApp = window.Telegram.WebApp
@@ -86,15 +82,10 @@ function App() {
     async function initializeAuth() {
       try {
         // Step 1: Always try to fetch current user first (regardless of token existence)
-        console.debug("[App] Attempting to fetch current user...")
         try {
           const user = await fetchCurrentUser()
           // Success - user is authenticated
           setUserData(user)
-          if (user?.id) {
-            setUserId(user.id)
-          }
-          console.debug("[App] User authenticated successfully")
           setAuthInitialized(true)
           return
         } catch (error) {
@@ -106,7 +97,6 @@ function App() {
                        error?.message?.includes('Unauthorized')
           
           if (is401) {
-            console.debug("[App] /current returned 401, bootstrapping new session...")
             // Clear any invalid token
             const { clearSessionToken } = await import('./auth/sessionManager')
             clearSessionToken()
@@ -114,30 +104,17 @@ function App() {
             // Step 3: Bootstrap new session via /session
             const result = await bootstrapSession()
             if (result) {
-              console.debug("[App] Session bootstrapped successfully")
-              
               // Step 4: Call /current again after bootstrap
               try {
                 const user = await fetchCurrentUser()
                 setUserData(user)
-                if (user?.id) {
-                  setUserId(user.id)
-                }
-                console.debug("[App] User data fetched after bootstrap")
               } catch (fetchError) {
-                console.error("[App] Failed to fetch user data after bootstrap:", fetchError)
                 // Continue anyway - user might be in dev mode
               }
-            } else {
-              console.warn("[App] No session created (dev mode or no Telegram initData)")
             }
-          } else {
-            // Not a 401 error - some other error occurred
-            console.error("[App] Failed to fetch current user (non-401 error):", error)
           }
         }
       } catch (error) {
-        console.error("[App] Failed to initialize auth:", error)
         // Continue anyway - user might be in dev mode without Telegram
       } finally {
         setAuthInitialized(true)
@@ -159,7 +136,6 @@ function App() {
 
   const handleBalanceUpdate = useCallback((formattedBalance) => {
     // formattedBalance is already a formatted string (e.g., "1.5627")
-    console.log('[App] handleBalanceUpdate called with:', formattedBalance, 'current balance state:', balance)
     setBalance(formattedBalance)
   }, [])
 

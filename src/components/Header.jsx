@@ -40,7 +40,6 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
     if (!initializedRef.current && userData && userData.balanceA !== undefined) {
       // Only set from userData on initial load
       const formatted = formatBalance(userData.balanceA)
-      console.log('[Header] Initial balance from userData:', formatted)
       setBalance(formatted)
       initializedRef.current = true
     }
@@ -51,14 +50,12 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
     if (balanceProp !== undefined && balanceProp !== null && balanceProp !== '') {
       // balanceProp is already formatted string from MainScreen/App/StoreScreen
       // Always prioritize balanceProp over userData for updates
-      console.log('[Header] Setting balance from balanceProp:', balanceProp)
       setBalance(balanceProp)
       initializedRef.current = true // Mark as initialized once we get a balanceProp update
     } else if (initializedRef.current && userData && userData.balanceA !== undefined) {
       // Fallback: if balanceProp is not available but userData is updated, use userData
       const formatted = formatBalance(userData.balanceA)
       if (formatted !== balance) {
-        console.log('[Header] Updating balance from userData (fallback):', formatted)
         setBalance(formatted)
       }
     }
