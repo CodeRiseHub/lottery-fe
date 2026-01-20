@@ -125,45 +125,50 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     
     setClaimingTaskId(taskId)
     try {
-      await claimTask(taskId)
+      const response = await claimTask(taskId)
       
-      // Fetch updated user data to get new balance
-      const userData = await fetchCurrentUser()
-      if (userData) {
-        // Update userData in App.jsx so Header and other screens have the latest data
-        if (onUserDataUpdate) {
-          onUserDataUpdate(userData)
+      if (response.success) {
+        // Fetch updated user data to get new balance
+        const userData = await fetchCurrentUser()
+        if (userData) {
+          // Update userData in App.jsx so Header and other screens have the latest data
+          if (onUserDataUpdate) {
+            onUserDataUpdate(userData)
+          }
+          
+          // Format balance for display (balanceA is in bigint format)
+          if (onBalanceUpdate) {
+            const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+            onBalanceUpdate(balanceDisplay)
+          }
         }
         
-        // Format balance for display (balanceA is in bigint format)
-        if (onBalanceUpdate) {
-          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
-          onBalanceUpdate(balanceDisplay)
+        // Reload tasks to update claimed status
+        if (activeTab === 'referral') {
+          const tasks = await fetchTasks('referral')
+          setReferralTasks(tasks || [])
+        } else if (activeTab === 'follow') {
+          const tasks = await fetchTasks('follow')
+          setFollowTasks(tasks || [])
+        } else if (activeTab === 'other') {
+          const tasks = await fetchTasks('other')
+          setOtherTasks(tasks || [])
         }
-      }
-      
-      // Reload tasks to update claimed status
-      if (activeTab === 'referral') {
-        const tasks = await fetchTasks('referral')
-        setReferralTasks(tasks || [])
-      } else if (activeTab === 'follow') {
-        const tasks = await fetchTasks('follow')
-        setFollowTasks(tasks || [])
-      } else if (activeTab === 'other') {
-        const tasks = await fetchTasks('other')
-        setOtherTasks(tasks || [])
-      }
-      // Close modal
-      if (typeof window.closeModal === 'function') {
-        document.querySelectorAll('[data-modal^="task"]').forEach(modal => {
-          const modalId = modal.getAttribute('data-modal')
-          if (modalId) {
-            window.closeModal(modalId)
-          }
-        })
+        // Close modal
+        if (typeof window.closeModal === 'function') {
+          document.querySelectorAll('[data-modal^="task"]').forEach(modal => {
+            const modalId = modal.getAttribute('data-modal')
+            if (modalId) {
+              window.closeModal(modalId)
+            }
+          })
+        }
+      } else {
+        // Task not completed or already claimed
+        alert(response.message || 'Task cannot be claimed. Make sure the task is completed.')
       }
     } catch (error) {
-      alert('Failed to claim task. Make sure the task is completed.')
+      alert('Failed to claim task. Please try again.')
     } finally {
       setClaimingTaskId(null)
     }
@@ -183,7 +188,8 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   }
 
   // Helper to build progress string for tasks
-  const buildProgressString = (task) => {
+  // Returns null for Tasks Screen (to show Check button), but returns progress string for modals
+  const buildProgressString = (task, forModal = false) => {
     if (task.claimed) {
       return 'CLAIMED'
     }
@@ -194,7 +200,11 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     }
     
     if (task.type === 'other' && task.currentValue != null) {
-      // For other tasks, convert bigint values to USD for display
+      // For other tasks, only show progress in modal, not on Tasks Screen
+      if (!forModal) {
+        return null // Show "Check" button on Tasks Screen
+      }
+      // In modal, convert bigint values to USD for display
       const currentUSD = task.currentValue / 1_000_000
       const requirementUSD = task.requirement / 1_000_000
       return `${currentUSD} / ${requirementUSD}`
@@ -202,6 +212,27 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     
     // For follow tasks or if no progress available, return null to show Check button
     return null
+  }
+
+  // Helper to calculate progress percentage for progress bar
+  const calculateProgressPercentage = (task) => {
+    if (task.claimed || !task.currentValue || task.currentValue === 0) {
+      return 0
+    }
+    
+    if (task.type === 'other' && task.requirement) {
+      // For other tasks, requirement and currentValue are in bigint
+      const percentage = (task.currentValue / task.requirement) * 100
+      return Math.min(percentage, 100) // Cap at 100%
+    }
+    
+    if (task.type === 'referral' && task.requirement) {
+      // For referral tasks, requirement is int, currentValue is long
+      const percentage = (task.currentValue / task.requirement) * 100
+      return Math.min(percentage, 100) // Cap at 100%
+    }
+    
+    return 0
   }
 
   return (
@@ -310,11 +341,12 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         {task.description || `${task.title} using your unique referral link`}
                       </p>
                       {(() => {
-                        const progressText = buildProgressString(task)
+                        const progressText = buildProgressString(task, true) // true = for modal
+                        const progressPercentage = calculateProgressPercentage(task)
                         return progressText ? (
                           <div className="task__progress-wrapper">
                             <span className="task__progress-border" style={{ width: '100%' }}>
-                              <span className="task__progress"></span>
+                              <span className="task__progress" style={{ width: `${progressPercentage}%` }}></span>
                             </span>
                             <p className="task__progress-count">{progressText}</p>
                           </div>
@@ -429,8 +461,8 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         <button
                           className="task__button task__button-one openLink"
                           onClick={() => {
-                            // For follow tasks, we'll implement URL later
-                            // window.open(task.url, '_blank')
+                            // Open Telegram channel
+                            window.open('https://t.me/SecretMinerInfo', '_blank', 'noopener,noreferrer')
                           }}
                         >
                           <span>Join</span>
@@ -533,11 +565,12 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
                       <p className="task__description">{task.description || task.title}</p>
                       {(() => {
-                        const progressText = buildProgressString(task)
+                        const progressText = buildProgressString(task, true) // true = for modal
+                        const progressPercentage = calculateProgressPercentage(task)
                         return progressText ? (
                           <div className="task__progress-wrapper">
                             <span className="task__progress-border" style={{ width: '100%' }}>
-                              <span className="task__progress"></span>
+                              <span className="task__progress" style={{ width: `${progressPercentage}%` }}></span>
                             </span>
                             <p className="task__progress-count">{progressText}</p>
                           </div>

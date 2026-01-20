@@ -205,6 +205,7 @@ export async function fetchTasks(type) {
 /**
  * Claims a task for the current user.
  * @param {number} taskId - The task ID to claim
+ * @returns {Promise<{success: boolean, message: string}>}
  */
 export async function claimTask(taskId) {
   return authFetch("/api/tasks/claim", {
