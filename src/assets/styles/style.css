@@ -649,6 +649,9 @@ font {
     border: 1px solid #25303f;
     background: var(--background-primary);
     box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 0;
 }
 .invite__progress-button {
     font-size: 14px;

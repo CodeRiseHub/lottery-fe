@@ -1,11 +1,49 @@
 import { useState, useEffect } from 'react'
 import { initTabs } from '../utils/tabs'
+import { fetchTasks, claimTask } from '../api'
 import friendIcon from '../assets/images/friend.png'
 import storeIcon from '../assets/images/tasks/store.png'
 import infoChannelIcon from '../assets/info_channel.png'
 
 export default function TasksScreen({ onBack, onNavigate }) {
   const [activeTab, setActiveTab] = useState('referral')
+  const [referralTasks, setReferralTasks] = useState([])
+  const [followTasks, setFollowTasks] = useState([])
+  const [otherTasks, setOtherTasks] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [claimingTaskId, setClaimingTaskId] = useState(null)
+
+  // Fetch tasks when tab changes
+  useEffect(() => {
+    const loadTasks = async () => {
+      setLoading(true)
+      try {
+        if (activeTab === 'referral') {
+          const tasks = await fetchTasks('referral')
+          setReferralTasks(tasks || [])
+        } else if (activeTab === 'follow') {
+          const tasks = await fetchTasks('follow')
+          setFollowTasks(tasks || [])
+        } else if (activeTab === 'other') {
+          const tasks = await fetchTasks('other')
+          setOtherTasks(tasks || [])
+        }
+      } catch (error) {
+        // Handle error silently
+        if (activeTab === 'referral') {
+          setReferralTasks([])
+        } else if (activeTab === 'follow') {
+          setFollowTasks([])
+        } else if (activeTab === 'other') {
+          setOtherTasks([])
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTasks()
+  }, [activeTab])
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -82,39 +120,51 @@ export default function TasksScreen({ onBack, onNavigate }) {
     }
   }
 
-  const referralTasks = [
-    { id: 1, friends: 1, reward: '2 Stars', progress: '1008 / 1', modalId: 'taskInviteModal_1' },
-    { id: 2, friends: 3, reward: '5 Stars', progress: '1008 / 3', modalId: 'taskInviteModal_2' },
-    { id: 3, friends: 7, reward: '15 Stars', progress: '1008 / 7', modalId: 'taskInviteModal_3' },
-    { id: 4, friends: 15, reward: '25 Stars', progress: '1008 / 15', modalId: 'taskInviteModal_4' },
-    { id: 5, friends: 30, reward: '40 Stars', progress: '1008 / 30', modalId: 'taskInviteModal_5' },
-    { id: 6, friends: 50, reward: '60 Stars', progress: '1008 / 50', modalId: 'taskInviteModal_6' },
-    { id: 7, friends: 100, reward: '150 Stars', progress: '1008 / 100', modalId: 'taskInviteModal_7' }
-  ]
-
-  const followTasks = [
-    {
-      id: 12,
-      title: 'Follow our News channel',
-      description: 'Follow our News channel',
-      reward: '5 Stars',
-      url: 'https://t.me/SecretMinerInfo',
-      modalId: 'taskFollowModal_12',
-      icon: infoChannelIcon
+  const handleCheckTask = async (taskId) => {
+    if (claimingTaskId === taskId) return // Prevent double-click
+    
+    setClaimingTaskId(taskId)
+    try {
+      await claimTask(taskId)
+      // Reload tasks to update claimed status
+      if (activeTab === 'referral') {
+        const tasks = await fetchTasks('referral')
+        setReferralTasks(tasks || [])
+      } else if (activeTab === 'follow') {
+        const tasks = await fetchTasks('follow')
+        setFollowTasks(tasks || [])
+      } else if (activeTab === 'other') {
+        const tasks = await fetchTasks('other')
+        setOtherTasks(tasks || [])
+      }
+      // Close modal
+      if (typeof window.closeModal === 'function') {
+        document.querySelectorAll('[data-modal^="task"]').forEach(modal => {
+          const modalId = modal.getAttribute('data-modal')
+          if (modalId) {
+            window.closeModal(modalId)
+          }
+        })
+      }
+    } catch (error) {
+      alert('Failed to claim task. Make sure the task is completed.')
+    } finally {
+      setClaimingTaskId(null)
     }
-  ]
+  }
 
-  const otherTasks = [
-    {
-      id: 11,
-      title: 'Top Up Balance: $5',
-      description: 'Top Up Balance: $5',
-      reward: '100 Stars',
-      progress: null, // Will show "Check" button instead
-      url: '/account/speed_up?unlock=5',
-      modalId: 'taskInviteModal_11'
-    }
-  ]
+  // Helper to extract friends count from title (e.g., "Invite 15 friends" -> 15)
+  const getFriendsCount = (title) => {
+    const match = title.match(/Invite (\d+)/)
+    return match ? parseInt(match[1]) : 0
+  }
+
+  // Helper to format reward amount from bigint to display format
+  const formatRewardAmount = (rewardAmount) => {
+    if (!rewardAmount) return '0'
+    // Convert from bigint (divide by 1,000,000)
+    return (rewardAmount / 1_000_000).toString()
+  }
 
   return (
     <section>
@@ -150,251 +200,306 @@ export default function TasksScreen({ onBack, onNavigate }) {
 
           <div className="tabs__content" data-tab-content="referral" hidden={activeTab !== 'referral'}>
             <div className="tabs__content--refferal">
-              {referralTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="invite__container"
-                  onClick={() => handleTaskClick(task.modalId)}
-                >
-                  <div className="invite__card">
-                    <div className="invite__icon-wrapper">
-                      <img
-                        src={friendIcon}
-                        alt="friend"
-                        width="46"
-                        height="36"
-                        className="invite__icon"
-                      />
+              {loading ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+              ) : referralTasks.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>No tasks found</div>
+              ) : (
+                referralTasks.map((task) => {
+                  const friends = getFriendsCount(task.title)
+                  const modalId = `taskInviteModal_${task.id}`
+                  return (
+                    <div
+                      key={task.id}
+                      className="invite__container"
+                      onClick={() => handleTaskClick(modalId)}
+                    >
+                      <div className="invite__card">
+                        <div className="invite__icon-wrapper">
+                          <img
+                            src={friendIcon}
+                            alt="friend"
+                            width="46"
+                            height="36"
+                            className="invite__icon"
+                          />
+                        </div>
+                        <div className="invite__info">
+                          <p className="invite__title invite__title-one">{task.title}</p>
+                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                        </div>
+                        <div className="invite__progress" id={`progSList_${task.id}`}>
+                          {task.progress}
+                        </div>
+                      </div>
                     </div>
-                    <div className="invite__info">
-                      <p className="invite__title invite__title-one">Invite {task.friends} friend{task.friends > 1 ? 's' : ''}</p>
-                      <p className="invite__reward">+{task.reward}</p>
-                    </div>
-                    <div className="invite__progress" id={`progSList_${task.id}`}>
-                      {task.progress}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  )
+                })
+              )}
 
               {/* Modals for referral tasks */}
-              {referralTasks.map((task) => (
-                <div
-                  key={`modal_${task.id}`}
-                  className="layout task__layout"
-                  data-modal={task.modalId}
-                  onClick={(e) => {
-                    if (e.target.classList.contains('layout')) {
-                      if (typeof window.closeModal === 'function') {
-                        window.closeModal(task.modalId)
+              {referralTasks.map((task) => {
+                const friends = getFriendsCount(task.title)
+                const modalId = `taskInviteModal_${task.id}`
+                return (
+                  <div
+                    key={`modal_${task.id}`}
+                    className="layout task__layout"
+                    data-modal={modalId}
+                    onClick={(e) => {
+                      if (e.target.classList.contains('layout')) {
+                        if (typeof window.closeModal === 'function') {
+                          window.closeModal(modalId)
+                        }
                       }
-                    }
-                  }}
-                >
-                  <div className="modal modal__task--menu modal--bottom task__modal">
-                    <div className="task__header">
-                      <div className="invite__icon-wrapper task__icon-wrapper">
-                        <img
-                          src={friendIcon}
-                          alt="friend"
-                          width="46"
-                          height="36"
-                          className="invite__icon task__icon"
-                        />
+                    }}
+                  >
+                    <div className="modal modal__task--menu modal--bottom task__modal">
+                      <div className="task__header">
+                        <div className="invite__icon-wrapper task__icon-wrapper">
+                          <img
+                            src={friendIcon}
+                            alt="friend"
+                            width="46"
+                            height="36"
+                            className="invite__icon task__icon"
+                          />
+                        </div>
+                        <p className="invite__title invite__title-one">{task.title}</p>
                       </div>
-                      <p className="invite__title invite__title-one">Invite {task.friends} friend{task.friends > 1 ? 's' : ''}</p>
-                    </div>
 
-                    <p className="task__description">
-                      Invite {task.friends} friend{task.friends > 1 ? 's' : ''} using your unique referral link
-                    </p>
-                    <div className="task__progress-wrapper">
-                      <span className="task__progress-border" style={{ width: '100%' }}>
-                        <span className="task__progress"></span>
-                      </span>
-                      <p className="task__progress-count">{task.progress}</p>
-                    </div>
+                      <p className="task__description">
+                        {task.description || `${task.title} using your unique referral link`}
+                      </p>
+                      <div className="task__progress-wrapper">
+                        <span className="task__progress-border" style={{ width: '100%' }}>
+                          <span className="task__progress"></span>
+                        </span>
+                        <p className="task__progress-count">{task.progress}</p>
+                      </div>
 
-                    <p className="task__reward">Reward: {task.reward}</p>
+                      <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
 
-                    <div className="task__actions">
-                      <button
-                        className="task__button task__button-one"
-                        id="openRefPage"
-                        onClick={handleInviteClick}
-                      >
-                        <span>Invite</span>
-                      </button>
-                      <button className="task__button task__button-two" id={`task_id_${task.id}`}>
-                        <span>Check</span>
-                      </button>
+                      <div className="task__actions">
+                        <button
+                          className="task__button task__button-one"
+                          id="openRefPage"
+                          onClick={handleInviteClick}
+                        >
+                          <span>Invite</span>
+                        </button>
+                        <button 
+                          className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
+                          id={`task_id_${task.id}`}
+                          onClick={() => handleCheckTask(task.id)}
+                          disabled={task.claimed || claimingTaskId === task.id}
+                        >
+                          <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 
           <div className="tabs__content" data-tab-content="follow" hidden={activeTab !== 'follow'}>
             <div className="tabs__content--follow">
-              {followTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="invite__container"
-                  onClick={() => handleTaskClick(task.modalId)}
-                >
-                  <div className="invite__card">
-                    <div className="invite__icon-wrapper">
-                      <img
-                        src={task.icon}
-                        alt="friend"
-                        width="47"
-                        height="47"
-                        className="invite__icon-news"
-                      />
+              {loading ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+              ) : followTasks.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>No tasks found</div>
+              ) : (
+                followTasks.map((task) => {
+                  const modalId = `taskFollowModal_${task.id}`
+                  return (
+                    <div
+                      key={task.id}
+                      className="invite__container"
+                      onClick={() => handleTaskClick(modalId)}
+                    >
+                      <div className="invite__card">
+                        <div className="invite__icon-wrapper">
+                          <img
+                            src={infoChannelIcon}
+                            alt="friend"
+                            width="47"
+                            height="47"
+                            className="invite__icon-news"
+                          />
+                        </div>
+                        <div className="invite__info">
+                          <p className="invite__title invite__title-two">{task.title}</p>
+                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                        </div>
+                        <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
+                          Check
+                        </button>
+                      </div>
                     </div>
-                    <div className="invite__info">
-                      <p className="invite__title invite__title-two">{task.title}</p>
-                      <p className="invite__reward">+{task.reward}</p>
-                    </div>
-                    <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
-                      Check
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  )
+                })
+              )}
 
               {/* Modals for follow tasks */}
-              {followTasks.map((task) => (
-                <div
-                  key={`modal_${task.id}`}
-                  className="layout task__layout"
-                  data-modal={task.modalId}
-                  onClick={(e) => {
-                    if (e.target.classList.contains('layout')) {
-                      if (typeof window.closeModal === 'function') {
-                        window.closeModal(task.modalId)
+              {followTasks.map((task) => {
+                const modalId = `taskFollowModal_${task.id}`
+                return (
+                  <div
+                    key={`modal_${task.id}`}
+                    className="layout task__layout"
+                    data-modal={modalId}
+                    onClick={(e) => {
+                      if (e.target.classList.contains('layout')) {
+                        if (typeof window.closeModal === 'function') {
+                          window.closeModal(modalId)
+                        }
                       }
-                    }
-                  }}
-                >
-                  <div className="modal modal__task--menu modal--bottom task__modal">
-                    <div className="task__header">
-                      <div className="invite__icon-wrapper">
-                        <img
-                          src={task.icon}
-                          alt="friend"
-                          width="47"
-                          height="47"
-                          className="invite__icon-news"
-                        />
+                    }}
+                  >
+                    <div className="modal modal__task--menu modal--bottom task__modal">
+                      <div className="task__header">
+                        <div className="invite__icon-wrapper">
+                          <img
+                            src={infoChannelIcon}
+                            alt="friend"
+                            width="47"
+                            height="47"
+                            className="invite__icon-news"
+                          />
+                        </div>
+                        <p className="invite__title invite__title-two">{task.title}</p>
                       </div>
-                      <p className="invite__title invite__title-two">{task.title}</p>
-                    </div>
-                    <p className="task__description">{task.description}</p>
-                    <p className="task__reward">Reward: {task.reward}</p>
-                    <div className="task__actions">
-                      <button
-                        className="task__button task__button-one openLink"
-                        data-url={task.url}
-                        onClick={() => window.open(task.url, '_blank')}
-                      >
-                        <span>Join</span>
-                      </button>
-                      <button className="task__button task__button-two" id={`task_id_${task.id}`}>
-                        <span>Check</span>
-                      </button>
+                      <p className="task__description">{task.description || task.title}</p>
+                      <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                      <div className="task__actions">
+                        <button
+                          className="task__button task__button-one openLink"
+                          onClick={() => {
+                            // For follow tasks, we'll implement URL later
+                            // window.open(task.url, '_blank')
+                          }}
+                        >
+                          <span>Join</span>
+                        </button>
+                        <button 
+                          className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
+                          id={`task_id_${task.id}`}
+                          onClick={() => handleCheckTask(task.id)}
+                          disabled={task.claimed || claimingTaskId === task.id}
+                        >
+                          <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 
           <div className="tabs__content" data-tab-content="other" hidden={activeTab !== 'other'}>
             <div className="tabs__content--other">
-              {otherTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="invite__container"
-                  onClick={() => handleTaskClick(task.modalId)}
-                >
-                  <div className="invite__card">
-                    <div className="invite__icon-wrapper">
-                      <img
-                        src={task.icon || storeIcon}
-                        alt="task"
-                        width="46"
-                        height="36"
-                        className="invite__icon"
-                      />
+              {loading ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+              ) : otherTasks.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>No tasks found</div>
+              ) : (
+                otherTasks.map((task) => {
+                  const modalId = `taskInviteModal_${task.id}`
+                  return (
+                    <div
+                      key={task.id}
+                      className="invite__container"
+                      onClick={() => handleTaskClick(modalId)}
+                    >
+                      <div className="invite__card">
+                        <div className="invite__icon-wrapper">
+                          <img
+                            src={storeIcon}
+                            alt="task"
+                            width="46"
+                            height="36"
+                            className="invite__icon"
+                          />
+                        </div>
+                        <div className="invite__info">
+                          <p className="invite__title invite__title-one">{task.title}</p>
+                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                        </div>
+                        <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
+                          Check
+                        </button>
+                      </div>
                     </div>
-                    <div className="invite__info">
-                      <p className="invite__title invite__title-one">{task.title}</p>
-                      <p className="invite__reward">+{task.reward}</p>
-                    </div>
-                    <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
-                      Check
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  )
+                })
+              )}
 
               {/* Modals for other tasks */}
-              {otherTasks.map((task) => (
-                <div
-                  key={`modal_${task.id}`}
-                  className="layout task__layout"
-                  data-modal={task.modalId}
-                  onClick={(e) => {
-                    if (e.target.classList.contains('layout')) {
-                      if (typeof window.closeModal === 'function') {
-                        window.closeModal(task.modalId)
+              {otherTasks.map((task) => {
+                const modalId = `taskInviteModal_${task.id}`
+                return (
+                  <div
+                    key={`modal_${task.id}`}
+                    className="layout task__layout"
+                    data-modal={modalId}
+                    onClick={(e) => {
+                      if (e.target.classList.contains('layout')) {
+                        if (typeof window.closeModal === 'function') {
+                          window.closeModal(modalId)
+                        }
                       }
-                    }
-                  }}
-                >
-                  <div className="modal modal__task--menu modal--bottom task__modal">
-                    <div className="task__header">
-                      <div className="invite__icon-wrapper task__icon-wrapper">
-                        <img
-                          src={task.icon || storeIcon}
-                          alt="task"
-                          width="46"
-                          height="36"
-                          className="invite__icon task__icon"
-                        />
+                    }}
+                  >
+                    <div className="modal modal__task--menu modal--bottom task__modal">
+                      <div className="task__header">
+                        <div className="invite__icon-wrapper task__icon-wrapper">
+                          <img
+                            src={storeIcon}
+                            alt="task"
+                            width="46"
+                            height="36"
+                            className="invite__icon task__icon"
+                          />
+                        </div>
+                        <p className="invite__title invite__title-one">{task.title}</p>
                       </div>
-                      <p className="invite__title invite__title-one">{task.title}</p>
-                    </div>
 
-                    <p className="task__description">{task.description}</p>
+                      <p className="task__description">{task.description || task.title}</p>
 
-                    <p className="task__reward">Reward: {task.reward}</p>
+                      <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
 
-                    <div className="task__actions">
-                      <button
-                        className="task__button task__button-one"
-                        onClick={() => {
-                          // Navigate to Store screen
-                          if (onNavigate) {
-                            onNavigate('store')
-                          }
-                          // Close modal
-                          if (typeof window.closeModal === 'function') {
-                            window.closeModal(task.modalId)
-                          }
-                        }}
-                      >
-                        <span>Open</span>
-                      </button>
-                      <button className="task__button task__button-two" id={`task_id_${task.id}`}>
-                        <span>Check</span>
-                      </button>
+                      <div className="task__actions">
+                        <button
+                          className="task__button task__button-one"
+                          onClick={() => {
+                            // Navigate to Store screen
+                            if (onNavigate) {
+                              onNavigate('store')
+                            }
+                            // Close modal
+                            if (typeof window.closeModal === 'function') {
+                              window.closeModal(modalId)
+                            }
+                          }}
+                        >
+                          <span>Open</span>
+                        </button>
+                        <button 
+                          className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
+                          id={`task_id_${task.id}`}
+                          onClick={() => handleCheckTask(task.id)}
+                          disabled={task.claimed || claimingTaskId === task.id}
+                        >
+                          <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>

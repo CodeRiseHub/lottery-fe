@@ -139,6 +139,11 @@ function App() {
     setBalance(formattedBalance)
   }, [])
 
+  // Scroll to top when screen changes
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [currentScreen])
+
   if (!authInitialized) {
     return (
       <div className="bg">

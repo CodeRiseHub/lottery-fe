@@ -167,12 +167,14 @@ export async function fetchCompletedRounds(roomNumber) {
 
 /**
  * Deposits stars to user's balance.
- * @param {number} stars - Number of stars to deposit
+ * @param {number} stars - Number of stars to deposit (will be converted to bigint: stars * 1,000,000)
  */
 export async function depositStars(stars) {
+  // Convert stars to bigint format (1 star = 1,000,000)
+  const amount = stars * 1_000_000
   return authFetch("/api/users/deposit", {
     method: "POST",
-    body: JSON.stringify({ stars })
+    body: JSON.stringify({ amount })
   });
 }
 
@@ -186,6 +188,28 @@ export async function depositStars(stars) {
 export async function fetchReferrals(level, page = 0) {
   return authFetch(`/api/users/referrals?level=${level}&page=${page}`, {
     method: "GET"
+  });
+}
+
+/**
+ * Fetches tasks for a specific type (referral, follow, other).
+ * @param {string} type - The task type
+ * @returns {Promise<Array<{id: number, type: string, requirement: number, rewardAmount: number, rewardType: string, title: string, description: string, displayOrder: number, claimed: boolean, progress: string}>>}
+ */
+export async function fetchTasks(type) {
+  return authFetch(`/api/tasks?type=${type}`, {
+    method: "GET"
+  });
+}
+
+/**
+ * Claims a task for the current user.
+ * @param {number} taskId - The task ID to claim
+ */
+export async function claimTask(taskId) {
+  return authFetch("/api/tasks/claim", {
+    method: "POST",
+    body: JSON.stringify({ taskId })
   });
 }
 
