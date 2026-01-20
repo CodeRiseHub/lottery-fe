@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { initTabs } from '../utils/tabs'
 import { fetchReferrals } from '../api'
 import refIcon from '../assets/images/ref.png'
@@ -13,7 +13,6 @@ export default function ReferralScreen({ onBack, userData }) {
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(false)
-  const referralsListRef = useRef(null)
   
   // Generate referral link dynamically using user ID
   const referralLink = userData?.id 
@@ -36,18 +35,11 @@ export default function ReferralScreen({ onBack, userData }) {
       
       setLoading(true)
       try {
-        const response = await fetchReferrals(activeLevel, currentPage, 50)
+        const response = await fetchReferrals(activeLevel, currentPage)
         setReferrals(response.referrals || [])
         setCurrentPage(response.currentPage || 0)
         setTotalPages(response.totalPages || 0)
         setTotalElements(response.totalElements || 0)
-        
-        // Scroll to referrals list after data is loaded
-        setTimeout(() => {
-          if (referralsListRef.current) {
-            referralsListRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }
-        }, 100)
       } catch (error) {
         setReferrals([])
         setCurrentPage(0)
@@ -232,7 +224,7 @@ export default function ReferralScreen({ onBack, userData }) {
                 </p>
               </div>
               
-              <div className="earn__list" ref={referralsListRef}>
+              <div className="earn__list">
                 <div className="earn__list-header">
                   <p className="earn__list-col">Name</p>
                   <p className="earn__list-col">Commission</p>
