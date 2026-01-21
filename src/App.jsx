@@ -14,7 +14,8 @@ import TransactionHistoryScreen from './screens/TransactionHistoryScreen'
 import StoreScreen from './screens/StoreScreen'
 import TasksScreen from './screens/TasksScreen'
 import PayoutScreen from './screens/PayoutScreen'
-import PayoutConfirmationScreen from './screens/PayoutConfirmationScreen'
+import StarsPayoutConfirmationScreen from './screens/StarsPayoutConfirmationScreen'
+import GiftPayoutConfirmationScreen from './screens/GiftPayoutConfirmationScreen'
 import './utils/modals'
 import './App.css'
 
@@ -198,8 +199,13 @@ function App() {
           />
         )}
         {currentScreen === 'payout' && <PayoutScreen onBack={handleBack} onNavigate={handleNavigate} />}
-        {currentScreen === 'payoutConfirmation' && (
-          <PayoutConfirmationScreen
+        {currentScreen === 'starsPayoutConfirmation' && (
+          <StarsPayoutConfirmationScreen
+            onBack={() => handleNavigate('payout')}
+          />
+        )}
+        {currentScreen === 'giftPayoutConfirmation' && (
+          <GiftPayoutConfirmationScreen
             onBack={() => handleNavigate('payout')}
           />
         )}

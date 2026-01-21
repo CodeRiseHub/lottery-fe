@@ -37,7 +37,7 @@ export default function PayoutScreen({ onBack, onNavigate }) {
               onClick={(e) => {
                 e.preventDefault()
                 if (onNavigate) {
-                  onNavigate('payoutConfirmation', { type: 'stars' })
+                  onNavigate('starsPayoutConfirmation')
                 }
               }}
             >
@@ -59,7 +59,7 @@ export default function PayoutScreen({ onBack, onNavigate }) {
               onClick={(e) => {
                 e.preventDefault()
                 if (onNavigate) {
-                  onNavigate('payoutConfirmation', { type: 'gift' })
+                  onNavigate('giftPayoutConfirmation')
                 }
               }}
             >
