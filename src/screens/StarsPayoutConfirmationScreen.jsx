@@ -102,10 +102,11 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
       const tickets = parseFloat(balanceTickets) || 0
       const response = await createPayout({
         username: username.trim(),
-        total: tickets,
+        total: tickets * 1_000_000, // Convert to bigint format
         starsAmount: Math.round(stars),
         type: 'STARS',
-        giftName: null
+        giftName: null,
+        quantity: 1 // Always 1 for STARS
       })
 
       // Fetch updated user data to get new balance

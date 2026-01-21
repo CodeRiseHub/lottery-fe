@@ -226,22 +226,21 @@ export async function fetchGameHistory() {
  * Creates a payout request.
  * @param {Object} payoutData - Payout data
  * @param {string} payoutData.username - Username (must start with @)
- * @param {number} payoutData.total - Tickets amount (will be converted to bigint: tickets * 1,000,000)
+ * @param {number} payoutData.total - Tickets amount in bigint format (already converted)
  * @param {number} payoutData.starsAmount - Stars amount (for STARS type)
  * @param {string} payoutData.type - Payout type: "STARS" or "GIFT"
  * @param {string} payoutData.giftName - Gift name (for GIFT type): "HEART", "BEAR", etc.
- * @returns {Promise<{id: number, username: string, type: string, giftName: string, total: number, starsAmount: number, status: string}>}
+ * @param {number} payoutData.quantity - Quantity of gifts/stars (1-100, default 1)
+ * @returns {Promise<{id: number, username: string, type: string, giftName: string, total: number, starsAmount: number, quantity: number, status: string}>}
  */
 export async function createPayout(payoutData) {
-  // Convert tickets to bigint format (1 ticket = 1,000,000)
-  const totalBigint = Math.round(payoutData.total * 1_000_000)
-  
   const requestData = {
     username: payoutData.username,
-    total: totalBigint,
+    total: payoutData.total, // Already in bigint format
     starsAmount: payoutData.starsAmount,
     type: payoutData.type,
-    giftName: payoutData.giftName
+    giftName: payoutData.giftName,
+    quantity: payoutData.quantity || 1 // Default to 1 if not provided
   }
   
   return authFetch("/api/payouts", {

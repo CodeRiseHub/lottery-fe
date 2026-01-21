@@ -32,6 +32,7 @@ const gifts = [
 export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
   const [username, setUsername] = useState('')
   const [selectedGift, setSelectedGift] = useState(null)
+  const [quantity, setQuantity] = useState(1)
   const [balanceTickets, setBalanceTickets] = useState('0')
   const [showGiftDropdown, setShowGiftDropdown] = useState(false)
   const [usernameError, setUsernameError] = useState('')
@@ -87,14 +88,34 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
   }, [showGiftDropdown])
 
   useEffect(() => {
-    // Update balance tickets when gift is selected
+    // Update balance tickets when gift is selected or quantity changes
     if (selectedGift) {
-      setBalanceTickets(selectedGift.price.toString())
+      const totalPrice = selectedGift.price * quantity
+      setBalanceTickets(totalPrice.toString())
       setGiftError('')
     } else {
       setBalanceTickets('0')
     }
-  }, [selectedGift])
+  }, [selectedGift, quantity])
+  
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value) || 1
+    if (value >= 1 && value <= 100) {
+      setQuantity(value)
+    } else if (value > 100) {
+      setQuantity(100)
+    } else if (value < 1) {
+      setQuantity(1)
+    }
+  }
+  
+  const handleQuantityIncrement = () => {
+    setQuantity(prev => Math.min(prev + 1, 100))
+  }
+  
+  const handleQuantityDecrement = () => {
+    setQuantity(prev => Math.max(prev - 1, 1))
+  }
 
   const validateUsername = (value) => {
     // Username should start with @ followed by at least 1 English letter
@@ -149,10 +170,11 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
       
       const response = await createPayout({
         username: username.trim(),
-        total: tickets,
+        total: tickets * 1_000_000, // Convert to bigint format
         starsAmount: null, // Will be calculated by backend based on gift type
         type: 'GIFT',
-        giftName: giftName
+        giftName: giftName,
+        quantity: quantity
       })
 
       // Fetch updated user data to get new balance
@@ -278,6 +300,81 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className="payout__field">
+              <p className="payout__label">Select the number:</p>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="number"
+                  className="payout__input"
+                  name="quantity"
+                  min="1"
+                  max="100"
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  style={{ 
+                    height: '42px',
+                    paddingRight: '50px',
+                    textAlign: 'center',
+                    fontSize: '22px',
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'textfield'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  right: '9px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }}>
+                  <button
+                    type="button"
+                    onClick={handleQuantityIncrement}
+                    disabled={quantity >= 100}
+                    style={{
+                      width: '20px',
+                      height: '15px',
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: quantity >= 100 ? 'not-allowed' : 'pointer',
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <span style={{
+                      fontSize: '10px',
+                      color: quantity >= 100 ? '#666' : '#ccc',
+                      lineHeight: 1
+                    }}>▲</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleQuantityDecrement}
+                    disabled={quantity <= 1}
+                    style={{
+                      width: '20px',
+                      height: '15px',
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: quantity <= 1 ? 'not-allowed' : 'pointer',
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <span style={{
+                      fontSize: '10px',
+                      color: quantity <= 1 ? '#666' : '#ccc',
+                      lineHeight: 1
+                    }}>▼</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="payout__field payout__field--result">
