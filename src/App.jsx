@@ -129,9 +129,14 @@ function App() {
     setScreenProps(props)
   }
 
-  const handleBack = () => {
-    setCurrentScreen('main')
-    setScreenProps({})
+  const handleBack = (roomNumber) => {
+    if (roomNumber) {
+      setCurrentScreen('main')
+      setScreenProps({ roomNumber })
+    } else {
+      setCurrentScreen('main')
+      setScreenProps({})
+    }
   }
 
   const handleBalanceUpdate = useCallback((formattedBalance) => {
@@ -163,8 +168,8 @@ function App() {
     <div className="bg">
       <Header onNavigate={handleNavigate} balance={balance} onBalanceUpdate={handleBalanceUpdate} userData={userData} />
       <main>
-        {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} onBalanceUpdate={handleBalanceUpdate} userData={userData} />}
-        {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} />}
+        {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} onBalanceUpdate={handleBalanceUpdate} userData={userData} roomNumber={screenProps.roomNumber} />}
+        {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} roomNumber={screenProps.roomNumber} />}
         {currentScreen === 'faq' && <FAQScreen onBack={handleNavigate} />}
         {currentScreen === 'support' && <SupportScreen onBack={handleBack} onNavigate={handleNavigate} />}
         {currentScreen === 'supportChat' && (

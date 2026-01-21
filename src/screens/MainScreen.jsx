@@ -14,7 +14,7 @@ import { formatBalance } from '../utils/balanceFormatter'
 import { fetchCompletedRounds } from '../api'
 import '../utils/modals'
 
-export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
+export default function MainScreen({ onNavigate, onBalanceUpdate, userData, roomNumber }) {
   const [currentBet, setCurrentBet] = useState(1) // Will be updated from state
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
@@ -26,7 +26,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
   const [errorMessage, setErrorMessage] = useState('')
   const [registeredUsers, setRegisteredUsers] = useState(0)
   const [totalBet, setTotalBet] = useState(0)
-  const [currentRoom, setCurrentRoom] = useState({ number: 1, users: 0 })
+  const [currentRoom, setCurrentRoom] = useState({ number: roomNumber || 1, users: 0 })
   const [rooms, setRooms] = useState([
     { number: 1, users: 0 },
     { number: 2, users: 0 },
@@ -1005,6 +1005,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
     loadCompletedRounds()
   }, [currentRoom.number, winner]) // Reload when room changes or when winner is set (round ends)
 
+  // Update current room when roomNumber prop changes (e.g., when returning from game history)
+  useEffect(() => {
+    if (roomNumber && roomNumber !== currentRoom.number) {
+      const targetRoom = rooms.find(r => r.number === roomNumber) || { number: roomNumber, users: 0 }
+      setCurrentRoom(targetRoom)
+    }
+  }, [roomNumber])
+
   const handleRoomChange = (room) => {
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
@@ -1028,7 +1036,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData }) {
               onRoomChange={handleRoomChange}
             />
             <button
-              onClick={() => onNavigate && onNavigate('gameHistory')}
+              onClick={() => onNavigate && onNavigate('gameHistory', { roomNumber: currentRoom.number })}
               className="spin__button"
             >
               <img src={historyIcon} alt="history" width="42" />

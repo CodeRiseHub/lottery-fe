@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchGameHistory } from '../api'
 import backIcon from '../assets/images/back.png'
 
-export default function GameHistoryScreen({ onBack }) {
+export default function GameHistoryScreen({ onBack, roomNumber }) {
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -57,7 +57,7 @@ export default function GameHistoryScreen({ onBack }) {
       <div className="transaction__container container">
         <h1 className="transaction__title title">Game history (last 100)</h1>
         
-        <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }} className="spin__back">
+        <a href="#" onClick={(e) => { e.preventDefault(); onBack(roomNumber); }} className="spin__back">
           &lt;&lt;&lt; Back
         </a>
         
