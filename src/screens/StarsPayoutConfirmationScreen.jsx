@@ -106,15 +106,15 @@ export default function StarsPayoutConfirmationScreen({ onBack }) {
           <div className="payout__form">
             <div className="payout__field">
               <p className="payout__label">Enter the Username:</p>
-              <textarea
+              <input
+                type="text"
                 className="payout__input"
                 placeholder="@username"
-                rows="3"
-                wrap="soft"
                 name="username"
                 value={username}
                 onChange={handleUsernameChange}
-              ></textarea>
+                style={{ height: '42px', fontSize: '22px', textAlign: 'center' }}
+              />
               {usernameError && (
                 <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{usernameError}</p>
               )}
