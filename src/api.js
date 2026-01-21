@@ -214,6 +214,14 @@ export async function claimTask(taskId) {
   });
 }
 
+/**
+ * Fetches the last 100 game history entries for the current user.
+ * @returns {Promise<Array<{amount: number, date: string}>>}
+ */
+export async function fetchGameHistory() {
+  return authFetch("/api/game/history", { method: "GET" });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 
