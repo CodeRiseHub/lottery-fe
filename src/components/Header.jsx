@@ -115,6 +115,16 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
     // TODO: Implement language change API call
   }
 
+  // Format registration date from Unix timestamp (seconds) to dd.mm.yyyy
+  const formatRegistrationDate = (dateReg) => {
+    if (!dateReg || dateReg === 0) return '-'
+    const date = new Date(dateReg * 1000) // Convert seconds to milliseconds
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}.${month}.${year}`
+  }
+
   return (
     <>
       <header className="header" id="myBestHeader">
@@ -293,18 +303,20 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
               <div className="modal__account-detail-info">
                 <div className="modal__account-detail-item">
                   <p className="modal__account-detail-label">ID on the project:</p>
-                  <p className="modal__account-detail-value">-</p>
+                  <p className="modal__account-detail-value">{userData?.id || '-'}</p>
                 </div>
                 <div className="modal__account-detail-item">
                   <p className="modal__account-detail-label">Name:</p>
-                  <p className="modal__account-detail-value">-</p>
+                  <p className="modal__account-detail-value">{userData?.screenName || '-'}</p>
                 </div>
                 <div className="modal__account-detail-item">
                   <p className="modal__account-detail-label">Registered:</p>
-                  <p className="modal__account-detail-value">-</p>
+                  <p className="modal__account-detail-value">
+                    {userData?.dateReg ? formatRegistrationDate(userData.dateReg) : '-'}
+                  </p>
                 </div>
                 <div className="modal__account-detail-item">
-                  <p className="modal__account-detail-label">Balance (USD):</p>
+                  <p className="modal__account-detail-label">Balance:</p>
                   <p className="modal__account-detail-value">{balance}</p>
                 </div>
                 <button
