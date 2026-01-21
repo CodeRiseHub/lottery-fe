@@ -462,7 +462,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           className="task__button task__button-one openLink"
                           onClick={() => {
                             // Open Telegram channel
-                            window.open('https://t.me/SecretMinerInfo', '_blank', 'noopener,noreferrer')
+                            window.open('https://t.me/lottery_2026_test_channel', '_blank', 'noopener,noreferrer')
                           }}
                         >
                           <span>Join</span>
@@ -470,10 +470,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         <button 
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
                           id={`task_id_${task.id}`}
-                          onClick={() => {
-                            // For follow tasks, Check button does nothing for now
-                            alert('Follow task check is not implemented yet.')
-                          }}
+                          onClick={() => handleCheckTask(task.id)}
                           disabled={task.claimed || claimingTaskId === task.id}
                         >
                           <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
