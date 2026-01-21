@@ -304,7 +304,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
 
             <div className="payout__field">
               <p className="payout__label">Select the number:</p>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type="number"
                   className="payout__input"
@@ -315,19 +315,34 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                   onChange={handleQuantityChange}
                   style={{ 
                     height: '42px',
-                    paddingRight: '50px',
+                    width: '100%',
+                    paddingRight: '40px',
                     textAlign: 'center',
                     fontSize: '22px',
                     WebkitAppearance: 'none',
-                    MozAppearance: 'textfield'
+                    MozAppearance: 'textfield',
+                    appearance: 'none'
                   }}
                 />
+                <style>{`
+                  input[type="number"]::-webkit-inner-spin-button,
+                  input[type="number"]::-webkit-outer-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                  }
+                  input[type="number"] {
+                    -moz-appearance: textfield;
+                  }
+                `}</style>
                 <div style={{
                   position: 'absolute',
                   right: '9px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '2px'
+                  gap: '2px',
+                  pointerEvents: 'none'
                 }}>
                   <button
                     type="button"
@@ -342,7 +357,8 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                       padding: 0,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      pointerEvents: 'auto'
                     }}
                   >
                     <span style={{
@@ -364,7 +380,8 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                       padding: 0,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      pointerEvents: 'auto'
                     }}
                   >
                     <span style={{
