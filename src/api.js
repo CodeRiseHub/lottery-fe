@@ -222,6 +222,34 @@ export async function fetchGameHistory() {
   return authFetch("/api/game/history", { method: "GET" });
 }
 
+/**
+ * Creates a payout request.
+ * @param {Object} payoutData - Payout data
+ * @param {string} payoutData.username - Username (must start with @)
+ * @param {number} payoutData.total - Tickets amount (will be converted to bigint: tickets * 1,000,000)
+ * @param {number} payoutData.starsAmount - Stars amount (for STARS type)
+ * @param {string} payoutData.type - Payout type: "STARS" or "GIFT"
+ * @param {string} payoutData.giftName - Gift name (for GIFT type): "HEART", "BEAR", etc.
+ * @returns {Promise<{id: number, username: string, type: string, giftName: string, total: number, starsAmount: number, status: string}>}
+ */
+export async function createPayout(payoutData) {
+  // Convert tickets to bigint format (1 ticket = 1,000,000)
+  const totalBigint = Math.round(payoutData.total * 1_000_000)
+  
+  const requestData = {
+    username: payoutData.username,
+    total: totalBigint,
+    starsAmount: payoutData.starsAmount,
+    type: payoutData.type,
+    giftName: payoutData.giftName
+  }
+  
+  return authFetch("/api/payouts", {
+    method: "POST",
+    body: JSON.stringify(requestData)
+  });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 

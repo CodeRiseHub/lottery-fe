@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
+import { createPayout, fetchCurrentUser } from '../api'
 import backIcon from '../assets/images/back.png'
 
-export default function StarsPayoutConfirmationScreen({ onBack }) {
+export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
   const [username, setUsername] = useState('')
   const [starsAmount, setStarsAmount] = useState('')
   const [balanceTickets, setBalanceTickets] = useState('0')
   const [usernameError, setUsernameError] = useState('')
   const [starsError, setStarsError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -69,12 +72,13 @@ export default function StarsPayoutConfirmationScreen({ onBack }) {
     setStarsAmount(value)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     // Reset errors
     setUsernameError('')
     setStarsError('')
+    setSubmitError('')
 
     // Validate username
     validateUsername(username)
@@ -93,8 +97,39 @@ export default function StarsPayoutConfirmationScreen({ onBack }) {
       return
     }
 
-    // TODO: Handle payout submission
-    alert('Stars payout request submitted!')
+    setIsSubmitting(true)
+    try {
+      const tickets = parseFloat(balanceTickets) || 0
+      const response = await createPayout({
+        username: username.trim(),
+        total: tickets,
+        starsAmount: Math.round(stars),
+        type: 'STARS',
+        giftName: null
+      })
+
+      // Fetch updated user data to get new balance
+      const userData = await fetchCurrentUser()
+      if (userData) {
+        if (onUserDataUpdate) {
+          onUserDataUpdate(userData)
+        }
+        if (onBalanceUpdate) {
+          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+          onBalanceUpdate(balanceDisplay)
+        }
+      }
+
+      alert('Stars payout request submitted successfully!')
+      if (onBack) {
+        onBack()
+      }
+    } catch (error) {
+      const errorMessage = error.response?.message || error.message || 'Failed to submit payout request'
+      setSubmitError(errorMessage)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -147,8 +182,17 @@ export default function StarsPayoutConfirmationScreen({ onBack }) {
               />
             </div>
 
-            <button type="submit" className="payout__button">
-              <span>CONFIRM</span>
+            {submitError && (
+              <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '10px', textAlign: 'center' }}>
+                {submitError}
+              </p>
+            )}
+            <button 
+              type="submit" 
+              className="payout__button"
+              disabled={isSubmitting}
+            >
+              <span>{isSubmitting ? 'SUBMITTING...' : 'CONFIRM'}</span>
             </button>
           </div>
         </form>

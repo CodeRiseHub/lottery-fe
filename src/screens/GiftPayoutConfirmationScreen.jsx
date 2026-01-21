@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPayout, fetchCurrentUser } from '../api'
 import backIcon from '../assets/images/back.png'
 
 // Import all gift images
@@ -28,13 +29,15 @@ const gifts = [
   { id: 'diamond', name: 'Diamond', image: diamondImg, price: 110 },
 ]
 
-export default function GiftPayoutConfirmationScreen({ onBack }) {
+export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
   const [username, setUsername] = useState('')
   const [selectedGift, setSelectedGift] = useState(null)
   const [balanceTickets, setBalanceTickets] = useState('0')
   const [showGiftDropdown, setShowGiftDropdown] = useState(false)
   const [usernameError, setUsernameError] = useState('')
   const [giftError, setGiftError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -114,12 +117,13 @@ export default function GiftPayoutConfirmationScreen({ onBack }) {
     setShowGiftDropdown(false)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     // Reset errors
     setUsernameError('')
     setGiftError('')
+    setSubmitError('')
 
     // Validate username
     validateUsername(username)
@@ -137,8 +141,42 @@ export default function GiftPayoutConfirmationScreen({ onBack }) {
       return
     }
 
-    // TODO: Handle payout submission
-    alert('Gift payout request submitted!')
+    setIsSubmitting(true)
+    try {
+      const tickets = parseFloat(balanceTickets) || 0
+      // Convert gift id to uppercase for backend (e.g., 'heart' -> 'HEART')
+      const giftName = selectedGift.id.toUpperCase()
+      
+      const response = await createPayout({
+        username: username.trim(),
+        total: tickets,
+        starsAmount: null, // Will be calculated by backend based on gift type
+        type: 'GIFT',
+        giftName: giftName
+      })
+
+      // Fetch updated user data to get new balance
+      const userData = await fetchCurrentUser()
+      if (userData) {
+        if (onUserDataUpdate) {
+          onUserDataUpdate(userData)
+        }
+        if (onBalanceUpdate) {
+          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+          onBalanceUpdate(balanceDisplay)
+        }
+      }
+
+      alert('Gift payout request submitted successfully!')
+      if (onBack) {
+        onBack()
+      }
+    } catch (error) {
+      const errorMessage = error.response?.message || error.message || 'Failed to submit payout request'
+      setSubmitError(errorMessage)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -254,8 +292,17 @@ export default function GiftPayoutConfirmationScreen({ onBack }) {
               />
             </div>
 
-            <button type="submit" className="payout__button">
-              <span>CONFIRM</span>
+            {submitError && (
+              <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '10px', textAlign: 'center' }}>
+                {submitError}
+              </p>
+            )}
+            <button 
+              type="submit" 
+              className="payout__button"
+              disabled={isSubmitting}
+            >
+              <span>{isSubmitting ? 'SUBMITTING...' : 'CONFIRM'}</span>
             </button>
           </div>
         </form>

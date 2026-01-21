@@ -202,11 +202,15 @@ function App() {
         {currentScreen === 'starsPayoutConfirmation' && (
           <StarsPayoutConfirmationScreen
             onBack={() => handleNavigate('payout')}
+            onBalanceUpdate={handleBalanceUpdate}
+            onUserDataUpdate={setUserData}
           />
         )}
         {currentScreen === 'giftPayoutConfirmation' && (
           <GiftPayoutConfirmationScreen
             onBack={() => handleNavigate('payout')}
+            onBalanceUpdate={handleBalanceUpdate}
+            onUserDataUpdate={setUserData}
           />
         )}
       </main>
