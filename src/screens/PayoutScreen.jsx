@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import tonIcon from '../assets/images/upgrade/ton.png'
+import starIcon from '../assets/purchase/star.png'
+import giftIcon from '../assets/purchase/gift.png'
 
 export default function PayoutScreen({ onBack, onNavigate }) {
   useEffect(() => {
@@ -36,20 +37,42 @@ export default function PayoutScreen({ onBack, onNavigate }) {
               onClick={(e) => {
                 e.preventDefault()
                 if (onNavigate) {
-                  onNavigate('payoutConfirmation')
+                  onNavigate('payoutConfirmation', { type: 'stars' })
                 }
               }}
             >
               <img
-                src={tonIcon}
+                src={starIcon}
                 width="61"
                 height="60"
                 className="upgrade__icon"
-                alt="TON"
+                alt="Stars"
               />
               <div className="upgrade__info">
-                <p className="upgrade__name">TON</p>
-                <p className="upgrade__network">Min. 0.37 USD</p>
+                <p className="upgrade__name">Stars</p>
+                <p className="upgrade__network">Min. 15 Stars</p>
+              </div>
+            </a>
+            <a
+              href="#"
+              className="upgrade__item"
+              onClick={(e) => {
+                e.preventDefault()
+                if (onNavigate) {
+                  onNavigate('payoutConfirmation', { type: 'gift' })
+                }
+              }}
+            >
+              <img
+                src={giftIcon}
+                width="61"
+                height="60"
+                className="upgrade__icon"
+                alt="Gift"
+              />
+              <div className="upgrade__info">
+                <p className="upgrade__name">Gift</p>
+                <p className="upgrade__network">Min. 15 Stars</p>
               </div>
             </a>
           </div>
