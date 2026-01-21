@@ -249,6 +249,15 @@ export async function createPayout(payoutData) {
   });
 }
 
+/**
+ * Fetches the last 20 payout history entries for the current user.
+ * @returns {Promise<Array<{amount: number, date: string, status: string}>>}
+ * amount is in bigint format (will be converted to tickets on frontend)
+ */
+export async function fetchPayoutHistory() {
+  return authFetch("/api/payouts/history", { method: "GET" });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 

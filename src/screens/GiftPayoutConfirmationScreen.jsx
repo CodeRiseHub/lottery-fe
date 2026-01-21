@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createPayout, fetchCurrentUser } from '../api'
+import { createPayout, fetchCurrentUser, fetchPayoutHistory } from '../api'
 import backIcon from '../assets/images/back.png'
 
 // Import all gift images
@@ -39,6 +39,8 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
   const [giftError, setGiftError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [payoutHistory, setPayoutHistory] = useState([])
+  const [loadingHistory, setLoadingHistory] = useState(true)
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -86,6 +88,23 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
       document.removeEventListener('touchstart', handleClickOutside)
     }
   }, [showGiftDropdown])
+
+  useEffect(() => {
+    // Fetch payout history on component mount
+    const loadHistory = async () => {
+      try {
+        setLoadingHistory(true)
+        const history = await fetchPayoutHistory()
+        setPayoutHistory(history || [])
+      } catch (error) {
+        console.error('Failed to load payout history:', error)
+        setPayoutHistory([])
+      } finally {
+        setLoadingHistory(false)
+      }
+    }
+    loadHistory()
+  }, [])
 
   useEffect(() => {
     // Update balance tickets when gift is selected or quantity changes
@@ -420,6 +439,113 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
             </button>
           </div>
         </form>
+
+        {/* Withdrawal History Table */}
+        <div style={{ marginTop: '30px' }}>
+          <h2 style={{ 
+            color: '#fff', 
+            fontSize: '18px', 
+            marginBottom: '15px',
+            textAlign: 'center'
+          }}>
+            Your last 20 withdrawals
+          </h2>
+          <div style={{
+            backgroundColor: '#2a3a4e',
+            borderRadius: '8px',
+            padding: '15px',
+            overflowX: 'auto'
+          }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ 
+                    color: '#fff', 
+                    textAlign: 'left', 
+                    padding: '10px',
+                    borderBottom: '1px solid #3d4f65',
+                    fontSize: '14px',
+                    fontWeight: 'bold'
+                  }}>AMOUNT</th>
+                  <th style={{ 
+                    color: '#fff', 
+                    textAlign: 'center', 
+                    padding: '10px',
+                    borderBottom: '1px solid #3d4f65',
+                    fontSize: '14px',
+                    fontWeight: 'bold'
+                  }}>DATE</th>
+                  <th style={{ 
+                    color: '#fff', 
+                    textAlign: 'center', 
+                    padding: '10px',
+                    borderBottom: '1px solid #3d4f65',
+                    fontSize: '14px',
+                    fontWeight: 'bold'
+                  }}>STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loadingHistory ? (
+                  <tr>
+                    <td colSpan="3" style={{ 
+                      color: '#999', 
+                      textAlign: 'center', 
+                      padding: '20px',
+                      fontSize: '14px'
+                    }}>
+                      Loading...
+                    </td>
+                  </tr>
+                ) : payoutHistory.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" style={{ 
+                      color: '#999', 
+                      textAlign: 'center', 
+                      padding: '20px',
+                      fontSize: '14px'
+                    }}>
+                      NO DATA
+                    </td>
+                  </tr>
+                ) : (
+                  payoutHistory.map((entry, index) => {
+                    // Convert bigint to tickets (divide by 1,000,000) and format to 4 decimals
+                    const amountInTickets = (entry.amount / 1_000_000).toFixed(4)
+                    
+                    return (
+                      <tr key={index} style={{ borderBottom: index < payoutHistory.length - 1 ? '1px solid #3d4f65' : 'none' }}>
+                        <td style={{ 
+                          color: '#fff', 
+                          padding: '10px',
+                          fontSize: '14px'
+                        }}>
+                          {amountInTickets}
+                        </td>
+                        <td style={{ 
+                          color: '#fff', 
+                          textAlign: 'center',
+                          padding: '10px',
+                          fontSize: '14px'
+                        }}>
+                          {entry.date}
+                        </td>
+                        <td style={{ 
+                          color: '#fff', 
+                          textAlign: 'center',
+                          padding: '10px',
+                          fontSize: '14px'
+                        }}>
+                          {entry.status}
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         <div className="upgrade__footer">
           <a
