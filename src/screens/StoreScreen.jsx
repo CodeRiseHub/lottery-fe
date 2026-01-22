@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { depositStars, fetchCurrentUser } from '../api'
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
-  const [amount, setAmount] = useState('3')
-  const [stars, setStars] = useState('---')
+  const [amount, setAmount] = useState('50')
+  const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const minSumUSD = 3
-  const maxSumUSD = 100000
+  const minStars = 50
+  const maxStars = 100000
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -42,50 +42,47 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   const calc = () => {
     if (!amount || amount === '') return
 
-    let sumInUSD = parseFloat(amount) || 0
-    sumInUSD = parseFloat(sumInUSD.toFixed(2))
+    let starsValue = parseFloat(amount) || 0
+    starsValue = parseFloat(starsValue.toFixed(2))
 
-    if (sumInUSD < minSumUSD) {
-      setTextError(`Minimum: ${minSumUSD} USD`)
+    if (starsValue < minStars) {
+      setTextError(`Minimum: ${minStars} Stars`)
       return
     } else {
       setTextError('')
     }
 
-    if (sumInUSD > maxSumUSD) {
-      setTextError(`Maximum: ${maxSumUSD} USD`)
+    if (starsValue > maxStars) {
+      setTextError(`Maximum: ${maxStars} Stars`)
       return
     } else {
       setTextError('')
     }
 
-    // Calculate stars: 1 USD = 10 stars
-    let starsValue = sumInUSD * 10
-    setStars(numberFormatRuf(starsValue))
+    // Calculate tickets: 1 star = 0.9 tickets
+    let ticketsValue = starsValue * 0.9
+    setTickets(numberFormatRuf(ticketsValue.toFixed(4)))
   }
 
-  const handleBuyStars = async () => {
+  const handleBuyTickets = async () => {
     if (!amount || amount === '') return
 
-    let sumInUSD = parseFloat(amount) || 0
-    sumInUSD = parseFloat(sumInUSD.toFixed(2))
+    let starsValue = parseFloat(amount) || 0
+    starsValue = parseFloat(starsValue.toFixed(2))
 
-    if (sumInUSD < minSumUSD || sumInUSD > maxSumUSD) {
+    if (starsValue < minStars || starsValue > maxStars) {
       return
     }
 
     if (isProcessing) {
       return
     }
-
-    // Calculate stars: 1 USD = 10 stars
-    let starsValue = sumInUSD * 10
     
     setIsProcessing(true)
     setTextError('')
 
     try {
-      // Call backend API to deposit stars
+      // Call backend API to deposit stars (API expects stars amount)
       await depositStars(starsValue)
       
       // Fetch updated user data to get new balance
@@ -103,9 +100,11 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
         }
       }
       
-      alert(`Successfully purchased ${starsValue} stars!`)
+      // Calculate tickets for the success message
+      const ticketsValue = (starsValue * 0.9).toFixed(4)
+      alert(`Successfully purchased ${ticketsValue} tickets!`)
     } catch (error) {
-      setTextError(error.response?.message || error.message || 'Failed to purchase stars. Please try again.')
+      setTextError(error.response?.message || error.message || 'Failed to purchase tickets. Please try again.')
     } finally {
       setIsProcessing(false)
     }
@@ -118,11 +117,11 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
         <div className="upgrade__store-border">
           <div className="upgrade__store">
-            <p className="upgrade__label">Choose the USD amount:</p>
+            <p className="upgrade__label">Choose the Stars amount:</p>
 
             <input
               className="upgrade__input"
-              placeholder="10"
+              placeholder="50"
               type="number"
               inputMode="decimal"
               pattern="[0-9]*[.,]?[0-9]*"
@@ -140,9 +139,9 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
             <p className="upgrade__sub-title">You will receive:</p>
             <p className="upgrade__result">
               <span className="upgrade__number" id="power_gpu">
-                {stars}
+                {tickets}
               </span>
-              <span className="upgrade__unit">&nbsp;Stars</span>
+              <span className="upgrade__unit">&nbsp;Tickets</span>
             </p>
             <span className="upgrade__button-border">
               <a
@@ -151,11 +150,11 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                 id="payNext"
                 onClick={(e) => {
                   e.preventDefault()
-                  handleBuyStars()
+                  handleBuyTickets()
                 }}
                 style={{ opacity: isProcessing ? 0.6 : 1, pointerEvents: isProcessing ? 'none' : 'auto' }}
               >
-                {isProcessing ? 'PROCESSING...' : 'BUY STARS'}
+                {isProcessing ? 'PROCESSING...' : 'BUY TICKETS'}
               </a>
             </span>
           </div>
