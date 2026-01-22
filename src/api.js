@@ -258,6 +258,30 @@ export async function fetchPayoutHistory() {
   return authFetch("/api/payouts/history", { method: "GET" });
 }
 
+/**
+ * Creates a payment invoice for Telegram Stars payment.
+ * @param {number} starsAmount - Amount in Stars
+ * @returns {Promise<{invoiceId: string, starsAmount: number, ticketsAmount: number}>}
+ */
+export async function createPaymentInvoice(starsAmount) {
+  return authFetch("/api/payments/create", {
+    method: "POST",
+    body: JSON.stringify({ starsAmount })
+  });
+}
+
+/**
+ * Cancels a payment.
+ * @param {string} orderId - Order ID to cancel
+ * @returns {Promise<void>}
+ */
+export async function cancelPayment(orderId) {
+  return authFetch("/api/payments/cancel", {
+    method: "POST",
+    body: JSON.stringify({ orderId })
+  });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 

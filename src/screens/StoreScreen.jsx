@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { depositStars, fetchCurrentUser } from '../api'
+import { createPaymentInvoice, cancelPayment, fetchCurrentUser } from '../api'
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [amount, setAmount] = useState('50')
@@ -68,7 +68,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     if (!amount || amount === '') return
 
     let starsValue = parseFloat(amount) || 0
-    starsValue = parseFloat(starsValue.toFixed(2))
+    starsValue = Math.round(starsValue) // Stars must be integer
 
     if (starsValue < minStars || starsValue > maxStars) {
       return
@@ -77,36 +77,84 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     if (isProcessing) {
       return
     }
+
+    // Check if Telegram WebApp is available
+    const tg = window.Telegram?.WebApp
+    if (!tg) {
+      setTextError('Telegram WebApp is not available')
+      return
+    }
     
     setIsProcessing(true)
     setTextError('')
 
     try {
-      // Call backend API to deposit stars (API expects stars amount)
-      await depositStars(starsValue)
-      
-      // Fetch updated user data to get new balance
-      const userData = await fetchCurrentUser()
-      if (userData) {
-        // Update userData in App.jsx so Header and other screens have the latest data
-        if (onUserDataUpdate) {
-          onUserDataUpdate(userData)
-        }
-        
-        // Format balance for display (balanceA is in bigint format)
-        if (onBalanceUpdate) {
-          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
-          onBalanceUpdate(balanceDisplay)
-        }
+      // Step 1: Create payment invoice via backend
+      const invoiceData = await createPaymentInvoice(starsValue)
+      const orderId = invoiceData.invoiceId
+      const invoiceUrl = invoiceData.invoiceUrl
+
+      if (!invoiceUrl) {
+        throw new Error('Invoice URL not received from backend')
       }
-      
-      // Calculate tickets for the success message
-      const ticketsValue = (starsValue * 0.9).toFixed(4)
-      alert(`Successfully purchased ${ticketsValue} tickets!`)
+
+      // Step 2: Open Telegram payment UI
+      tg.openInvoice(invoiceUrl, async (status) => {
+        setIsProcessing(false)
+        
+        if (status === 'paid') {
+          // Payment successful - Telegram has processed the payment
+          // Backend will receive webhook from bot and credit balance
+          // We need to poll or wait a bit, then sync balance
+          setTimeout(async () => {
+            try {
+              // Fetch updated user data to get new balance
+              const userData = await fetchCurrentUser()
+              if (userData) {
+                // Update userData in App.jsx so Header and other screens have the latest data
+                if (onUserDataUpdate) {
+                  onUserDataUpdate(userData)
+                }
+                
+                // Format balance for display (balanceA is in bigint format)
+                if (onBalanceUpdate) {
+                  const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+                  onBalanceUpdate(balanceDisplay)
+                }
+              }
+              
+              // Calculate tickets for the success message
+              const ticketsValue = (starsValue * 0.9).toFixed(4)
+              tg.showAlert(`Successfully purchased ${ticketsValue} tickets!`)
+            } catch (error) {
+              console.error('Error syncing balance after payment:', error)
+              // Don't show error to user - payment was successful, balance will sync eventually
+            }
+          }, 1000) // Wait 1 second for backend to process webhook
+        } else if (status === 'cancelled') {
+          // User cancelled payment
+          try {
+            await cancelPayment(orderId)
+          } catch (error) {
+            console.error('Error cancelling payment:', error)
+          }
+        } else if (status === 'failed') {
+          // Payment failed
+          setTextError('Payment failed. Please try again.')
+        } else {
+          // Unknown status
+          setTextError('Payment status unknown. Please check your balance.')
+        }
+      })
     } catch (error) {
-      setTextError(error.response?.message || error.message || 'Failed to purchase tickets. Please try again.')
-    } finally {
       setIsProcessing(false)
+      
+      // Handle rate limit error specifically
+      if (error.response?.status === 429) {
+        setTextError('Too many requests. Please wait a moment before trying again.')
+      } else {
+        setTextError(error.response?.data?.message || error.response?.message || error.message || 'Failed to create payment. Please try again.')
+      }
     }
   }
 
