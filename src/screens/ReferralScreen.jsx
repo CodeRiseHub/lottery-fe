@@ -174,7 +174,7 @@ export default function ReferralScreen({ onBack, userData }) {
                 
                 <button className="earn__button">
                   <span>
-                    <a href={inviteUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    <a href={inviteUrl} style={{ textDecoration: 'none' }}>
                       INVITE FRIEND
                     </a>
                   </span>
