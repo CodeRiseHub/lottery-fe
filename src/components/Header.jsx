@@ -115,14 +115,15 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
     // TODO: Implement language change API call
   }
 
-  // Format registration date from Unix timestamp (seconds) to dd.mm.yyyy
+  // Format registration date from Unix timestamp (seconds) to dd.MM at HH:mm
   const formatRegistrationDate = (dateReg) => {
     if (!dateReg || dateReg === 0) return '-'
     const date = new Date(dateReg * 1000) // Convert seconds to milliseconds
     const day = String(date.getDate()).padStart(2, '0')
     const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}.${month}.${year}`
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${day}.${month} at ${hours}:${minutes}`
   }
 
   return (

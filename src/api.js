@@ -219,7 +219,9 @@ export async function claimTask(taskId) {
  * @returns {Promise<Array<{amount: number, date: string}>>}
  */
 export async function fetchGameHistory() {
-  return authFetch("/api/game/history", { method: "GET" });
+  // Get user's timezone from browser
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return authFetch(`/api/game/history?timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
 }
 
 /**
@@ -255,7 +257,9 @@ export async function createPayout(payoutData) {
  * amount is in bigint format (will be converted to tickets on frontend)
  */
 export async function fetchPayoutHistory() {
-  return authFetch("/api/payouts/history", { method: "GET" });
+  // Get user's timezone from browser
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return authFetch(`/api/payouts/history?timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
 }
 
 /**
