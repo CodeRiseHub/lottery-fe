@@ -53,7 +53,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
 
   useEffect(() => {
     // Calculate balance (Tickets) based on Stars amount with 1.1 conversion rate
-    const stars = parseFloat(starsAmount) || 0
+    const stars = parseInt(starsAmount, 10) || 0
     
     if (stars > 0) {
       const tickets = (stars * 1.1).toFixed(1)
@@ -88,7 +88,11 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
 
   const handleStarsChange = (e) => {
     const value = e.target.value
-    setStarsAmount(value)
+    // Only allow integers (no decimal point, no negative)
+    // Allow empty string so user can clear the field
+    if (value === '' || /^\d+$/.test(value)) {
+      setStarsAmount(value)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -102,9 +106,9 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     // Validate username
     validateUsername(username)
     
-    // Validate stars
-    const stars = parseFloat(starsAmount) || 0
-    if (stars < 15) {
+    // Validate stars (must be integer)
+    const stars = parseInt(starsAmount, 10)
+    if (isNaN(stars) || stars < 15) {
       setStarsError('Minimum 15 Stars required')
       return
     }
@@ -182,8 +186,24 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                 className="payout__input"
                 name="stars"
                 placeholder="Min: 15 Stars"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={starsAmount}
                 onChange={handleStarsChange}
+                onBlur={(e) => {
+                  // Ensure value is a valid integer on blur
+                  const value = e.target.value.trim()
+                  if (value === '') {
+                    setStarsAmount('')
+                  } else {
+                    const intValue = parseInt(value, 10)
+                    if (isNaN(intValue) || intValue < 15) {
+                      setStarsAmount('15')
+                    } else {
+                      setStarsAmount(intValue.toString())
+                    }
+                  }
+                }}
               />
               {starsError && (
                 <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{starsError}</p>
