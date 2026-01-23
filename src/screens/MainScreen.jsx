@@ -6,7 +6,7 @@ import defaultAvatar from '../assets/images/default.png'
 import avatar1 from '../assets/avatars/avatar1.svg'
 import avatar2 from '../assets/avatars/avatar2.svg'
 import avatar3 from '../assets/avatars/avatar3.svg'
-import starIcon from '../assets/images/header/star.png'
+import ticketIcon from '../assets/images/header/ticket.png'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
@@ -1107,7 +1107,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             {/* Right half - total bet centered */}
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {formatNumber(totalBet)} <img src={starIcon} alt="star" width="18" height="18" />
+                {formatNumber(totalBet)} <img src={ticketIcon} alt="star" width="18" height="18" />
               </span>
             </div>
           </div>
