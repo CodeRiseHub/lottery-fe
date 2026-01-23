@@ -185,8 +185,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
             <input
               className="upgrade__input"
-              placeholder="1"
-              type="number"
+              type="text"
               inputMode="numeric"
               pattern="[0-9]*"
               value={amount}
@@ -200,7 +199,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               }}
               onBlur={(e) => {
                 // Ensure value is a valid integer on blur
-                const value = e.target.value
+                const value = e.target.value.trim()
                 if (value === '') {
                   // If empty, set to minimum value
                   setAmount(minStars.toString())
