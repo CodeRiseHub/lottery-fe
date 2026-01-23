@@ -458,7 +458,19 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                       <p className="task__description">{task.description || task.title}</p>
                       <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
                       <div className="task__actions">
-                        <button className="task__button task__button-one openLink" data-url="https://t.me/lottery_2026_test_channel">
+                        <button
+                          className="task__button task__button-one"
+                          onClick={() => {
+                            const channelUrl = "https://t.me/lottery_2026_test_channel"
+                            // Use Telegram WebApp API to open link in the same window
+                            if (window.Telegram?.WebApp?.openTelegramLink) {
+                              window.Telegram.WebApp.openTelegramLink(channelUrl)
+                            } else {
+                              // Fallback for non-Telegram environments (dev/testing)
+                              window.location.href = channelUrl
+                            }
+                          }}
+                        >
                           <span>Join</span>
                         </button>
                         <button 
