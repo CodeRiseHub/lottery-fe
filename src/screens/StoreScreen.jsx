@@ -99,6 +99,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       }
 
       // Step 2: Open Telegram payment UI
+      // openInvoice accepts invoice URLs from createInvoiceLink
       tg.openInvoice(invoiceUrl, async (status) => {
         setIsProcessing(false)
         
