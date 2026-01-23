@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react'
 import { createPaymentInvoice, cancelPayment, fetchCurrentUser } from '../api'
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
-  const [amount, setAmount] = useState('1')
+  const [amount, setAmount] = useState('50')
   const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const minStars = 1
+  const minStars = 50
   const maxStars = 100000
 
   useEffect(() => {
