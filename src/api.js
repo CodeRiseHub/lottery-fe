@@ -286,6 +286,17 @@ export async function cancelPayment(orderId) {
   });
 }
 
+/**
+ * Fetches transaction history for the current user.
+ * @param {number} page - Page number (0-indexed, defaults to 0)
+ * @returns {Promise<{content: Array<{amount: number, date: string, type: string, taskId: number|null, roundId: number|null}>, totalPages: number, totalElements: number, number: number}>}
+ */
+export async function fetchTransactions(page = 0) {
+  // Get user's timezone from browser
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return authFetch(`/api/transactions?page=${page}&timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 
