@@ -19,13 +19,13 @@ export default function ReferralScreen({ onBack, userData }) {
     ? `https://t.me/secret_lottery_bot?start=${userData.id}`
     : 'https://t.me/secret_lottery_bot?start=0'
   
-  // Format commission: divide by 1,000,000 and format as USD
+  // Format commission: divide by 1,000,000 and format as Tickets
   const formatCommission = (commission) => {
     if (!commission || commission === 0) {
-      return '0.0000 USD'
+      return '0.0000 Tickets'
     }
     const value = commission / 1_000_000
-    return `${value.toFixed(4)} USD`
+    return `${value.toFixed(4)} Tickets`
   }
   
   // Fetch referrals when level or page changes

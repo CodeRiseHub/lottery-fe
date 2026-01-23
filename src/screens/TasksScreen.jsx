@@ -204,10 +204,10 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       if (!forModal) {
         return null // Show "Check" button on Tasks Screen
       }
-      // In modal, convert bigint values to USD for display
-      const currentUSD = task.currentValue / 1_000_000
-      const requirementUSD = task.requirement / 1_000_000
-      return `${currentUSD} / ${requirementUSD}`
+      // In modal, convert bigint values to Tickets for display
+      const currentTickets = task.currentValue / 1_000_000
+      const requirementTickets = task.requirement / 1_000_000
+      return `${currentTickets} / ${requirementTickets}`
     }
     
     // For follow tasks or if no progress available, return null to show Check button
@@ -458,13 +458,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                       <p className="task__description">{task.description || task.title}</p>
                       <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
                       <div className="task__actions">
-                        <button
-                          className="task__button task__button-one openLink"
-                          onClick={() => {
-                            // Open Telegram channel
-                            window.open('https://t.me/lottery_2026_test_channel', '_blank', 'noopener,noreferrer')
-                          }}
-                        >
+                        <button className="task__button task__button-one openLink" data-url="https://t.me/lottery_2026_test_channel">
                           <span>Join</span>
                         </button>
                         <button 
