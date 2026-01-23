@@ -40,13 +40,23 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   }
 
   const calc = () => {
-    if (!amount || amount === '') return
+    if (!amount || amount === '') {
+      setTickets('---')
+      setTextError('')
+      return
+    }
 
-    let starsValue = parseFloat(amount) || 0
-    starsValue = parseFloat(starsValue.toFixed(2))
+    // Parse as integer (no floating point allowed)
+    let starsValue = parseInt(amount, 10)
+    if (isNaN(starsValue) || starsValue < 0) {
+      setTickets('---')
+      setTextError('')
+      return
+    }
 
     if (starsValue < minStars) {
       setTextError(`Minimum: ${minStars} Stars`)
+      setTickets('---')
       return
     } else {
       setTextError('')
@@ -54,6 +64,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
     if (starsValue > maxStars) {
       setTextError(`Maximum: ${maxStars} Stars`)
+      setTickets('---')
       return
     } else {
       setTextError('')
@@ -61,14 +72,18 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
     // Calculate tickets: 1 star = 0.9 tickets
     let ticketsValue = starsValue * 0.9
-    setTickets(numberFormatRuf(ticketsValue.toFixed(4)))
+    setTickets(numberFormatRuf(ticketsValue.toFixed(1)))
   }
 
   const handleBuyTickets = async () => {
     if (!amount || amount === '') return
 
-    let starsValue = parseFloat(amount) || 0
-    starsValue = Math.round(starsValue) // Stars must be integer
+    // Parse as integer (no floating point allowed)
+    let starsValue = parseInt(amount, 10) || 0
+    if (isNaN(starsValue) || starsValue < 1) {
+      setTextError(`Minimum: ${minStars} Stars`)
+      return
+    }
 
     if (starsValue < minStars || starsValue > maxStars) {
       return
@@ -125,7 +140,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               }
               
               // Calculate tickets for the success message
-              const ticketsValue = (starsValue * 0.9).toFixed(4)
+              const ticketsValue = (starsValue * 0.9).toFixed(1)
               tg.showAlert(`Successfully purchased ${ticketsValue} tickets!`)
             } catch (error) {
               console.error('Error syncing balance after payment:', error)
@@ -172,10 +187,34 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               className="upgrade__input"
               placeholder="1"
               type="number"
-              inputMode="decimal"
-              pattern="[0-9]*[.,]?[0-9]*"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                // Only allow integers (no decimal point, no negative)
+                // Allow empty string so user can clear the field
+                if (value === '' || /^\d+$/.test(value)) {
+                  setAmount(value)
+                }
+              }}
+              onBlur={(e) => {
+                // Ensure value is a valid integer on blur
+                const value = e.target.value
+                if (value === '') {
+                  // If empty, set to minimum value
+                  setAmount(minStars.toString())
+                } else {
+                  const intValue = parseInt(value, 10)
+                  if (isNaN(intValue) || intValue < minStars) {
+                    setAmount(minStars.toString())
+                  } else if (intValue > maxStars) {
+                    setAmount(maxStars.toString())
+                  } else {
+                    setAmount(intValue.toString())
+                  }
+                }
+              }}
               id="amountPay"
             />
 
