@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { fetchTransactions } from '../api'
+import pagLeftIcon from '../assets/images/tasks/pag-left.png'
+import pagRightIcon from '../assets/images/tasks/pag-right.png'
 
 export default function TransactionHistoryScreen({ onBack }) {
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -35,11 +36,13 @@ export default function TransactionHistoryScreen({ onBack }) {
         setLoading(true)
         const response = await fetchTransactions(currentPage)
         setTransactions(response.content || [])
+        setCurrentPage(response.number || 0)
         setTotalPages(response.totalPages || 0)
-        setHasMore(!response.last && response.content && response.content.length > 0)
       } catch (error) {
         console.error('Failed to load transactions:', error)
         setTransactions([])
+        setCurrentPage(0)
+        setTotalPages(0)
       } finally {
         setLoading(false)
       }
@@ -67,9 +70,17 @@ export default function TransactionHistoryScreen({ onBack }) {
     return typeText
   }
 
-  const loadMore = () => {
-    if (hasMore && !loading) {
-      setCurrentPage(prev => prev + 1)
+  const showPagination = totalPages > 1
+
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1)
     }
   }
 
@@ -89,45 +100,43 @@ export default function TransactionHistoryScreen({ onBack }) {
           ) : transactions.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center' }}>No transactions found</div>
           ) : (
-            <>
-              {transactions.map((transaction, index) => (
-                <div key={`${transaction.date}-${index}`} className="transaction__row">
-                  <div className="transaction__main">
-                    <p className="transaction__amount" style={{ 
-                      color: transaction.amount >= 0 ? '#4caf50' : '#f44336' 
-                    }}>
-                      {formatAmount(transaction.amount)}
-                    </p>
-                    <p className="transaction__date">{transaction.date}</p>
-                  </div>
-                  <p className="transaction__type">
-                    <span>Type: {formatType(transaction)}</span>
+            transactions.map((transaction, index) => (
+              <div key={`${transaction.date}-${index}`} className="transaction__row">
+                <div className="transaction__main">
+                  <p className="transaction__amount" style={{ 
+                    color: transaction.amount >= 0 ? '#4caf50' : '#f44336' 
+                  }}>
+                    {formatAmount(transaction.amount)}
                   </p>
+                  <p className="transaction__date">{transaction.date}</p>
                 </div>
-              ))}
-              
-              {hasMore && (
-                <div style={{ padding: '20px', textAlign: 'center' }}>
-                  <button 
-                    onClick={loadMore} 
-                    disabled={loading}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#1e88e5',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      opacity: loading ? 0.6 : 1
-                    }}
-                  >
-                    {loading ? 'Loading...' : 'Load More'}
-                  </button>
-                </div>
-              )}
-            </>
+                <p className="transaction__type">
+                  <span>Type: {formatType(transaction)}</span>
+                </p>
+              </div>
+            ))
           )}
         </div>
+
+        {showPagination && (
+          <div className="earn__pagination">
+            <button
+              className="earn__pagination-button"
+              onClick={handlePreviousPage}
+              disabled={currentPage === 0 || loading}
+            >
+              <img className="pagination__icon" src={pagLeftIcon} alt="prev" />
+            </button>
+            <p className="earn__pagination-info">Page {currentPage + 1} of {totalPages}</p>
+            <button
+              className="earn__pagination-button"
+              onClick={handleNextPage}
+              disabled={currentPage >= totalPages - 1 || loading}
+            >
+              <img className="pagination__icon" src={pagRightIcon} alt="Next" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
