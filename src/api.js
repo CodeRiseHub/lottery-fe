@@ -2,7 +2,9 @@
 import { getSessionToken, clearSessionToken, storeSessionToken } from "./auth/sessionManager";
 import { bootstrapSession } from "./auth/authService";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+// For production: use relative URLs (empty string) or set VITE_API_BASE_URL env var
+// For development: defaults to localhost:8080
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? "" : "http://localhost:8080");
 
 let isReauthenticating = false;
 let reauthPromise = null;
