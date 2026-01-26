@@ -53,11 +53,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const currentPhaseRef = useRef('WAITING') // Track current phase synchronously for button state
   const onBalanceUpdateRef = useRef(onBalanceUpdate) // Store latest onBalanceUpdate callback
 
-  // Shuffle array using Fisher-Yates algorithm
-  const shuffleArray = (array) => {
+  // Seeded random number generator (for consistent shuffling across all clients)
+  // Uses a simple linear congruential generator (LCG)
+  const seededRandom = (seed) => {
+    let value = seed
+    return () => {
+      value = (value * 9301 + 49297) % 233280
+      return value / 233280
+    }
+  }
+
+  // Shuffle array using Fisher-Yates algorithm with seeded random
+  // This ensures all clients see the same tape order
+  const shuffleArray = (array, seed = null) => {
     const shuffled = [...array]
+    const random = seed !== null ? seededRandom(seed) : () => Math.random()
+    
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled
@@ -104,7 +117,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   }
 
   // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
-  const generateTapeHTML = (participants, stopIndex, winnerFromState) => {
+  // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
+  // roomId is used as seed to ensure all clients see the same tape order
+  const generateTapeHTML = (participants, stopIndex, winnerFromState, roomId = null) => {
     if (!participants || participants.length === 0) {
       return '' // Return empty - will show "Waiting for users..." message
     }
@@ -301,8 +316,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       }
     })
     
-    // Shuffle the avatars randomly
-    const shuffledAvatars = shuffleArray(avatarItems)
+    // Shuffle the avatars using seeded random (roomId as seed) to ensure all clients see the same order
+    // Use roomId if available, otherwise fall back to unseeded shuffle (shouldn't happen in production)
+    const shuffleSeed = roomId !== null && roomId !== undefined ? roomId : null
+    const shuffledAvatars = shuffleArray(avatarItems, shuffleSeed)
     
     // CRITICAL: Ensure winner's avatar is at the middle position
     // Find a winner's avatar and swap it to the middle
@@ -657,7 +674,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             if (lineContainerRef.current) {
               // Use winner from state if available (backend authoritative), otherwise use local winner state
               const winnerToUse = state.winner || winner
-              const tapeHTML = generateTapeHTML(state.participants, state.stopIndex, winnerToUse)
+              // Pass roomId as seed to ensure consistent shuffle across all clients
+              const tapeHTML = generateTapeHTML(state.participants, state.stopIndex, winnerToUse, state.roomId)
               if (tapeHTML) {
                 lineContainerRef.current.innerHTML = tapeHTML
               }
