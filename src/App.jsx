@@ -21,8 +21,56 @@ import './App.css'
 
 function App() {
   const [tg, setTg] = useState(null)
-  const [currentScreen, setCurrentScreen] = useState('main') // 'main' is the Game screen
-  const [screenProps, setScreenProps] = useState({})
+  
+  // Load stored screen and props from localStorage on initialization
+  const getStoredScreenState = () => {
+    try {
+      const storedScreen = localStorage.getItem('lottery_current_screen')
+      const storedProps = localStorage.getItem('lottery_screen_props')
+      
+      let screen = 'main' // Default to main screen
+      let props = {}
+      
+      // Load stored screen if valid
+      if (storedScreen) {
+        const validScreens = ['main', 'gameHistory', 'faq', 'support', 'supportChat', 'referral', 
+                              'transactionHistory', 'store', 'tasks', 'payout', 
+                              'starsPayoutConfirmation', 'giftPayoutConfirmation']
+        if (validScreens.includes(storedScreen)) {
+          screen = storedScreen
+        }
+      }
+      
+      // Load stored props if available
+      if (storedProps) {
+        try {
+          props = JSON.parse(storedProps)
+        } catch (e) {
+          // Ignore JSON parse errors
+        }
+      }
+      
+      // If no stored screen props but we have a stored room number, use it
+      if (!props.roomNumber) {
+        const storedRoom = localStorage.getItem('lottery_selected_room')
+        if (storedRoom) {
+          const roomNum = parseInt(storedRoom, 10)
+          if (roomNum >= 1 && roomNum <= 3) {
+            props.roomNumber = roomNum
+          }
+        }
+      }
+      
+      return { screen, props }
+    } catch (e) {
+      // Ignore localStorage errors, return defaults
+      return { screen: 'main', props: {} }
+    }
+  }
+  
+  const storedState = getStoredScreenState()
+  const [currentScreen, setCurrentScreen] = useState(storedState.screen)
+  const [screenProps, setScreenProps] = useState(storedState.props)
   const [balance, setBalance] = useState('0.0000')
   const [authInitialized, setAuthInitialized] = useState(false)
   const [userData, setUserData] = useState(null)
@@ -128,15 +176,37 @@ function App() {
   const handleNavigate = (screen, props = {}) => {
     setCurrentScreen(screen)
     setScreenProps(props)
+    
+    // Store current screen and props in localStorage for persistence across page refreshes
+    try {
+      localStorage.setItem('lottery_current_screen', screen)
+      localStorage.setItem('lottery_screen_props', JSON.stringify(props))
+      
+      // Also store room number separately if it's in props (for backward compatibility)
+      if (props.roomNumber) {
+        localStorage.setItem('lottery_selected_room', props.roomNumber.toString())
+      }
+    } catch (e) {
+      // Ignore localStorage errors (e.g., in private browsing mode)
+    }
   }
 
   const handleBack = (roomNumber) => {
-    if (roomNumber) {
-      setCurrentScreen('main')
-      setScreenProps({ roomNumber })
-    } else {
-      setCurrentScreen('main')
-      setScreenProps({})
+    const props = roomNumber ? { roomNumber } : {}
+    setCurrentScreen('main')
+    setScreenProps(props)
+    
+    // Store current screen and props in localStorage
+    try {
+      localStorage.setItem('lottery_current_screen', 'main')
+      localStorage.setItem('lottery_screen_props', JSON.stringify(props))
+      
+      // Also store room number separately if provided
+      if (roomNumber) {
+        localStorage.setItem('lottery_selected_room', roomNumber.toString())
+      }
+    } catch (e) {
+      // Ignore localStorage errors
     }
   }
 

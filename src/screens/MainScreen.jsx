@@ -15,6 +15,28 @@ import { fetchCompletedRounds } from '../api'
 import '../utils/modals'
 
 export default function MainScreen({ onNavigate, onBalanceUpdate, userData, roomNumber }) {
+  // Get stored room number from localStorage if roomNumber prop is not provided
+  const getInitialRoomNumber = () => {
+    // First, use roomNumber prop if provided
+    if (roomNumber) {
+      return roomNumber
+    }
+    // Otherwise, try to load from localStorage
+    try {
+      const stored = localStorage.getItem('lottery_selected_room')
+      if (stored) {
+        const roomNum = parseInt(stored, 10)
+        if (roomNum >= 1 && roomNum <= 3) {
+          return roomNum
+        }
+      }
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+    // Default to room 1
+    return 1
+  }
+  
   const [currentBet, setCurrentBet] = useState(1) // Will be updated from state
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
@@ -26,7 +48,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [errorMessage, setErrorMessage] = useState('')
   const [registeredUsers, setRegisteredUsers] = useState(0)
   const [totalBet, setTotalBet] = useState(0)
-  const [currentRoom, setCurrentRoom] = useState({ number: roomNumber || 1, users: 0 })
+  const [currentRoom, setCurrentRoom] = useState({ number: getInitialRoomNumber(), users: 0 })
   const [rooms, setRooms] = useState([
     { number: 1, users: 0 },
     { number: 2, users: 0 },
@@ -1047,10 +1069,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (roomNumber && roomNumber !== currentRoom.number) {
       const targetRoom = rooms.find(r => r.number === roomNumber) || { number: roomNumber, users: 0 }
       setCurrentRoom(targetRoom)
+      
+      // Store selected room in localStorage when prop changes
+      try {
+        localStorage.setItem('lottery_selected_room', roomNumber.toString())
+      } catch (e) {
+        // Ignore localStorage errors
+      }
     }
-  }, [roomNumber])
+  }, [roomNumber, currentRoom.number, rooms])
 
   const handleRoomChange = (room) => {
+    // Store selected room in localStorage for persistence across page refreshes
+    try {
+      localStorage.setItem('lottery_selected_room', room.number.toString())
+    } catch (e) {
+      // Ignore localStorage errors (e.g., in private browsing mode)
+    }
+    
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
     // The useEffect with currentRoom.number dependency will trigger reconnection
