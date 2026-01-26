@@ -33,6 +33,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     { number: 3, users: 0 }
   ])
   const [userBets, setUserBets] = useState([])
+  const [participants, setParticipants] = useState([]) // Optimized: separate state for participants
   const [completedRounds, setCompletedRounds] = useState([])
   const [roomPhase, setRoomPhase] = useState('WAITING')
   const [buttonPhase, setButtonPhase] = useState('WAITING') // Separate state for button rendering to force re-render
@@ -552,15 +553,29 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           }
         }
         
-        // Update participants and calculate user's bet
+        // Update participants with optimized incremental merge
+        // Only update if participants actually changed (prevent unnecessary re-renders)
         if (state.participants && state.participants.length > 0) {
-          const bets = state.participants.map(p => ({
-            id: p.userId,
-            avatar: p.avatarUrl || defaultAvatar, // Use backend avatar URL, fallback to default
-            name: `User ${p.userId}`,
-            bet: p.bet || 0
-          }))
-          setUserBets(bets)
+          // Check if participants actually changed before updating
+          const participantsChanged = 
+            participants.length !== state.participants.length ||
+            participants.some((p, i) => {
+              const newP = state.participants[i]
+              return !newP || p.userId !== newP.userId || p.bet !== newP.bet || p.avatarUrl !== newP.avatarUrl
+            })
+          
+          if (participantsChanged) {
+            // Update participants state (optimized: only when changed)
+            setParticipants(state.participants)
+            
+            const bets = state.participants.map(p => ({
+              id: p.userId,
+              avatar: p.avatarUrl || defaultAvatar, // Use backend avatar URL, fallback to default
+              name: `User ${p.userId}`,
+              bet: p.bet || 0
+            }))
+            setUserBets(bets)
+          }
           
           // Derive JOIN/JOINED state from server data (authoritative source)
           // If user is in participants, they are JOINED - reset isJoining
@@ -571,15 +586,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
           // Update tape with participants (but NOT during SPINNING - that's handled separately)
           // Only update tape for WAITING and COUNTDOWN phases
-          // Set HTML synchronously when DOM is ready (no requestAnimationFrame needed)
-          if ((state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
+          // Only regenerate HTML if participants changed (optimization)
+          if (participantsChanged && (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
             const tapeHTML = generatePreSpinTapeHTML(state.participants)
             if (tapeHTML) {
               lineContainerRef.current.innerHTML = tapeHTML
             }
           }
         } else {
-          setUserBets([])
+          // Only clear if participants were not already empty
+          if (participants.length > 0) {
+            setParticipants([])
+            setUserBets([])
+          }
           // Don't clear tape here - let animation callback handle it
           // Only clear if we're in WAITING phase AND animation completed more than 1 second ago
           // This prevents race condition between animation completion and WAITING state
