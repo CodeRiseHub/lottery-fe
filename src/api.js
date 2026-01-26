@@ -299,6 +299,60 @@ export async function fetchTransactions(page = 0) {
   return authFetch(`/api/transactions?page=${page}&timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
 }
 
+/**
+ * Creates a new support ticket with the first message.
+ * @param {string} subject - Ticket subject (5-100 characters)
+ * @param {string} message - First message (3-2000 characters)
+ * @returns {Promise<{id: number, subject: string, status: string, createdAt: string, updatedAt: string, messageCount: number}>}
+ */
+export async function createSupportTicket(subject, message) {
+  return authFetch("/api/support/tickets", {
+    method: "POST",
+    body: JSON.stringify({ subject, message })
+  });
+}
+
+/**
+ * Fetches ticket history for the current user (last 20 tickets).
+ * @returns {Promise<Array<{id: number, subject: string, status: string, createdAt: string, updatedAt: string, messageCount: number}>>}
+ */
+export async function fetchTicketHistory() {
+  return authFetch("/api/support/tickets", { method: "GET" });
+}
+
+/**
+ * Fetches ticket details with all messages.
+ * @param {number} ticketId - Ticket ID
+ * @returns {Promise<{id: number, subject: string, status: string, createdAt: string, updatedAt: string, messages: Array<{id: number, ticketId: number, userId: number, message: string, createdAt: string, isFromSupport: boolean}>}>}
+ */
+export async function fetchTicketDetail(ticketId) {
+  return authFetch(`/api/support/tickets/${ticketId}`, { method: "GET" });
+}
+
+/**
+ * Adds a message to an existing ticket.
+ * @param {number} ticketId - Ticket ID
+ * @param {string} message - Message text (3-2000 characters)
+ * @returns {Promise<{id: number, ticketId: number, userId: number, message: string, createdAt: string, isFromSupport: boolean}>}
+ */
+export async function addTicketMessage(ticketId, message) {
+  return authFetch(`/api/support/tickets/${ticketId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ message })
+  });
+}
+
+/**
+ * Closes a ticket.
+ * @param {number} ticketId - Ticket ID
+ * @returns {Promise<void>}
+ */
+export async function closeTicket(ticketId) {
+  return authFetch(`/api/support/tickets/${ticketId}/close`, {
+    method: "POST"
+  });
+}
+
 // Export authFetch for use in other modules if needed
 export { authFetch };
 

@@ -1,25 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
+import { fetchTicketDetail, addTicketMessage, closeTicket } from '../api'
 import closeIcon from '../assets/images/close.png'
 import backIcon from '../assets/images/back.png'
 import arrowUpIcon from '../assets/images/arrow-up.png'
 
+const MIN_MESSAGE_LENGTH = 3
+const MAX_MESSAGE_LENGTH = 2000
+
 export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'supporter',
-      name: 'Supporter',
-      text: 'Please wait! Support will answer soon.'
-    },
-    {
-      id: 2,
-      sender: 'user',
-      name: 'You',
-      text: ticketSubject || 'Initial message'
-    }
-  ])
+  const [ticket, setTicket] = useState(null)
+  const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [isClosed, setIsClosed] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSending, setIsSending] = useState(false)
+  const [error, setError] = useState('')
   const scrollAnchorRef = useRef(null)
 
   useEffect(() => {
@@ -44,8 +39,40 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
   }, [])
 
   useEffect(() => {
+    if (ticketId) {
+      loadTicketDetail()
+    }
+  }, [ticketId])
+
+  useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  const loadTicketDetail = async () => {
+    setIsLoading(true)
+    setError('')
+    try {
+      const data = await fetchTicketDetail(ticketId)
+      setTicket(data)
+      setIsClosed(data.status === 'CLOSED')
+      
+      // Map messages to display format
+      const mappedMessages = data.messages.map(msg => ({
+        id: msg.id,
+        sender: msg.isFromSupport ? 'supporter' : 'user',
+        name: msg.isFromSupport ? 'Support' : 'You',
+        text: msg.message,
+        createdAt: msg.createdAt
+      }))
+      
+      setMessages(mappedMessages)
+    } catch (error) {
+      console.error('Failed to load ticket detail:', error)
+      setError(error.response?.message || error.message || 'Failed to load ticket. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const scrollToBottom = () => {
     if (scrollAnchorRef.current) {
@@ -53,53 +80,75 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
     }
   }
 
-  const handleSendMessage = () => {
-    const message = newMessage.trim()
+  const validateMessage = () => {
+    const messageTrimmed = newMessage.trim()
 
-    if (message.length < 3) {
-      alert('Message must be at least 3 characters.')
+    if (messageTrimmed.length < MIN_MESSAGE_LENGTH) {
+      setError(`Message must be at least ${MIN_MESSAGE_LENGTH} characters.`)
+      return false
+    }
+
+    if (messageTrimmed.length > MAX_MESSAGE_LENGTH) {
+      setError(`Message must not exceed ${MAX_MESSAGE_LENGTH} characters.`)
+      return false
+    }
+
+    return true
+  }
+
+  const handleSendMessage = async () => {
+    if (!validateMessage()) {
       return
     }
 
     if (isClosed) {
-      alert('This ticket is closed.')
+      setError('This ticket is closed. You cannot send messages to a closed ticket.')
       return
     }
 
-    // Add user message
-    const userMessage = {
-      id: Date.now(),
-      sender: 'user',
-      name: 'You',
-      text: message
-    }
-
-    setMessages(prev => [...prev, userMessage])
-    setNewMessage('')
-
-    // TODO: Implement API call to send message
-    // For now, simulate a response after a delay
-    setTimeout(() => {
-      const supporterMessage = {
-        id: Date.now() + 1,
-        sender: 'supporter',
-        name: 'Supporter',
-        text: 'Thank you for your message. We will respond shortly.'
+    setIsSending(true)
+    setError('')
+    
+    try {
+      const messageData = await addTicketMessage(ticketId, newMessage.trim())
+      
+      // Add new message to list
+      const newMsg = {
+        id: messageData.id,
+        sender: messageData.isFromSupport ? 'supporter' : 'user',
+        name: messageData.isFromSupport ? 'Support' : 'You',
+        text: messageData.message,
+        createdAt: messageData.createdAt
       }
-      setMessages(prev => [...prev, supporterMessage])
-    }, 1000)
+      
+      setMessages(prev => [...prev, newMsg])
+      setNewMessage('')
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      const errorMessage = error.response?.message || error.message || 'Failed to send message. Please try again.'
+      setError(errorMessage)
+    } finally {
+      setIsSending(false)
+    }
   }
 
-  const handleCloseTicket = () => {
+  const handleCloseTicket = async () => {
     if (isClosed) return
 
     const resp = confirm('Are you sure you want to close the ticket?')
 
     if (!resp) return
 
-    // TODO: Implement API call to close ticket
-    setIsClosed(true)
-    alert('Ticket closed successfully.')
+    try {
+      await closeTicket(ticketId)
+      setIsClosed(true)
+      // Reload ticket to get updated status
+      await loadTicketDetail()
+    } catch (error) {
+      console.error('Failed to close ticket:', error)
+      const errorMessage = error.response?.message || error.message || 'Failed to close ticket. Please try again.'
+      alert(errorMessage)
+    }
   }
 
   const handleKeyPress = (e) => {
@@ -109,23 +158,44 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
     }
   }
 
+  const displaySubject = ticket?.subject || ticketSubject || 'Support Ticket'
+
+  if (isLoading) {
+    return (
+      <section className="support-chat">
+        <div className="support-chat__container container">
+          <h1 className="support-chat__title title">{displaySubject}</h1>
+          <p>Loading...</p>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="support-chat">
       <div className="support-chat__container container">
-        <h1 className="support-chat__title title">{ticketSubject || 'Support Ticket'}</h1>
+        <h1 className="support-chat__title title">{displaySubject}</h1>
+
+        {error && (
+          <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>
+        )}
 
         <div className="support-chat__dialog" id="message-frame">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`support-chat__message support-chat__message--${message.sender}`}
-            >
-              <p className="support-chat__name">{message.name}</p>
-              <p className="support-chat__text">
-                <span>{message.text}</span>
-              </p>
-            </div>
-          ))}
+          {messages.length === 0 ? (
+            <p>No messages yet.</p>
+          ) : (
+            messages.map((message) => (
+              <div
+                key={message.id}
+                className={`support-chat__message support-chat__message--${message.sender}`}
+              >
+                <p className="support-chat__name">{message.name}</p>
+                <p className="support-chat__text">
+                  <span>{message.text}</span>
+                </p>
+              </div>
+            ))
+          )}
         </div>
         <br /><br /><br /><br /><br /><br />
         <div id="scroll-anchor" ref={scrollAnchorRef}></div>
@@ -168,17 +238,20 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
               <textarea
                 type="text"
                 className="support-chat__input"
-                placeholder="Type something..."
+                placeholder={`Type something... (${MIN_MESSAGE_LENGTH}-${MAX_MESSAGE_LENGTH} characters)`}
                 id="newMessageText"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
+                maxLength={MAX_MESSAGE_LENGTH}
+                disabled={isSending}
               />
               
               <button
                 className="support-chat__send"
                 id="sendNewMessage"
                 onClick={handleSendMessage}
+                disabled={isSending || newMessage.trim().length < MIN_MESSAGE_LENGTH}
               >
                 <img
                   src={arrowUpIcon}
@@ -194,4 +267,3 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
     </section>
   )
 }
-
