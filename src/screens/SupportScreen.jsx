@@ -95,10 +95,8 @@ export default function SupportScreen({ onBack, onNavigate }) {
       setSubject('')
       setMessage('')
       
-      // Reload ticket history
-      await loadTicketHistory()
-      
-      // Navigate to support chat screen
+      // Navigate to support chat screen immediately
+      // Ticket history will be reloaded when user returns to this screen (via useEffect on mount)
       if (onNavigate) {
         onNavigate('supportChat', { ticketId: ticket.id, ticketSubject: ticket.subject })
       }
