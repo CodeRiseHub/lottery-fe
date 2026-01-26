@@ -104,6 +104,7 @@ export default function SupportScreen({ onBack, onNavigate }) {
       }
     } catch (error) {
       console.error('Failed to create ticket:', error)
+      // Extract user-friendly error message
       const errorMessage = error.response?.message || error.message || 'Failed to create ticket. Please try again.'
       setError(errorMessage)
     } finally {
@@ -115,20 +116,6 @@ export default function SupportScreen({ onBack, onNavigate }) {
     if (onNavigate) {
       onNavigate('supportChat', { ticketId: ticket.id, ticketSubject: ticket.subject })
     }
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return ''
-    try {
-      const date = new Date(dateString)
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    } catch (e) {
-      return dateString
-    }
-  }
-
-  const getStatusBadge = (status) => {
-    return status === 'OPENED' ? 'Open' : 'Closed'
   }
 
   return (
@@ -152,11 +139,7 @@ export default function SupportScreen({ onBack, onNavigate }) {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               maxLength={MAX_SUBJECT_LENGTH}
-              placeholder={`Enter subject (${MIN_SUBJECT_LENGTH}-${MAX_SUBJECT_LENGTH} characters)`}
             />
-            <p className="support__char-count">
-              {subject.length}/{MAX_SUBJECT_LENGTH} characters
-            </p>
           </div>
 
           <div className="support__field">
@@ -167,11 +150,7 @@ export default function SupportScreen({ onBack, onNavigate }) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               maxLength={MAX_MESSAGE_LENGTH}
-              placeholder={`Enter message (${MIN_MESSAGE_LENGTH}-${MAX_MESSAGE_LENGTH} characters)`}
             />
-            <p className="support__char-count">
-              {message.length}/{MAX_MESSAGE_LENGTH} characters
-            </p>
           </div>
 
           <button 
@@ -184,47 +163,37 @@ export default function SupportScreen({ onBack, onNavigate }) {
           </button>
         </div>
 
-        {/* Ticket History */}
-        <div className="support__history">
-          <h2 className="support__history-title">Request History</h2>
-          {loadingTickets ? (
-            <p className="support__history-loading">Loading...</p>
-          ) : tickets.length === 0 ? (
-            <p className="support__history-empty">No tickets yet</p>
-          ) : (
-            <div className="support__history-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Subject</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tickets.map((ticket) => (
-                    <tr key={ticket.id}>
-                      <td>
-                        <button
-                          className="support__history-subject-link"
-                          onClick={() => handleTicketClick(ticket)}
-                        >
-                          {ticket.subject}
-                        </button>
-                      </td>
-                      <td>
-                        <span className={`support__history-status support__history-status--${ticket.status.toLowerCase()}`}>
-                          {getStatusBadge(ticket.status)}
-                        </span>
-                      </td>
-                      <td>{formatDate(ticket.createdAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Ticket History - Only show if there are tickets */}
+        {!loadingTickets && tickets.length > 0 && (
+          <div className="support__history">
+            <p className="support__history-title">Your requests:</p>
+
+            <div className="support__history-row support__history-row--head">
+              <p className="support__status">Status</p>
+              <p className="support__subject">Subject (Click to open)</p>
             </div>
-          )}
-        </div>
+
+            {tickets.map((ticket) => (
+              <div key={ticket.id} className="support__history-row">
+                <p className={`support__status ${ticket.status === 'CLOSED' ? 'support__status-closed' : ''}`}>
+                  {ticket.status}
+                </p>
+                <p className="support__subject">
+                  <a
+                    href="#"
+                    className="support__link"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleTicketClick(ticket)
+                    }}
+                  >
+                    {ticket.subject}
+                  </a>
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

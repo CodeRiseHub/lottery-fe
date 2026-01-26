@@ -65,10 +65,20 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
         createdAt: msg.createdAt
       }))
       
-      setMessages(mappedMessages)
+      // Always add the hardcoded "Supporter Please wait! Support will answer soon." as first message
+      const supporterWaitMessage = {
+        id: 'supporter-wait',
+        sender: 'supporter',
+        name: 'Supporter',
+        text: 'Please wait! Support will answer soon.',
+        createdAt: null
+      }
+      
+      setMessages([supporterWaitMessage, ...mappedMessages])
     } catch (error) {
       console.error('Failed to load ticket detail:', error)
-      setError(error.response?.message || error.message || 'Failed to load ticket. Please try again.')
+      const errorMessage = error.response?.message || error.message || 'Failed to load ticket. Please try again.'
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -121,10 +131,16 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
         createdAt: messageData.createdAt
       }
       
-      setMessages(prev => [...prev, newMsg])
+      setMessages(prev => {
+        // Keep the hardcoded supporter wait message as first, then add new message
+        const supporterWaitMessage = prev.find(m => m.id === 'supporter-wait')
+        const otherMessages = prev.filter(m => m.id !== 'supporter-wait')
+        return supporterWaitMessage ? [supporterWaitMessage, ...otherMessages, newMsg] : [...prev, newMsg]
+      })
       setNewMessage('')
     } catch (error) {
       console.error('Failed to send message:', error)
+      // Extract user-friendly error message from backend
       const errorMessage = error.response?.message || error.message || 'Failed to send message. Please try again.'
       setError(errorMessage)
     } finally {
@@ -238,7 +254,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
               <textarea
                 type="text"
                 className="support-chat__input"
-                placeholder={`Type something... (${MIN_MESSAGE_LENGTH}-${MAX_MESSAGE_LENGTH} characters)`}
+                placeholder="Type something..."
                 id="newMessageText"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
