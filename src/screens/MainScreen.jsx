@@ -1065,8 +1065,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   }, [currentRoom.number, winner]) // Reload when room changes or when winner is set (round ends)
 
   // Update current room when roomNumber prop changes (e.g., when returning from game history)
+  // Only update if prop is explicitly provided and different from current room
+  // This allows manual room changes via dropdown to work
   useEffect(() => {
-    if (roomNumber && roomNumber !== currentRoom.number) {
+    if (roomNumber !== undefined && roomNumber !== null && roomNumber !== currentRoom.number) {
       const targetRoom = rooms.find(r => r.number === roomNumber) || { number: roomNumber, users: 0 }
       setCurrentRoom(targetRoom)
       
@@ -1077,7 +1079,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // Ignore localStorage errors
       }
     }
-  }, [roomNumber, currentRoom.number, rooms])
+  }, [roomNumber]) // Only depend on roomNumber prop, not currentRoom.number to avoid conflicts
 
   const handleRoomChange = (room) => {
     // Store selected room in localStorage for persistence across page refreshes
@@ -1086,6 +1088,29 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     } catch (e) {
       // Ignore localStorage errors (e.g., in private browsing mode)
     }
+    
+    // Update parent's screenProps to keep roomNumber prop in sync
+    // This prevents the useEffect from resetting the room back
+    if (onNavigate) {
+      onNavigate('main', { roomNumber: room.number })
+    }
+    
+    // Clear all game state when switching rooms to prevent stale data
+    setParticipants([])
+    setUserBets(new Map())
+    setWinner(null)
+    setRegisteredUsers(0)
+    setTotalBet(0)
+    setGameStarted(false)
+    setIsJoining(false)
+    setCountdownActive(false)
+    setCountdownRemaining(null)
+    setRoomPhase('WAITING')
+    setButtonPhase('WAITING')
+    setButtonUpdateCounter(0)
+    currentPhaseRef.current = 'WAITING'
+    animationCompletedTimeRef.current = null
+    tapeHtmlRef.current = null
     
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
