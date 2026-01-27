@@ -74,6 +74,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const animationCompletedTimeRef = useRef(null) // Track when animation completed (for state machine guards)
   const currentPhaseRef = useRef('WAITING') // Track current phase synchronously for button state
   const onBalanceUpdateRef = useRef(onBalanceUpdate) // Store latest onBalanceUpdate callback
+  const tapeHtmlRef = useRef(null) // Track tape HTML for cleanup
 
   // Seeded random number generator (for consistent shuffling across all clients)
   // Uses a simple linear congruential generator (LCG)
