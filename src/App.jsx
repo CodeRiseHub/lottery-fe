@@ -2,8 +2,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { bootstrapSession } from './auth/authService'
 import { getSessionToken } from './auth/sessionManager'
 import { fetchCurrentUser } from './api'
+import { formatBalance } from './utils/balanceFormatter'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import HomeScreen from './screens/HomeScreen'
 import MainScreen from './screens/MainScreen'
 import GameHistoryScreen from './screens/GameHistoryScreen'
 import FAQScreen from './screens/FAQScreen'
@@ -21,6 +23,14 @@ import './App.css'
 
 function App() {
   const [tg, setTg] = useState(null)
+  const [isHomeScreen, setIsHomeScreen] = useState(false)
+  
+  // Check pathname on mount to determine if we should show home screen
+  useEffect(() => {
+    const pathname = window.location.pathname
+    // Show home screen for "/", normal app for "/auth" or any other path
+    setIsHomeScreen(pathname === '/' || pathname === '')
+  }, [])
   
   // Load stored screen and props from localStorage on initialization
   const getStoredScreenState = () => {
@@ -127,50 +137,67 @@ function App() {
     }
 
     // Initialize auth on app startup
-    // Always call /current first, then /session if 401, then /current again
-    async function initializeAuth() {
-      try {
-        // Step 1: Always try to fetch current user first (regardless of token existence)
+    // Only for "/auth" path - skip for home screen "/"
+    const pathname = window.location.pathname
+    const isAuthPath = pathname === '/auth' || pathname.startsWith('/auth')
+    
+    if (isAuthPath) {
+      // Always call /current first, then /session if 401, then /current again
+      async function initializeAuth() {
         try {
-          const user = await fetchCurrentUser()
-          // Success - user is authenticated
-          setUserData(user)
-          setAuthInitialized(true)
-          return
-        } catch (error) {
-          // Step 2: If /current returns 401, user is not authenticated
-          // Check if it's a 401 error (authentication required)
-          const is401 = error?.response?.status === 401 || 
-                       error?.message?.includes('401') || 
-                       error?.message?.includes('Authentication') ||
-                       error?.message?.includes('Unauthorized')
-          
-          if (is401) {
-            // Clear any invalid token
-            const { clearSessionToken } = await import('./auth/sessionManager')
-            clearSessionToken()
+          // Step 1: Always try to fetch current user first (regardless of token existence)
+          try {
+            const user = await fetchCurrentUser()
+            // Success - user is authenticated
+            setUserData(user)
+            // Update balance in header
+            if (user.balanceA !== undefined) {
+              setBalance(formatBalance(user.balanceA))
+            }
+            setAuthInitialized(true)
+            return
+          } catch (error) {
+            // Step 2: If /current returns 401, user is not authenticated
+            // Check if it's a 401 error (authentication required)
+            const is401 = error?.response?.status === 401 || 
+                         error?.message?.includes('401') || 
+                         error?.message?.includes('Authentication') ||
+                         error?.message?.includes('Unauthorized')
             
-            // Step 3: Bootstrap new session via /session
-            const result = await bootstrapSession()
-            if (result) {
-              // Step 4: Call /current again after bootstrap
-              try {
-                const user = await fetchCurrentUser()
-                setUserData(user)
-              } catch (fetchError) {
-                // Continue anyway - user might be in dev mode
+            if (is401) {
+              // Clear any invalid token
+              const { clearSessionToken } = await import('./auth/sessionManager')
+              clearSessionToken()
+              
+              // Step 3: Bootstrap new session via /session
+              const result = await bootstrapSession()
+              if (result) {
+                // Step 4: Call /current again after bootstrap
+                try {
+                  const user = await fetchCurrentUser()
+                  setUserData(user)
+                  // Update balance in header
+                  if (user.balanceA !== undefined) {
+                    setBalance(formatBalance(user.balanceA))
+                  }
+                } catch (fetchError) {
+                  // Continue anyway - user might be in dev mode
+                }
               }
             }
           }
+        } catch (error) {
+          // Continue anyway - user might be in dev mode without Telegram
+        } finally {
+          setAuthInitialized(true)
         }
-      } catch (error) {
-        // Continue anyway - user might be in dev mode without Telegram
-      } finally {
-        setAuthInitialized(true)
       }
-    }
 
-    initializeAuth()
+      initializeAuth()
+    } else {
+      // For home screen, no auth needed
+      setAuthInitialized(true)
+    }
   }, [])
 
   const handleNavigate = (screen, props = {}) => {
@@ -219,6 +246,11 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [currentScreen])
+
+  // Show home screen for "/" path
+  if (isHomeScreen) {
+    return <HomeScreen />
+  }
 
   if (!authInitialized) {
     return (
