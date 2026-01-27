@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import ticketIcon from '../assets/images/header/ticket.png'
+import ticketIcon from '../assets/images/header/ticket_1.png'
 import gearIcon from '../assets/images/header/gear-icon.png'
 import enLangIcon from '../assets/images/lang/en.png'
 import ruLangIcon from '../assets/images/lang/ru.png'
