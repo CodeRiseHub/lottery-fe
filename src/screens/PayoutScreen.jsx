@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import starIcon from '../assets/purchase/star.png'
-import giftIcon from '../assets/purchase/gift.png'
+import starIcon from '../assets/purchase/star_1.png'
+import giftIcon from '../assets/purchase/gift_1.png'
 
 export default function PayoutScreen({ onBack, onNavigate }) {
   useEffect(() => {

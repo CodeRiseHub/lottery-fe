@@ -3,8 +3,8 @@ import Swiper from 'swiper'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
-import starIcon from '../assets/purchase/star.png'
-import giftIcon from '../assets/purchase/gift.png'
+import starIcon from '../assets/purchase/star_1.png'
+import giftIcon from '../assets/purchase/gift_1.png'
 import powerIcon from '../assets/images/power.png'
 import arrowRightIcon from '../assets/images/arrow-right.png'
 import arrowLeftIcon from '../assets/images/arrow-left.png'
@@ -146,7 +146,7 @@ export default function HomeScreen() {
             <p className="investment-info__text">Minimum investment - 50 Stars</p>
             <p className="investment-info__text">Minimum withdrawal - 15 Stars</p>
             <p className="investment__text">
-              Use Telegram in-app virtual currency
+              Use Telegram in-app virtual currency.
             </p>
             <div className="investment-info__icons">
               <img
