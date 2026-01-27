@@ -143,7 +143,7 @@ export default function HomeScreen() {
 
         <section className="investment-info container">
           <div className="investment-info__content">
-            <p className="investment-info__text">Minimum investment - 50 Stars</p>
+            <p className="investment-info__text">Minimum deposit - 50 Stars</p>
             <p className="investment-info__text">Minimum withdrawal - 15 Stars</p>
             <p className="investment__text">
               Use Telegram in-app virtual currency.

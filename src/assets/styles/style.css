@@ -328,7 +328,7 @@ font {
     color: rgba(255, 255, 255, 0.9);
     text-align: center;
     text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-    font-size: 28px;
+    font-size: 39px;
     font-style: normal;
     font-weight: 500;
     line-height: 100%;
@@ -336,7 +336,7 @@ font {
 
 .hero__link {
     margin-bottom: 7px;
-    color: rgba(114, 181, 230, 0.9);
+    color: rgba(44, 173, 239, 0.9);
     text-align: center;
     text-decoration: none;
     text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
@@ -384,7 +384,7 @@ font {
 }
 
 .investment-info {
-    margin-bottom: 7px;
+    margin-bottom: 0;
 }
 
 .investment-info__content {
@@ -398,7 +398,7 @@ font {
 
 .investment-info__text {
     margin-bottom: 9px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(145, 119, 254, 1) !important;
     text-align: center;
     text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
     font-size: 20px;
@@ -437,16 +437,23 @@ font {
     object-fit: contain;
 }
 
+/* Home screen specific styles */
+.bg > main {
+    min-height: auto !important;
+    margin-bottom: 0 !important;
+}
+
 /* Home screen footer - different from app footer */
 .container.footer {
     margin-top: 7px;
     margin-bottom: 20px;
     text-align: center;
     padding-top: 0;
+    padding-bottom: 20px;
+    position: relative;
 }
 
 .container.footer .tg-link__button {
-    display: inline-block;
     margin-bottom: 10px;
     background: linear-gradient(90deg, #72b5e6 0%, #9c55b0 100%);
     -webkit-background-clip: text;
