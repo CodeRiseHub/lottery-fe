@@ -67,6 +67,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const [minBet, setMinBet] = useState(1) // Room-specific min bet (from backend state)
   const [maxBet, setMaxBet] = useState(100) // Room-specific max bet (from backend state)
+  const [betCooldown, setBetCooldown] = useState(false) // Track button cooldown (0.5 seconds)
+  const lastBetTimeRef = useRef(null) // Track last bet click time
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
   const animationRunningRef = useRef(false) // Track if animation is currently running
@@ -970,9 +972,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   }
 
   const handleJoin = () => {
-    // Only block if round is spinning or in resolution, or if request is in progress
-    if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining) {
+    // Only block if round is spinning or in resolution, or if request is in progress, or if cooldown is active
+    if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown) {
       return
+    }
+
+    // Check rate limit: prevent clicks faster than 0.5 seconds
+    const now = Date.now()
+    if (lastBetTimeRef.current !== null && (now - lastBetTimeRef.current) < 500) {
+      return // Ignore click if less than 500ms since last click
     }
 
     if (currentBet < minBet || currentBet > maxBet) {
@@ -991,6 +999,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       setShowErrorModal(true)
       return
     }
+
+    // Update last bet time and set cooldown
+    lastBetTimeRef.current = now
+    setBetCooldown(true)
+    
+    // Disable button for 0.5 seconds
+    setTimeout(() => {
+      setBetCooldown(false)
+    }, 500)
 
     // Set joining state temporarily (will be reset after state update)
     setIsJoining(true)
@@ -1368,7 +1385,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining}
+                    disabled={!wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown}
                     style={buttonPhase === 'RESOLUTION' ? { pointerEvents: 'none', opacity: 0.6 } : {}}
                   >
                     <span className="education__button-text" id="textButton">
