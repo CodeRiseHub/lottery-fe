@@ -217,13 +217,14 @@ export async function claimTask(taskId) {
 }
 
 /**
- * Fetches the last 100 game history entries for the current user.
- * @returns {Promise<Array<{amount: number, date: string}>>}
+ * Fetches WIN transactions for the current user from the last 30 days with pagination.
+ * @param {number} page - Page number (0-indexed, default 0)
+ * @returns {Promise<{content: Array<{amount: number, date: string}>, number: number, totalPages: number, totalElements: number}>}
  */
-export async function fetchGameHistory() {
+export async function fetchGameHistory(page = 0) {
   // Get user's timezone from browser
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  return authFetch(`/api/game/history?timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
+  return authFetch(`/api/game/history?page=${page}&timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
 }
 
 /**

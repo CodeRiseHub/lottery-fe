@@ -14,7 +14,7 @@ export default function GameHistoryModal({ onClose }) {
       <div className="modal modal--game-history" onClick={(e) => e.stopPropagation()}>
         <section className="transaction">
           <div className="transaction__container container">
-            <h1 className="transaction__title title">Game history (last 100)</h1>
+            <h1 className="transaction__title title">Win history (30 days)</h1>
             
             <button onClick={onClose} className="spin__back" style={{ textAlign: 'right', display: 'block', marginBottom: '20px' }}>
               &lt;&lt;&lt; Back
