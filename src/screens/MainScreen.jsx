@@ -104,7 +104,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       return '' // Return empty - will show "Waiting for users..." message
     }
 
-    const totalBet = participants.reduce((sum, p) => sum + (p.bet || 0), 0)
+    const totalBet = participants.reduce((sum, p) => sum + (p.b || 0), 0)
     if (totalBet === 0) {
       return ''
     }
@@ -113,13 +113,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     
     participants.forEach((participant) => {
       // Calculate win chance percentage
-      const winChance = totalBet > 0 ? ((participant.bet || 0) / totalBet) * 100 : 0
+      const winChance = totalBet > 0 ? ((participant.b || 0) / totalBet) * 100 : 0
       
       // Get avatar URL
-      let avatarUrl = participant.avatarUrl
-      if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.userId)) {
+      let avatarUrl = participant.aU
+      if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.uI)) {
         // Fallback to placeholder avatars if backend didn't provide a valid URL
-        const avatarIndex = participant.userId % 3
+        const avatarIndex = participant.uI % 3
         const avatars = [avatar1, avatar2, avatar3]
         avatarUrl = avatars[avatarIndex]
       }
@@ -140,13 +140,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
   // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
   // Generate tape with shuffled avatars proportional to win chances (for SPINNING phase only)
-  // roomId is used as seed to ensure all clients see the same tape order
-  const generateTapeHTML = (participants, stopIndex, winnerFromState, roomId = null) => {
+  // roomNumber is used as seed to ensure all clients see the same tape order
+  const generateTapeHTML = (participants, stopIndex, winnerFromState, roomNumber = null) => {
     if (!participants || participants.length === 0) {
       return '' // Return empty - will show "Waiting for users..." message
     }
 
-    const totalBet = participants.reduce((sum, p) => sum + (p.bet || 0), 0)
+    const totalBet = participants.reduce((sum, p) => sum + (p.b || 0), 0)
     if (totalBet === 0) {
       return ''
     }
@@ -161,21 +161,21 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // First, build participant ranges for logging
     for (const participant of participants) {
       const start = cumulative
-      cumulative += (participant.bet || 0)
+      cumulative += (participant.b || 0)
       const end = cumulative
-      participantRanges.push({ userId: participant.userId, start, end, bet: participant.bet })
+      participantRanges.push({ userId: participant.uI, start, end, bet: participant.b })
     }
     
     // Try to identify winner: first from state, then from stopIndex
-    if (winnerFromState && winnerFromState.userId) {
+    if (winnerFromState && winnerFromState.uI) {
       // Use winner from backend state (authoritative source)
-      winnerParticipant = participants.find(p => p.userId === winnerFromState.userId)
+      winnerParticipant = participants.find(p => p.uI === winnerFromState.uI)
     } else if (stopIndex !== null && stopIndex !== undefined && stopIndex >= 0) {
       // Calculate winner from stopIndex (fallback if state winner not available)
       cumulative = 0
       for (const participant of participants) {
         const start = cumulative
-        cumulative += (participant.bet || 0)
+        cumulative += (participant.b || 0)
         const end = cumulative
         
         if (stopIndex >= start && stopIndex < end) {
@@ -202,19 +202,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // If more than 50 users, filter by win chance (> 0.1%)
     if (participants.length > USER_COUNT_THRESHOLD) {
       filteredParticipants = participants.filter(p => {
-        const winChance = totalBet > 0 ? (p.bet || 0) / totalBet : 0
+        const winChance = totalBet > 0 ? (p.b || 0) / totalBet : 0
         // Always include winner, even if below threshold
-        return p.userId === winnerParticipant?.userId || winChance > MIN_CHANCE_THRESHOLD
+        return p.uI === winnerParticipant?.uI || winChance > MIN_CHANCE_THRESHOLD
       })
     }
     
     // Ensure winner is always included (safety check)
-    if (winnerParticipant && !filteredParticipants.find(p => p.userId === winnerParticipant.userId)) {
+    if (winnerParticipant && !filteredParticipants.find(p => p.uI === winnerParticipant.uI)) {
       filteredParticipants.push(winnerParticipant)
     }
     
     // Recalculate total bet for filtered participants
-    const filteredTotalBet = filteredParticipants.reduce((sum, p) => sum + (p.bet || 0), 0)
+    const filteredTotalBet = filteredParticipants.reduce((sum, p) => sum + (p.b || 0), 0)
     
     // Calculate total items (max 500)
     const totalItems = Math.min(MAX_ITEMS, Math.max(200, filteredParticipants.length * 10))
@@ -222,9 +222,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // Calculate proportional avatar counts for each participant based on win chance
     // First pass: calculate ideal counts (may be fractional)
     const participantCounts = filteredParticipants.map(participant => {
-      const winChance = filteredTotalBet > 0 ? (participant.bet || 0) / filteredTotalBet : 0
+      const winChance = filteredTotalBet > 0 ? (participant.b || 0) / filteredTotalBet : 0
       const idealCount = winChance * totalItems
-      const isWinner = participant.userId === winnerParticipant?.userId
+      const isWinner = participant.uI === winnerParticipant?.uI
       return {
         participant,
         idealCount,
@@ -239,7 +239,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       const floorCount = Math.floor(idealCount)
       const remainder = idealCount - floorCount
       // Winner must have at least 1, others need at least 1 if they have a bet
-      const minCount = isWinner ? 1 : (participant.bet > 0 ? 1 : 0)
+      const minCount = isWinner ? 1 : (participant.b > 0 ? 1 : 0)
       return {
         participant,
         floorCount: Math.max(minCount, floorCount),
@@ -273,19 +273,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       
       // Recalculate with only kept participants
       const keptParticipants = toKeep.map(item => item.participant)
-      const keptTotalBet = keptParticipants.reduce((sum, p) => sum + (p.bet || 0), 0)
+      const keptTotalBet = keptParticipants.reduce((sum, p) => sum + (p.b || 0), 0)
       
       // Recalculate counts for kept participants
       const recalculatedCounts = keptParticipants.map(participant => {
-        const winChance = keptTotalBet > 0 ? (participant.bet || 0) / keptTotalBet : 0
+        const winChance = keptTotalBet > 0 ? (participant.b || 0) / keptTotalBet : 0
         const idealCount = winChance * MAX_ITEMS
-        const isWinner = participant.userId === winnerParticipant?.userId
+        const isWinner = participant.uI === winnerParticipant?.uI
         return {
           participant,
           idealCount,
           winChance,
           isWinner,
-          floorCount: Math.max(isWinner ? 1 : (participant.bet > 0 ? 1 : 0), Math.floor(idealCount)),
+          floorCount: Math.max(isWinner ? 1 : (participant.b > 0 ? 1 : 0), Math.floor(idealCount)),
           remainder: idealCount - Math.floor(idealCount)
         }
       })
@@ -306,7 +306,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     
     // Allocate remaining items to participants with highest remainders
     const finalCounts = countsWithRemainders.map(item => {
-      const indexInSorted = sortedByRemainder.findIndex(s => s.participant.userId === item.participant.userId)
+      const indexInSorted = sortedByRemainder.findIndex(s => s.participant.uI === item.participant.uI)
       const shouldGetExtra = indexInSorted < remaining && remaining > 0
       return {
         participant: item.participant,
@@ -320,10 +320,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     
     finalCounts.forEach(({ participant, count, isWinner }) => {
       // Get avatar URL
-      let avatarUrl = participant.avatarUrl
-      if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.userId)) {
+      let avatarUrl = participant.aU
+      if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.uI)) {
         // Fallback to placeholder avatars if backend didn't provide a valid URL
-        const avatarIndex = participant.userId % 3
+        const avatarIndex = participant.uI % 3
         const avatars = [avatar1, avatar2, avatar3]
         avatarUrl = avatars[avatarIndex]
       }
@@ -332,15 +332,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       for (let i = 0; i < count; i++) {
         avatarItems.push({
           avatarUrl,
-          userId: participant.userId,
+          userId: participant.uI,
           isWinner
         })
       }
     })
     
-    // Shuffle the avatars using seeded random (roomId as seed) to ensure all clients see the same order
-    // Use roomId if available, otherwise fall back to unseeded shuffle (shouldn't happen in production)
-    const shuffleSeed = roomId !== null && roomId !== undefined ? roomId : null
+    // Shuffle the avatars using seeded random (roomNumber as seed) to ensure all clients see the same order
+    // Use roomNumber if available, otherwise fall back to unseeded shuffle (shouldn't happen in production)
+    const shuffleSeed = roomNumber !== null && roomNumber !== undefined ? roomNumber : null
     const shuffledAvatars = shuffleArray(avatarItems, shuffleSeed)
     
     // CRITICAL: Ensure winner's avatar is at the middle position
@@ -389,8 +389,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     const userBet = userBets.find(bet => bet.id === currentUserId)
     if (!userBet || userBet.bet === 0) return 0
     
-    // userBet.bet is in bigint format, convert to display units
-    const userBetDisplay = userBet.bet / 1000000
+    // bet is now in tickets (not bigint)
+    const userBetDisplay = userBet.bet
     if (userBetDisplay === 0) return 0
     
     return ((userBetDisplay / totalBet) * 100).toFixed(2)
@@ -487,15 +487,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       roomNumber,
       (state) => {
         // Update state from server (authoritative source)
-        setRegisteredUsers(state.registeredPlayers || 0)
-        // totalBet from backend is in bigint format, convert to display units
-        const totalBetBigint = state.totalBet || 0
-        const totalBetDisplay = totalBetBigint / 1000000
+        setRegisteredUsers(state.rP || 0)
+        // totalBet from backend is now in tickets (not bigint)
+        const totalBetDisplay = state.tB || 0
         setTotalBet(totalBetDisplay)
         // Update roomPhase with state validation and synchronization
-        // Ensure valid phase transitions and synchronize with winner data
-        const newPhase = state.phase || 'WAITING'
+        // Convert phase integer to string: 1=WAITING, 2=COUNTDOWN, 3=SPINNING, 4=RESOLUTION
+        const phaseMap = { 1: 'WAITING', 2: 'COUNTDOWN', 3: 'SPINNING', 4: 'RESOLUTION' }
+        const newPhase = phaseMap[state.p] || 'WAITING'
         const currentPhase = roomPhase
+        const statePhaseStr = newPhase // Use converted phase string for all comparisons
         
         // Validate phase transition (prevent skipping phases)
         // Allow: WAITING -> COUNTDOWN -> SPINNING -> RESOLUTION -> WAITING
@@ -550,68 +551,69 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // Update room user counts for all rooms
         // Backend sends allRoomsConnectedUsers map with counts for all rooms (1, 2, 3)
         // This ensures all room counters are updated even when user switches rooms
-        if (state.allRoomsConnectedUsers && typeof state.allRoomsConnectedUsers === 'object') {
+        if (state.aR && typeof state.aR === 'object') {
           setRooms(prevRooms => 
             prevRooms.map(room => {
-              const count = state.allRoomsConnectedUsers[room.number] || 0
+              const count = state.aR[room.number] || 0
               return { ...room, users: count }
             })
           )
           // Also update currentRoom if it matches
-          if (state.roomNumber !== undefined && state.roomNumber !== null) {
-            const currentRoomCount = state.allRoomsConnectedUsers[state.roomNumber] || 0
-            if (currentRoom.number === state.roomNumber) {
+          if (state.rN !== undefined && state.rN !== null) {
+            const currentRoomCount = state.aR[state.rN] || 0
+            if (currentRoom.number === state.rN) {
               setCurrentRoom(prev => ({ ...prev, users: currentRoomCount }))
             }
           }
-        } else if (state.roomNumber !== undefined && state.roomNumber !== null) {
+        } else if (state.rN !== undefined && state.rN !== null) {
           // Fallback: if allRoomsConnectedUsers is not available, update only current room
-          const userCount = state.connectedUsers || 0
+          const userCount = state.cU || 0
           setRooms(prevRooms => 
             prevRooms.map(room => 
-              room.number === state.roomNumber 
+              room.number === state.rN 
                 ? { ...room, users: userCount }
                 : room
             )
           )
-          if (currentRoom.number === state.roomNumber) {
+          if (currentRoom.number === state.rN) {
             setCurrentRoom(prev => ({ ...prev, users: userCount }))
           }
         }
         
         // Update bet limits from state (room-specific)
-        if (state.minBet !== undefined && state.maxBet !== undefined) {
-          const newMinBet = state.minBet / 1000000 // Convert from bigint to display value
-          const newMaxBet = state.maxBet / 1000000
+        // minBet and maxBet are now in tickets (not bigint)
+        if (state.mB !== undefined && state.mX !== undefined) {
+          const newMinBet = state.mB
+          const newMaxBet = state.mX
           setMinBet(newMinBet)
           setMaxBet(newMaxBet)
           
           // Update currentBet to minBet if it's outside the new limits or if room changed
-          if (currentBet < newMinBet || currentBet > newMaxBet || currentRoom.number !== state.roomNumber) {
+          if (currentBet < newMinBet || currentBet > newMaxBet || currentRoom.number !== state.rN) {
             setCurrentBet(newMinBet)
           }
         }
         
         // Update participants with optimized incremental merge
         // Only update if participants actually changed (prevent unnecessary re-renders)
-        if (state.participants && state.participants.length > 0) {
+        if (state.ps && state.ps.length > 0) {
           // Check if participants actually changed before updating
           const participantsChanged = 
-            participants.length !== state.participants.length ||
+            participants.length !== state.ps.length ||
             participants.some((p, i) => {
-              const newP = state.participants[i]
-              return !newP || p.userId !== newP.userId || p.bet !== newP.bet || p.avatarUrl !== newP.avatarUrl
+              const newP = state.ps[i]
+              return !newP || p.uI !== newP.uI || p.b !== newP.b || p.aU !== newP.aU
             })
           
           if (participantsChanged) {
             // Update participants state (optimized: only when changed)
-            setParticipants(state.participants)
+            setParticipants(state.ps)
             
-            const bets = state.participants.map(p => ({
-              id: p.userId,
-              avatar: p.avatarUrl || defaultAvatar, // Use backend avatar URL, fallback to default
-              name: `User ${p.userId}`,
-              bet: p.bet || 0
+            const bets = state.ps.map(p => ({
+              id: p.uI,
+              avatar: p.aU || defaultAvatar, // Use backend avatar URL, fallback to default
+              name: `User ${p.uI}`,
+              bet: p.b || 0
             }))
             setUserBets(bets)
           }
@@ -619,15 +621,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // Derive JOIN/JOINED state from server data (authoritative source)
           // If user is in participants, they are JOINED - reset isJoining
           // This handles reconnect case where user was already joined before app closed
-          if (currentUserId && state.participants.some(p => p.userId === currentUserId) && isJoining) {
+          if (currentUserId && state.ps.some(p => p.uI === currentUserId) && isJoining) {
             setIsJoining(false)
           }
 
           // Update tape with participants (but NOT during SPINNING - that's handled separately)
           // Only update tape for WAITING and COUNTDOWN phases
           // Only regenerate HTML if participants changed (optimization)
-          if (participantsChanged && (state.phase === 'WAITING' || state.phase === 'COUNTDOWN') && lineContainerRef.current) {
-            const tapeHTML = generatePreSpinTapeHTML(state.participants)
+          if (participantsChanged && (statePhaseStr === 'WAITING' || statePhaseStr === 'COUNTDOWN') && lineContainerRef.current) {
+            const tapeHTML = generatePreSpinTapeHTML(state.ps)
             if (tapeHTML) {
               lineContainerRef.current.innerHTML = tapeHTML
             }
@@ -641,7 +643,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // Don't clear tape here - let animation callback handle it
           // Only clear if we're in WAITING phase AND animation completed more than 1 second ago
           // This prevents race condition between animation completion and WAITING state
-          if (lineContainerRef.current && state.phase === 'WAITING') {
+          if (lineContainerRef.current && statePhaseStr === 'WAITING') {
             const now = Date.now()
             const animationCompletedTime = animationCompletedTimeRef.current
             const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
@@ -655,17 +657,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         }
 
         // Handle countdown - set for all users when phase is COUNTDOWN
-        if (state.phase === 'COUNTDOWN' && state.countdownRemainingSeconds !== null && state.countdownRemainingSeconds !== undefined) {
+        if (statePhaseStr === 'COUNTDOWN' && state.cR !== null && state.cR !== undefined) {
           setCountdownActive(true)
-          setCountdownRemaining(state.countdownRemainingSeconds)
+          setCountdownRemaining(state.cR)
         } else {
           setCountdownActive(false)
           setCountdownRemaining(null)
         }
 
         // Check if current user has joined the round
-        const userHasJoined = currentUserId && state.participants && 
-          state.participants.some(p => p.userId === currentUserId)
+        const userHasJoined = currentUserId && state.ps && 
+          state.ps.some(p => p.uI === currentUserId)
         
         // If user has joined but isJoining is still true (e.g., after reconnection), reset it
         // This ensures button shows "Joined" instead of "Joining..." when user reconnects
@@ -674,7 +676,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         }
 
         // Handle spin - must be checked BEFORE other phases to start animation immediately
-        if (state.phase === 'SPINNING') {
+        if (statePhaseStr === 'SPINNING') {
           setGameStarted(true)
           // Reset joining state if user has joined (they're now in the spin)
           if (userHasJoined) {
@@ -683,7 +685,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           
           // Only start animation if not already running (prevent interruption)
           // This prevents "quick spin" when state changes rapidly
-          if (!animationRunningRef.current && lineContainerRef.current && state.participants && state.participants.length > 0) {
+          if (!animationRunningRef.current && lineContainerRef.current && state.ps && state.ps.length > 0) {
             // Reset scroll first (like lottery-draft-fe)
             if (typeof window.$ !== 'undefined') {
               window.$('#lineContainer').scrollLeft(0)
@@ -695,9 +697,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             
             if (lineContainerRef.current) {
               // Use winner from state if available (backend authoritative), otherwise use local winner state
-              const winnerToUse = state.winner || winner
-              // Pass roomId as seed to ensure consistent shuffle across all clients
-              const tapeHTML = generateTapeHTML(state.participants, state.stopIndex, winnerToUse, state.roomId)
+              const winnerToUse = state.w || winner
+              // Pass roomNumber as seed to ensure consistent shuffle across all clients
+              const tapeHTML = generateTapeHTML(state.ps, state.sI, winnerToUse, state.rN)
               if (tapeHTML) {
                 lineContainerRef.current.innerHTML = tapeHTML
               }
@@ -710,10 +712,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             
             // Start animation immediately - use minimal delay to ensure DOM is ready
             setTimeout(() => {
-              startSpinAnimation(state.stopIndex, state.spinDuration || 5000)
+              startSpinAnimation(state.sI, state.sD || 5000)
             }, 10) // Very short delay to ensure DOM is ready
           }
-        } else if (state.phase === 'WAITING') {
+        } else if (statePhaseStr === 'WAITING') {
           // Reset all game states when back to WAITING
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in WAITING
@@ -737,13 +739,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           }
           
           // If animation wasn't running (single participant refund), allow tape clearing
-          if (!animationRunningRef.current && (!state.participants || state.participants.length === 0)) {
+          if (!animationRunningRef.current && (!state.ps || state.ps.length === 0)) {
             setUserBets([])
             if (lineContainerRef.current) {
               lineContainerRef.current.innerHTML = ''
             }
           }
-        } else if (state.phase === 'COUNTDOWN') {
+        } else if (statePhaseStr === 'COUNTDOWN') {
           // During countdown, user can still join
           setGameStarted(false)
           // If user has joined, reset joining state (they're in the countdown)
@@ -751,7 +753,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             setIsJoining(false)
           }
           // If user hasn't joined yet, keep isJoining as is (they might be in the process of joining)
-        } else if (state.phase === 'RESOLUTION') {
+        } else if (statePhaseStr === 'RESOLUTION') {
           // Reset game started state when resolution phase starts
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in resolution
@@ -771,11 +773,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
         // Handle winner - only clear when actually moving to WAITING phase
         // Don't clear winner just because phase is not RESOLUTION (might be transitioning)
-        if (state.phase === 'RESOLUTION' && state.winner) {
-          setWinner(state.winner)
+        if (statePhaseStr === 'RESOLUTION' && state.w) {
+          setWinner(state.w)
           // Balance update will be received via WebSocket balance update message
           // No need to manually update here - WebSocket will send the updated balance
-        } else if (state.phase === 'WAITING') {
+        } else if (statePhaseStr === 'WAITING') {
           // Only clear winner when actually in WAITING phase (new round started)
           setWinner(null)
         }
@@ -1250,9 +1252,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             {/* Winner display - only show when winner exists */}
             {winner && (() => {
               // Get avatar URL, fallback to placeholder if not available
-              let avatarUrl = winner.avatarUrl
-              if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(winner.userId)) {
-                const avatarIndex = winner.userId % 3
+              let avatarUrl = winner.aU
+              if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(winner.uI)) {
+                const avatarIndex = winner.uI % 3
                 const avatars = [avatar1, avatar2, avatar3]
                 avatarUrl = avatars[avatarIndex]
               }
@@ -1271,7 +1273,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 }}>
                   {/* Winner name - centered on top */}
                   <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center' }}>
-                    Winner: {winner.screenName || `User ${winner.userId}`}
+                    Winner: {winner.sN || `User ${winner.uI}`}
                   </div>
                   
                   {/* Bet/Win/Chance block divided into left (avatar) and right (text) parts */}
@@ -1317,13 +1319,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         width: '100%'
                       }}>
                         <div style={{ fontSize: '16px', textAlign: 'center', marginBottom: '8px' }}>
-                          Bet: {formatBalance(winner.bet)}
+                          Bet: {winner.b ? winner.b.toFixed(4) : '0.0000'}
                         </div>
                         <div style={{ fontSize: '16px', color: '#6cc5a1', textAlign: 'center', marginBottom: '8px' }}>
-                          Win: {formatBalance(winner.payout)}
+                          Win: {formatBalance(winner.pO)}
                         </div>
                         <div style={{ fontSize: '14px', opacity: 0.8, textAlign: 'center' }}>
-                          Chance: {totalBet > 0 ? (((winner.bet / 1000000) / totalBet) * 100).toFixed(2) : 0}%
+                          Chance: {totalBet > 0 ? ((winner.b / totalBet) * 100).toFixed(2) : 0}%
                         </div>
                       </div>
                     </div>
