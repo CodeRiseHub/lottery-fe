@@ -777,6 +777,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // Handle winner - only clear when actually moving to WAITING phase
         // Don't clear winner just because phase is not RESOLUTION (might be transitioning)
         if (statePhaseStr === 'RESOLUTION' && state.w) {
+          // Log winner data when received
+          console.log('[Winner Window] Winner state received:', {
+            winner: state.w,
+            winnerBetTickets: state.w.b,
+            winnerPayout: state.w.pO,
+            currentTotalBet: totalBet,
+            stateTotalBet: state.tB,
+            roomNumber: state.rN,
+            phase: statePhaseStr
+          })
           setWinner(state.w)
           // Balance update will be received via WebSocket balance update message
           // No need to manually update here - WebSocket will send the updated balance
@@ -1343,7 +1353,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                           Win: {formatBalance(winner.pO)}
                         </div>
                         <div style={{ fontSize: '14px', opacity: 0.8, textAlign: 'center' }}>
-                          Chance: {totalBet > 0 ? ((winner.b / totalBet) * 100).toFixed(2) : 0}%
+                          {(() => {
+                            // Log calculation values for debugging
+                            const winnerBetTickets = winner.b || 0
+                            const currentTotalBetTickets = totalBet || 0
+                            const calculatedChance = currentTotalBetTickets > 0 ? ((winnerBetTickets / currentTotalBetTickets) * 100) : 0
+                            
+                            console.log('[Winner Window] Win Chance Calculation:', {
+                              winnerBetTickets,
+                              currentTotalBetTickets,
+                              calculatedChance: calculatedChance.toFixed(2),
+                              winnerUserId: winner.uI,
+                              winnerBet: winner.b,
+                              totalBet: totalBet,
+                              winnerObject: winner
+                            })
+                            
+                            return `Chance: ${calculatedChance.toFixed(2)}%`
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -1422,6 +1449,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 const betDisplay = round.winnerBet || 0
                 const payoutDisplay = round.payout || 0
                 const chanceDisplay = round.winChance ? round.winChance.toFixed(2) : '0.00'
+                
+                // Log completed round data for debugging
+                console.log('[Completed Rounds] Win Chance Display:', {
+                  roundId: round.roundId,
+                  winnerUserId: round.winnerUserId,
+                  winnerBet: round.winnerBet,
+                  totalBet: round.totalBet,
+                  winChance: round.winChance,
+                  displayedChance: chanceDisplay
+                })
                 
                 return (
                   <div
