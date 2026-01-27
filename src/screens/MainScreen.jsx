@@ -67,7 +67,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const [minBet, setMinBet] = useState(1) // Room-specific min bet (from backend state)
   const [maxBet, setMaxBet] = useState(100) // Room-specific max bet (from backend state)
-  const [betCooldown, setBetCooldown] = useState(false) // Track button cooldown (1 second)
+  const [betCooldown, setBetCooldown] = useState(false) // Track button cooldown (1.5 seconds)
   const lastBetTimeRef = useRef(null) // Track last bet click time
   const lineContainerRef = useRef(null)
   const countdownIntervalRef = useRef(null)
@@ -987,10 +987,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       return
     }
 
-    // Check rate limit: prevent clicks faster than 1 second
+    // Check rate limit: prevent clicks faster than 1.5 seconds
     const now = Date.now()
-    if (lastBetTimeRef.current !== null && (now - lastBetTimeRef.current) < 1000) {
-      return // Ignore click if less than 1000ms since last click
+    if (lastBetTimeRef.current !== null && (now - lastBetTimeRef.current) < 1500) {
+      return // Ignore click if less than 1500ms since last click
     }
 
     if (currentBet < minBet || currentBet > maxBet) {
@@ -1014,10 +1014,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     lastBetTimeRef.current = now
     setBetCooldown(true)
     
-    // Disable button for 1 second
+    // Disable button for 1.5 seconds
     setTimeout(() => {
       setBetCooldown(false)
-    }, 1000)
+    }, 1500)
 
     // Set joining state temporarily (will be reset after state update)
     setIsJoining(true)
