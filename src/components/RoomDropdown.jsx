@@ -17,9 +17,16 @@ export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
     }
   }, [])
 
-  const handleRoomSelect = (room) => {
-    onRoomChange(room)
+  // Close dropdown when currentRoom changes (room was successfully changed)
+  useEffect(() => {
     setIsOpen(false)
+  }, [currentRoom.number])
+
+  const handleRoomSelect = (room) => {
+    // Close dropdown immediately
+    setIsOpen(false)
+    // Then trigger room change
+    onRoomChange(room)
   }
 
   return (
