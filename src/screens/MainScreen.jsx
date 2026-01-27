@@ -987,10 +987,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       return
     }
 
-    // Check rate limit: prevent clicks faster than 1 second
+    // Check rate limit: prevent clicks faster than 0.5 seconds
     const now = Date.now()
-    if (lastBetTimeRef.current !== null && (now - lastBetTimeRef.current) < 1000) {
-      return // Ignore click if less than 1000ms since last click
+    if (lastBetTimeRef.current !== null && (now - lastBetTimeRef.current) < 500) {
+      return // Ignore click if less than 500ms since last click
     }
 
     if (currentBet < minBet || currentBet > maxBet) {
@@ -1014,10 +1014,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     lastBetTimeRef.current = now
     setBetCooldown(true)
     
-    // Disable button for 1 second
+    // Disable button for 0.5 seconds
     setTimeout(() => {
       setBetCooldown(false)
-    }, 1000)
+    }, 500)
 
     // Set joining state temporarily (will be reset after state update)
     setIsJoining(true)
@@ -1420,7 +1420,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         const buttonText = !wsConnected ? 'Connecting...' : 
                          buttonPhase === 'SPINNING' ? 'Spinning...' : 
                          buttonPhase === 'RESOLUTION' ? 'Round Ended' :
-                         isJoining ? 'Placing bet...' :
+                         (isJoining || betCooldown) ? 'Placing bet...' :
                          'BET'
                         return buttonText
                       })()}
