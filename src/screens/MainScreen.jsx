@@ -1354,22 +1354,29 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         </div>
                         <div style={{ fontSize: '14px', opacity: 0.8, textAlign: 'center' }}>
                           {(() => {
-                            // Log calculation values for debugging
+                            // Use winChance from backend if available (calculated from actual round data)
+                            // Fallback to frontend calculation if not available
                             const winnerBetTickets = winner.b || 0
                             const currentTotalBetTickets = totalBet || 0
-                            const calculatedChance = currentTotalBetTickets > 0 ? ((winnerBetTickets / currentTotalBetTickets) * 100) : 0
+                            const backendWinChance = winner.wC
+                            const frontendCalculatedChance = currentTotalBetTickets > 0 ? ((winnerBetTickets / currentTotalBetTickets) * 100) : 0
+                            const displayChance = backendWinChance !== null && backendWinChance !== undefined 
+                              ? backendWinChance 
+                              : frontendCalculatedChance
                             
                             console.log('[Winner Window] Win Chance Calculation:', {
                               winnerBetTickets,
                               currentTotalBetTickets,
-                              calculatedChance: calculatedChance.toFixed(2),
+                              backendWinChance: winner.wC,
+                              frontendCalculatedChance: frontendCalculatedChance.toFixed(2),
+                              displayChance: displayChance.toFixed(2),
                               winnerUserId: winner.uI,
                               winnerBet: winner.b,
                               totalBet: totalBet,
                               winnerObject: winner
                             })
                             
-                            return `Chance: ${calculatedChance.toFixed(2)}%`
+                            return `Chance: ${displayChance.toFixed(2)}%`
                           })()}
                         </div>
                       </div>
