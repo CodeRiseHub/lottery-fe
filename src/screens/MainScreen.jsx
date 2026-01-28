@@ -871,6 +871,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
   // Calculate user's total bet for the current round
   const getUserTotalBet = () => {
+    // If room is in WAITING phase, it's a new round - reset total bet
+    if (roomPhase === 'WAITING' || buttonPhase === 'WAITING') {
+      return 0
+    }
     if (!currentUserId || !participants || participants.length === 0) {
       return 0
     }
@@ -1468,7 +1472,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                       const isMaxBetReached = userTotalBet >= maxBet
                       return !wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown || isMaxBetReached
                     })()}
-                    style={buttonPhase === 'RESOLUTION' ? { pointerEvents: 'none', opacity: 0.6 } : {}}
+                    style={(() => {
+                      const userTotalBet = getUserTotalBet()
+                      const isMaxBetReached = userTotalBet >= maxBet
+                      if (buttonPhase === 'RESOLUTION') {
+                        return { pointerEvents: 'none', opacity: 0.6 }
+                      }
+                      // No inline style for max bet - CSS handles it via :disabled selector
+                      return {}
+                    })()}
                   >
                     <span className="education__button-text" id="textButton">
                       {(() => {
