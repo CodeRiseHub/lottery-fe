@@ -90,8 +90,9 @@ body {
 }
 main {
     margin: 0 auto;
-    padding-bottom: 120px; /* Increased padding to account for fixed footer (bottom: 0 + footer height ~70px + extra space) */
-    min-height: calc(100vh - 120px);
+    padding-bottom: 120px !important; /* Increased padding to account for fixed footer (bottom: 0 + footer height ~70px + extra space) */
+    min-height: 100vh; /* Ensure main takes full viewport height */
+    box-sizing: border-box; /* Include padding in height calculation */
 }
 .black {
     background: black;
@@ -2707,6 +2708,7 @@ font {
     background: rgba(26, 34, 44, 0.5);
     backdrop-filter: blur(4px);
     box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
+    margin-bottom: 100px !important; /* Add significant margin to prevent footer overlap */
 }
 .transaction__head {
     margin-bottom: 16px;
@@ -3558,6 +3560,7 @@ font {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    margin-bottom: 100px !important; /* Add significant margin to prevent footer overlap */
 }
 .spin__bets-item {
     display: flex;
