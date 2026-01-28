@@ -1347,7 +1347,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         width: '100%'
                       }}>
                         <div style={{ fontSize: '16px', textAlign: 'center', marginBottom: '8px' }}>
-                          Bet: {winner.b ? winner.b.toFixed(4) : '0.0000'}
+                          Bet: {winner.b ? winner.b.toFixed(2) : '0.00'}
                         </div>
                         <div style={{ fontSize: '16px', color: '#6cc5a1', textAlign: 'center', marginBottom: '8px' }}>
                           Win: {formatBalance(winner.pO)}

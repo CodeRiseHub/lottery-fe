@@ -2144,14 +2144,12 @@ section:last-child .container:last-child > *:last-child:not(.footer):not(.header
 .upgrade__currencies {
     position: relative;
     padding: 1px;
-    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
     border-radius: 16px;
     background: linear-gradient(90deg, #376753 0%, #245069 100%);
     box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.25);
 }
 .upgrade__list {
     padding: 6px 6px 4px;
-    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -2357,6 +2355,11 @@ section:last-child .container:last-child > *:last-child:not(.footer):not(.header
 */
 .payout__container {
     margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
+}
+
+/* Payout screen - ensure upgrade__currencies has proper spacing but not excessive margin */
+section.payout .upgrade__currencies {
+    margin-bottom: 0 !important; /* Remove margin from currencies container on payout screen */
 }
 .payout__form {
     margin-bottom: 9px;

@@ -56,7 +56,7 @@ export default function TransactionHistoryScreen({ onBack }) {
     if (!amount) return '0'
     const tickets = amount / 1_000_000
     const sign = amount >= 0 ? '+' : ''
-    return `${sign} ${tickets.toFixed(4)}`
+    return `${sign} ${tickets.toFixed(2)}`
   }
 
   // Format transaction type with taskID or roundID

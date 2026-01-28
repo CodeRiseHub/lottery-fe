@@ -139,7 +139,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
           onUserDataUpdate(userData)
         }
         if (onBalanceUpdate) {
-          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(2)
           onBalanceUpdate(balanceDisplay)
         }
       }
@@ -308,7 +308,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                 ) : (
                   payoutHistory.map((entry, index) => {
                     // Convert bigint to tickets (divide by 1,000,000) and format to 4 decimals
-                    const amountInTickets = (entry.amount / 1_000_000).toFixed(4)
+                    const amountInTickets = (entry.amount / 1_000_000).toFixed(2)
                     
                     return (
                       <tr key={index} style={{ borderBottom: index < payoutHistory.length - 1 ? '1px solid #3d4f65' : 'none' }}>

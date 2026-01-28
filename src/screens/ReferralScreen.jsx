@@ -22,10 +22,10 @@ export default function ReferralScreen({ onBack, userData }) {
   // Format commission: divide by 1,000,000 and format as Tickets
   const formatCommission = (commission) => {
     if (!commission || commission === 0) {
-      return '0.0000 Tickets'
+      return '0.00 Tickets'
     }
     const value = commission / 1_000_000
-    return `${value.toFixed(4)} Tickets`
+    return `${value.toFixed(2)} Tickets`
   }
   
   // Fetch referrals when level or page changes

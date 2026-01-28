@@ -1,11 +1,11 @@
 /**
- * Formats balance from bigint (6 decimal places) to display format (4 decimal places)
+ * Formats balance from bigint (6 decimal places) to display format (2 decimal places)
  * @param {number|string} balanceBigint - Balance stored as bigint (e.g., 1562785 = 1.562785)
- * @returns {string} Formatted balance with 4 decimal places (e.g., "1.5627")
+ * @returns {string} Formatted balance with 2 decimal places (e.g., "1.56")
  */
 export function formatBalance(balanceBigint) {
   if (!balanceBigint && balanceBigint !== 0) {
-    return '0.0000'
+    return '0.00'
   }
   
   // Convert to number if string
@@ -14,8 +14,8 @@ export function formatBalance(balanceBigint) {
   // Divide by 1,000,000 to get the actual value (6 decimal places)
   const actualValue = balance / 1000000
   
-  // Format to 4 decimal places
-  return actualValue.toFixed(4)
+  // Format to 2 decimal places
+  return actualValue.toFixed(2)
 }
 
 /**

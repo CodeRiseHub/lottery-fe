@@ -32,7 +32,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
   const [showHeaderMenu, setShowHeaderMenu] = useState(false)
   const [showAccountDetail, setShowAccountDetail] = useState(false)
   const [currentLang, setCurrentLang] = useState('EN')
-  const [balance, setBalance] = useState('0.0000')
+  const [balance, setBalance] = useState('0.00')
   const initializedRef = useRef(false)
 
   // Initialize balance from userData only once on mount

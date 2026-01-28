@@ -81,7 +81,7 @@ function App() {
   const storedState = getStoredScreenState()
   const [currentScreen, setCurrentScreen] = useState(storedState.screen)
   const [screenProps, setScreenProps] = useState(storedState.props)
-  const [balance, setBalance] = useState('0.0000')
+  const [balance, setBalance] = useState('0.00')
   const [authInitialized, setAuthInitialized] = useState(false)
   const [userData, setUserData] = useState(null)
 

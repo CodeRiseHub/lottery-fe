@@ -52,11 +52,11 @@ export default function GameHistoryScreen({ onBack, roomNumber }) {
     loadHistory()
   }, [currentPage])
 
-  // Format amount from bigint to display format (divide by 1,000,000 and format to 4 decimals)
+  // Format amount from bigint to display format (divide by 1,000,000 and format to 2 decimals)
   const formatAmount = (amountBigint) => {
-    if (!amountBigint) return '0.0000'
+    if (!amountBigint) return '0.00'
     const amount = amountBigint / 1_000_000
-    const formatted = Math.abs(amount).toFixed(4)
+    const formatted = Math.abs(amount).toFixed(2)
     return amount >= 0 ? `+${formatted}` : `-${formatted}`
   }
 

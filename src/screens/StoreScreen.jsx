@@ -134,7 +134,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                 
                 // Format balance for display (balanceA is in bigint format)
                 if (onBalanceUpdate) {
-                  const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(4)
+                  const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(2)
                   onBalanceUpdate(balanceDisplay)
                 }
               }
