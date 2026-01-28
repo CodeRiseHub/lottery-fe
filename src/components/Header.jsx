@@ -281,7 +281,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
                     if (onNavigate) onNavigate('transactionHistory')
                   }}
                 >
-                  Transaction history (30 days)
+                  Transaction history
                 </a>
               </li>
             </ul>
