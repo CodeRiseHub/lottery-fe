@@ -90,8 +90,8 @@ body {
 }
 main {
     margin: 0 auto;
-    margin-bottom: 98px;
-    min-height: calc(100vh - 98px);
+    padding-bottom: 120px; /* Increased padding to account for fixed footer (bottom: 0 + footer height ~70px + extra space) */
+    min-height: calc(100vh - 120px);
 }
 .black {
     background: black;
@@ -440,7 +440,7 @@ font {
 /* Home screen specific styles */
 .bg > main {
     min-height: auto !important;
-    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 /* Home screen footer - different from app footer */

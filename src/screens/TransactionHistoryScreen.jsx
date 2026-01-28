@@ -87,7 +87,7 @@ export default function TransactionHistoryScreen({ onBack }) {
   return (
     <section className="transaction">
       <div className="transaction__container container">
-        <h1 className="transaction__title title">Transaction history</h1>
+        <h1 className="transaction__title title">Transaction history (30 days)</h1>
 
         <div className="transaction__table">
           <div className="transaction__head">
