@@ -444,6 +444,16 @@ font {
     padding-bottom: 0 !important;
 }
 
+/* Universal footer clearance - add margin to transaction containers */
+.transaction__container {
+    margin-bottom: 100px !important;
+}
+
+/* Universal footer clearance for all screens - add margin to last scrollable containers */
+section:last-child .container:last-child > *:last-child:not(.footer):not(.header) {
+    margin-bottom: 100px !important;
+}
+
 /* Home screen footer - different from app footer */
 .container.footer {
     margin-top: 7px;
@@ -1486,6 +1496,7 @@ font {
     display: flex;
     flex-direction: column;
     gap: 9px;
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
 }
 
 /**
@@ -1774,6 +1785,7 @@ font {
 .earn__list {
     font-size: 20px;
     text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
 }
 .earn__list-header {
     display: flex;
@@ -2132,12 +2144,14 @@ font {
 .upgrade__currencies {
     position: relative;
     padding: 1px;
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
     border-radius: 16px;
     background: linear-gradient(90deg, #376753 0%, #245069 100%);
     box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.25);
 }
 .upgrade__list {
     padding: 6px 6px 4px;
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -2342,7 +2356,7 @@ font {
   |============================
 */
 .payout__container {
-    margin-bottom: 40px;
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
 }
 .payout__form {
     margin-bottom: 9px;
@@ -2643,7 +2657,7 @@ font {
 */
 .faq__list {
     padding: 13px 15px 9px;
-
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
     border-radius: 15px;
     border: 1px solid #23303e;
     background: rgb(26, 34, 44, 0.5);
@@ -2700,6 +2714,10 @@ font {
   | transaction history
   |============================
 */
+
+.transaction__container {
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
+}
 
 .transaction__table {
     padding: 14px 10px;
@@ -2864,6 +2882,7 @@ font {
 }
 .support__history {
     padding: 10px 10px 10px;
+    margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
     border-radius: 15px;
     border: 1px solid #24303e;
     background: rgba(26, 34, 44, 0.5);
