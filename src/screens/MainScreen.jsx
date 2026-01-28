@@ -869,20 +869,52 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     }
   }, [countdownRemaining])
 
+  // Calculate user's total bet for the current round
+  const getUserTotalBet = () => {
+    if (!currentUserId || !participants || participants.length === 0) {
+      return 0
+    }
+    // Sum all bets from the current user in this round
+    return participants
+      .filter(p => p.uI === currentUserId)
+      .reduce((sum, p) => sum + (p.b || 0), 0)
+  }
+
   const changeBet = (newBet) => {
     let bet = parseInt(newBet, 10)
+    const userTotalBet = getUserTotalBet()
+    const remainingBetCapacity = maxBet - userTotalBet
+    
+    // Clamp bet to valid range considering user's total bet
     bet = bet <= minBet ? minBet : bet
-    bet = bet >= maxBet ? maxBet : bet
+    // Don't allow bet to exceed remaining capacity
+    if (bet > remainingBetCapacity) {
+      bet = Math.max(minBet, remainingBetCapacity)
+    }
+    // Also don't exceed maxBet (safety check)
+    if (bet > maxBet) {
+      bet = maxBet
+    }
     setCurrentBet(bet)
   }
 
   const handleBetChange = (action) => {
-    if (action === 'min') changeBet(minBet)
-    else if (action === 'max') {
+    if (action === 'min') {
+      changeBet(minBet)
+    } else if (action === 'max') {
+      const userTotalBet = getUserTotalBet()
+      const remainingBetCapacity = maxBet - userTotalBet
+      
       // Use actual balance
       const balanceDisplay = formatBalance(userBalance)
       const balanceValue = parseFloat(balanceDisplay) * 1000000 // Convert to bigint equivalent
-      const max = Math.min(balanceValue - 1000, maxBet)
+      
+      // Max bet is the minimum of: remaining capacity, available balance, and maxBet
+      const max = Math.min(
+        balanceValue / 1000000, // Convert back to tickets
+        remainingBetCapacity,
+        maxBet
+      )
       changeBet(Math.max(minBet, max))
     }
   }
@@ -986,15 +1018,27 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown) {
       return
     }
-
+    
     // Check rate limit: prevent clicks faster than 1.5 seconds
     const now = Date.now()
     if (lastBetTimeRef.current !== null && (now - lastBetTimeRef.current) < 1500) {
       return // Ignore click if less than 1500ms since last click
     }
 
+    // Calculate user's total bet for the current round
+    const userTotalBet = getUserTotalBet()
+    const totalBetAfterThis = userTotalBet + currentBet
+    
+    // Validate single bet amount
     if (currentBet < minBet || currentBet > maxBet) {
       setErrorMessage(`Bet must be between ${minBet} and ${maxBet}`)
+      setShowErrorModal(true)
+      return
+    }
+    
+    // Validate total bet doesn't exceed max bet for the room
+    if (totalBetAfterThis > maxBet) {
+      setErrorMessage(`You have exceeded the maximum bet limit of ${maxBet} for this room. Your current total bet is ${userTotalBet}, so you can bet up to ${maxBet - userTotalBet} more.`)
       setShowErrorModal(true)
       return
     }
@@ -1419,7 +1463,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                     className="education__button"
                     id="startGame"
                     onClick={handleJoin}
-                    disabled={!wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown}
+                    disabled={(() => {
+                      const userTotalBet = getUserTotalBet()
+                      const isMaxBetReached = userTotalBet >= maxBet
+                      return !wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown || isMaxBetReached
+                    })()}
                     style={buttonPhase === 'RESOLUTION' ? { pointerEvents: 'none', opacity: 0.6 } : {}}
                   >
                     <span className="education__button-text" id="textButton">
@@ -1537,7 +1585,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       {showKeyboardModal && (
         <CustomKeyboard
           value={currentBet}
-          onChange={setCurrentBet}
+          onChange={handleBetInputChange}
           onConfirm={handleKeyboardConfirm}
           onClose={handleKeyboardClose}
         />
