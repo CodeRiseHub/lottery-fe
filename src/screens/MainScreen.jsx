@@ -620,6 +620,23 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             })
           
           if (participantsChanged) {
+            // Check if current user's bet in participants array has changed
+            // This indicates server has confirmed the bet, so clear pending bets
+            const currentUserInNewParticipants = state.ps.find(p => p.uI === currentUserId)
+            const currentUserInOldParticipants = participants.find(p => p.uI === currentUserId)
+            
+            // If user is in new participants and their bet has changed (or wasn't there before),
+            // clear pending bets since server has confirmed the bet
+            if (currentUserId && currentUserInNewParticipants) {
+              const newBet = currentUserInNewParticipants.b || 0
+              const oldBet = currentUserInOldParticipants?.b || 0
+              
+              // If bet increased, server confirmed a new bet - clear pending bets
+              if (newBet > oldBet) {
+                setPendingBets(0)
+              }
+            }
+            
             // Update participants state (optimized: only when changed)
             setParticipants(state.ps)
             
@@ -687,8 +704,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // This ensures button shows "Joined" instead of "Joining..." when user reconnects
         if (userHasJoined && isJoining) {
           setIsJoining(false)
-          // Clear pending bets when server confirms the bet
-          setPendingBets(0)
+          // Note: pendingBets is cleared when participants array updates (see above)
         }
 
         // Handle spin - must be checked BEFORE other phases to start animation immediately
@@ -889,18 +905,20 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       return 0
     }
     
-    // Start with pending bets (optimistic tracking)
-    let totalBet = pendingBets
-    
-    // Add confirmed bets from participants array
+    // Check if user is in participants array (server-confirmed bets)
     if (currentUserId && participants && participants.length > 0) {
-      const confirmedBet = participants
-        .filter(p => p.uI === currentUserId)
-        .reduce((sum, p) => sum + (p.b || 0), 0)
-      totalBet += confirmedBet
+      const userParticipant = participants.find(p => p.uI === currentUserId)
+      if (userParticipant) {
+        // User is in participants - use server-confirmed total bet
+        // Add pending bets only if they haven't been confirmed yet
+        // (pendingBets should be cleared when participants array updates)
+        const confirmedBet = userParticipant.b || 0
+        return confirmedBet + pendingBets
+      }
     }
     
-    return totalBet
+    // User is not in participants yet - only count pending bets
+    return pendingBets
   }
 
   const changeBet = (newBet) => {
