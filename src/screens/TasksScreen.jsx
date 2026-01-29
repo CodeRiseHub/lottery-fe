@@ -192,7 +192,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   // Returns null for Tasks Screen (to show Check button), but returns progress string for modals
   const buildProgressString = (task, forModal = false) => {
     if (task.claimed) {
-      return 'CLAIMED'
+      return t('tasks.claimed')
     }
     
     if (task.progress) {
@@ -296,7 +296,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         </div>
                         <div className="invite__info">
                           <p className="invite__title invite__title-one">{task.title}</p>
-                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}</p>
                         </div>
                         <div className="invite__progress" id={`progSList_${task.id}`}>
                           {task.progress}
@@ -354,7 +354,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         ) : null
                       })()}
 
-                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}</p>
 
                       <div className="task__actions">
                         <button
@@ -407,7 +407,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         </div>
                         <div className="invite__info">
                           <p className="invite__title invite__title-two">{task.title}</p>
-                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}</p>
                         </div>
                         {(() => {
                           const progressText = buildProgressString(task)
@@ -457,7 +457,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         <p className="invite__title invite__title-two">{task.title}</p>
                       </div>
                       <p className="task__description">{task.description || task.title}</p>
-                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}</p>
                       <div className="task__actions">
                         <button
                           className="task__button task__button-one"
@@ -517,7 +517,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         </div>
                         <div className="invite__info">
                           <p className="invite__title invite__title-one">{task.title}</p>
-                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                          <p className="invite__reward">+{formatRewardAmount(task.rewardAmount)} {task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}</p>
                         </div>
                         {(() => {
                           const progressText = buildProgressString(task)
@@ -580,7 +580,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           </div>
                         ) : null
                       })()}
-                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}</p>
 
                       <div className="task__actions">
                         <button

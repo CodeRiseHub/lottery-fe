@@ -547,22 +547,22 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
             </table>
           </div>
         </div>
-
-        <div className="upgrade__footer">
-          <a
-            href="#"
-            className="upgrade__back-button"
-            onClick={(e) => {
-              e.preventDefault()
-              if (onBack) {
-                onBack()
-              }
-            }}
-          >
-            {t('header.account.back')}
-            <img src={backIcon} alt="back" width="29" height="21" />
-          </a>
-        </div>
+      </div>
+      
+      <div className="upgrade__footer">
+        <a
+          href="#"
+          className="upgrade__back-button"
+          onClick={(e) => {
+            e.preventDefault()
+            if (onBack) {
+              onBack()
+            }
+          }}
+        >
+          {t('header.account.back')}
+          <img src={backIcon} alt="back" width="29" height="21" />
+        </a>
       </div>
     </section>
   )

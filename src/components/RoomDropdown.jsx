@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { t } from '../i18n'
 
 export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -35,7 +36,7 @@ export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
         className="room-dropdown__button"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="room-dropdown__text">Room {currentRoom.number}</span>
+        <span className="room-dropdown__text">{t('game.room')} {currentRoom.number}</span>
         <span className="room-dropdown__spacer"></span>
         <span className="room-dropdown__users">
           {currentRoom.users} 👤
@@ -51,7 +52,7 @@ export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
               className={`room-dropdown__item ${room.number === currentRoom.number ? 'active' : ''}`}
               onClick={() => handleRoomSelect(room)}
             >
-              <span className="room-dropdown__item-text">Room {room.number}</span>
+              <span className="room-dropdown__item-text">{t('game.room')} {room.number}</span>
               <span className="room-dropdown__item-users">{room.users} 👤</span>
             </button>
           ))}

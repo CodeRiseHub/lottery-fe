@@ -65,8 +65,8 @@ const translations = {
     'game.error.betRange': 'Bet must be between {min} and {max}',
     'game.error.maxBetExceeded': 'You have exceeded the maximum bet limit of {max} for this room. Your current total bet is {current}, so you can bet up to {remaining} more.',
     'game.bet': 'BET',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Choose your bet:',
     'game.connecting': 'Connecting...',
     'game.spinning': 'Spinning...',
@@ -82,6 +82,8 @@ const translations = {
     'game.rules.realMode': '- Real mode allows you to place bets with real money.',
     'game.rules.setBet': 'Set your bet and tap "BET".',
     'game.rules.multipliers': 'Possible multipliers: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Room',
+    'game.waitingForUsers': 'Waiting for users...',
     
     // Tasks Screen
     'tasks.title': 'Tasks',
@@ -96,6 +98,8 @@ const translations = {
     'tasks.join': 'Join',
     'tasks.open': 'Open',
     'tasks.reward': 'Reward',
+    'tasks.tickets': 'Tickets',
+    'tasks.claimed': 'Claimed',
     'tasks.loading': 'Loading...',
     'tasks.noData': 'No tasks found',
     'tasks.error.notCompleted': 'Task not completed!',
@@ -110,6 +114,9 @@ const translations = {
     'transactionHistory.loading': 'Loading...',
     'transactionHistory.noData': 'No transactions found',
     'transactionHistory.pagination': 'Page {current} of {total}',
+    'transactionHistory.taskBonus': 'Task bonus',
+    'transactionHistory.taskId': 'TaskID',
+    'transactionHistory.roundId': 'RoundID',
     
     // Win History
     'winHistory.title': 'Win history (30 days)',
@@ -312,8 +319,8 @@ const translations = {
     'game.error.betRange': 'Ставка должна быть между {min} и {max}',
     'game.error.maxBetExceeded': 'Вы превысили максимальный лимит ставки {max} для этой комнаты. Ваша текущая общая ставка составляет {current}, поэтому вы можете поставить еще до {remaining}.',
     'game.bet': 'СТАВКА',
-    'game.min': 'МИН',
-    'game.max': 'МАКС',
+    'game.min': 'мин',
+    'game.max': 'макс',
     'game.chooseBet': 'Выберите вашу ставку:',
     'game.connecting': 'Подключение...',
     'game.spinning': 'Крутится...',
@@ -329,6 +336,8 @@ const translations = {
     'game.rules.realMode': '- Реальный режим позволяет делать ставки на реальные деньги.',
     'game.rules.setBet': 'Установите вашу ставку и нажмите "СТАВКА".',
     'game.rules.multipliers': 'Возможные множители: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Комната',
+    'game.waitingForUsers': 'Ожидание игроков...',
     
     // Tasks Screen
     'tasks.title': 'Задачи',
@@ -343,6 +352,8 @@ const translations = {
     'tasks.join': 'Присоединиться',
     'tasks.open': 'Открыть',
     'tasks.reward': 'Награда',
+    'tasks.tickets': 'Билеты',
+    'tasks.claimed': 'Получено',
     'tasks.loading': 'Загрузка...',
     'tasks.noData': 'Задачи не найдены',
     'tasks.error.notCompleted': 'Задача не выполнена!',
@@ -357,6 +368,9 @@ const translations = {
     'transactionHistory.loading': 'Загрузка...',
     'transactionHistory.noData': 'Транзакции не найдены',
     'transactionHistory.pagination': 'Страница {current} из {total}',
+    'transactionHistory.taskBonus': 'Бонус за задачу',
+    'transactionHistory.taskId': 'ID задачи',
+    'transactionHistory.roundId': 'ID раунда',
     
     // Win History
     'winHistory.title': 'История выигрышей (30 дней)',
@@ -541,8 +555,8 @@ const translations = {
     'game.error.betRange': 'Einsatz muss zwischen {min} und {max} liegen',
     'game.error.maxBetExceeded': 'Sie haben das maximale Einsatzlimit von {max} für diesen Raum überschritten. Ihr aktueller Gesamteinsatz beträgt {current}, daher können Sie noch bis zu {remaining} mehr setzen.',
     'game.bet': 'SETZEN',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Wählen Sie Ihren Einsatz:',
     'game.connecting': 'Verbinden...',
     'game.spinning': 'Dreht sich...',
@@ -558,6 +572,8 @@ const translations = {
     'game.rules.realMode': '- Echter Modus ermöglicht es Ihnen, mit echtem Geld zu wetten.',
     'game.rules.setBet': 'Setzen Sie Ihren Einsatz und tippen Sie auf "WETTE".',
     'game.rules.multipliers': 'Mögliche Multiplikatoren: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Raum',
+    'game.waitingForUsers': 'Warten auf Spieler...',
     
     // Tasks Screen
     'tasks.title': 'Aufgaben',
@@ -572,6 +588,8 @@ const translations = {
     'tasks.join': 'Beitreten',
     'tasks.open': 'Öffnen',
     'tasks.reward': 'Belohnung',
+    'tasks.tickets': 'Tickets',
+    'tasks.claimed': 'Eingelöst',
     'tasks.loading': 'Wird geladen...',
     'tasks.noData': 'Keine Aufgaben gefunden',
     'tasks.error.notCompleted': 'Aufgabe nicht abgeschlossen!',
@@ -586,6 +604,9 @@ const translations = {
     'transactionHistory.loading': 'Wird geladen...',
     'transactionHistory.noData': 'Keine Transaktionen gefunden',
     'transactionHistory.pagination': 'Seite {current} von {total}',
+    'transactionHistory.taskBonus': 'Aufgabenbonus',
+    'transactionHistory.taskId': 'Aufgaben-ID',
+    'transactionHistory.roundId': 'Runden-ID',
     
     // Win History
     'winHistory.title': 'Gewinnverlauf (30 Tage)',
@@ -789,8 +810,8 @@ const translations = {
     'game.error.betRange': 'La scommessa deve essere tra {min} e {max}',
     'game.error.maxBetExceeded': 'Hai superato il limite massimo di scommessa di {max} per questa stanza. La tua scommessa totale attuale è {current}, quindi puoi scommettere fino a {remaining} in più.',
     'game.bet': 'SCOMMETTI',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Scegli la tua scommessa:',
     'game.connecting': 'Connessione...',
     'game.spinning': 'In rotazione...',
@@ -806,6 +827,8 @@ const translations = {
     'game.rules.realMode': '- La modalità reale ti consente di piazzare scommesse con denaro reale.',
     'game.rules.setBet': 'Imposta la tua scommessa e tocca "SCOMMETTI".',
     'game.rules.multipliers': 'Moltiplicatori possibili: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Stanza',
+    'game.waitingForUsers': 'In attesa di giocatori...',
     
     // Tasks Screen
     'tasks.title': 'Attività',
@@ -820,6 +843,8 @@ const translations = {
     'tasks.join': 'Unisciti',
     'tasks.open': 'Apri',
     'tasks.reward': 'Ricompensa',
+    'tasks.tickets': 'Biglietti',
+    'tasks.claimed': 'Ottenuto',
     'tasks.loading': 'Caricamento...',
     'tasks.noData': 'Nessuna attività trovata',
     'tasks.error.notCompleted': 'Attività non completata!',
@@ -834,6 +859,9 @@ const translations = {
     'transactionHistory.loading': 'Caricamento...',
     'transactionHistory.noData': 'Nessuna transazione trovata',
     'transactionHistory.pagination': 'Pagina {current} di {total}',
+    'transactionHistory.taskBonus': 'Bonus attività',
+    'transactionHistory.taskId': 'ID attività',
+    'transactionHistory.roundId': 'ID round',
     
     // Win History
     'winHistory.title': 'Cronologia vincite (30 giorni)',
@@ -1037,8 +1065,8 @@ const translations = {
     'game.error.betRange': 'Inzet moet tussen {min} en {max} liggen',
     'game.error.maxBetExceeded': 'U heeft de maximale inzetlimiet van {max} voor deze ruimte overschreden. Uw huidige totale inzet is {current}, dus u kunt nog tot {remaining} meer inzetten.',
     'game.bet': 'INZETTEN',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Kies uw inzet:',
     'game.connecting': 'Verbinden...',
     'game.spinning': 'Draait...',
@@ -1054,6 +1082,8 @@ const translations = {
     'game.rules.realMode': '- Echte modus stelt u in staat om te wedden met echt geld.',
     'game.rules.setBet': 'Stel uw inzet in en tik op "WEDDEN".',
     'game.rules.multipliers': 'Mogelijke vermenigvuldigers: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Ruimte',
+    'game.waitingForUsers': 'Wachten op spelers...',
     
     // Tasks Screen
     'tasks.title': 'Taken',
@@ -1068,6 +1098,8 @@ const translations = {
     'tasks.join': 'Deelnemen',
     'tasks.open': 'Openen',
     'tasks.reward': 'Beloning',
+    'tasks.tickets': 'Tickets',
+    'tasks.claimed': 'Ontvangen',
     'tasks.loading': 'Laden...',
     'tasks.noData': 'Geen taken gevonden',
     'tasks.error.notCompleted': 'Taak niet voltooid!',
@@ -1082,6 +1114,9 @@ const translations = {
     'transactionHistory.loading': 'Laden...',
     'transactionHistory.noData': 'Geen transacties gevonden',
     'transactionHistory.pagination': 'Pagina {current} van {total}',
+    'transactionHistory.taskBonus': 'Taakbonus',
+    'transactionHistory.taskId': 'Taak-ID',
+    'transactionHistory.roundId': 'Ronde-ID',
     
     // Win History
     'winHistory.title': 'Wingeschiedenis (30 dagen)',
@@ -1280,8 +1315,8 @@ const translations = {
     'game.error.betRange': 'Zakład musi być między {min} a {max}',
     'game.error.maxBetExceeded': 'Przekroczyłeś maksymalny limit zakładu {max} dla tego pokoju. Twój obecny całkowity zakład to {current}, więc możesz postawić jeszcze do {remaining}.',
     'game.bet': 'ZAKŁAD',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Wybierz swój zakład:',
     'game.connecting': 'Łączenie...',
     'game.spinning': 'Kręci się...',
@@ -1297,6 +1332,8 @@ const translations = {
     'game.rules.realMode': '- Tryb rzeczywisty pozwala na obstawianie prawdziwymi pieniędzmi.',
     'game.rules.setBet': 'Ustaw swoją stawkę i naciśnij "STAWIAM".',
     'game.rules.multipliers': 'Możliwe mnożniki: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Pokój',
+    'game.waitingForUsers': 'Oczekiwanie na graczy...',
     
     // Tasks Screen
     'tasks.title': 'Zadania',
@@ -1311,6 +1348,8 @@ const translations = {
     'tasks.join': 'Dołącz',
     'tasks.open': 'Otwórz',
     'tasks.reward': 'Nagroda',
+    'tasks.tickets': 'Bilety',
+    'tasks.claimed': 'Otrzymane',
     'tasks.loading': 'Ładowanie...',
     'tasks.noData': 'Nie znaleziono zadań',
     'tasks.error.notCompleted': 'Zadanie nie ukończone!',
@@ -1325,6 +1364,9 @@ const translations = {
     'transactionHistory.loading': 'Ładowanie...',
     'transactionHistory.noData': 'Nie znaleziono transakcji',
     'transactionHistory.pagination': 'Strona {current} z {total}',
+    'transactionHistory.taskBonus': 'Bonus za zadanie',
+    'transactionHistory.taskId': 'ID zadania',
+    'transactionHistory.roundId': 'ID rundy',
     
     // Win History
     'winHistory.title': 'Historia wygranych (30 dni)',
@@ -1494,8 +1536,8 @@ const translations = {
     'game.error.betRange': 'Le pari doit être entre {min} et {max}',
     'game.error.maxBetExceeded': 'Vous avez dépassé la limite maximale de pari de {max} pour cette salle. Votre pari total actuel est {current}, vous pouvez donc parier jusqu\'à {remaining} de plus.',
     'game.bet': 'PARIER',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Choisissez votre pari:',
     'game.connecting': 'Connexion...',
     'game.spinning': 'En rotation...',
@@ -1511,6 +1553,8 @@ const translations = {
     'game.rules.realMode': '- Le mode réel vous permet de placer des paris avec de l\'argent réel.',
     'game.rules.setBet': 'Définissez votre mise et appuyez sur "PARIER".',
     'game.rules.multipliers': 'Multiplicateurs possibles: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Salle',
+    'game.waitingForUsers': 'En attente de joueurs...',
     
     // Tasks Screen
     'tasks.title': 'Tâches',
@@ -1525,6 +1569,8 @@ const translations = {
     'tasks.join': 'Rejoindre',
     'tasks.open': 'Ouvrir',
     'tasks.reward': 'Récompense',
+    'tasks.tickets': 'Billets',
+    'tasks.claimed': 'Réclamé',
     'tasks.loading': 'Chargement...',
     'tasks.noData': 'Aucune tâche trouvée',
     'tasks.error.notCompleted': 'Tâche non terminée!',
@@ -1539,6 +1585,9 @@ const translations = {
     'transactionHistory.loading': 'Chargement...',
     'transactionHistory.noData': 'Aucune transaction trouvée',
     'transactionHistory.pagination': 'Page {current} sur {total}',
+    'transactionHistory.taskBonus': 'Bonus de tâche',
+    'transactionHistory.taskId': 'ID de tâche',
+    'transactionHistory.roundId': 'ID de round',
     
     // Win History
     'winHistory.title': 'Historique des gains (30 jours)',
@@ -1708,8 +1757,8 @@ const translations = {
     'game.error.betRange': 'La apuesta debe estar entre {min} y {max}',
     'game.error.maxBetExceeded': 'Has excedido el límite máximo de apuesta de {max} para esta sala. Tu apuesta total actual es {current}, por lo que puedes apostar hasta {remaining} más.',
     'game.bet': 'APOSTAR',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Elija su apuesta:',
     'game.connecting': 'Conectando...',
     'game.spinning': 'Girando...',
@@ -1725,6 +1774,8 @@ const translations = {
     'game.rules.realMode': '- El modo real te permite hacer apuestas con dinero real.',
     'game.rules.setBet': 'Establece tu apuesta y toca "APOSTAR".',
     'game.rules.multipliers': 'Multiplicadores posibles: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Sala',
+    'game.waitingForUsers': 'Esperando jugadores...',
     
     // Tasks Screen
     'tasks.title': 'Tareas',
@@ -1739,6 +1790,8 @@ const translations = {
     'tasks.join': 'Unirse',
     'tasks.open': 'Abrir',
     'tasks.reward': 'Recompensa',
+    'tasks.tickets': 'Boletos',
+    'tasks.claimed': 'Reclamado',
     'tasks.loading': 'Cargando...',
     'tasks.noData': 'No se encontraron tareas',
     'tasks.error.notCompleted': '¡Tarea no completada!',
@@ -1753,6 +1806,9 @@ const translations = {
     'transactionHistory.loading': 'Cargando...',
     'transactionHistory.noData': 'No se encontraron transacciones',
     'transactionHistory.pagination': 'Página {current} de {total}',
+    'transactionHistory.taskBonus': 'Bono de tarea',
+    'transactionHistory.taskId': 'ID de tarea',
+    'transactionHistory.roundId': 'ID de ronda',
     
     // Win History
     'winHistory.title': 'Historial de ganancias (30 días)',
@@ -1954,8 +2010,8 @@ const translations = {
     'game.error.betRange': 'Taruhan harus antara {min} dan {max}',
     'game.error.maxBetExceeded': 'Anda telah melebihi batas taruhan maksimum {max} untuk ruangan ini. Total taruhan Anda saat ini adalah {current}, jadi Anda dapat bertaruh hingga {remaining} lagi.',
     'game.bet': 'TARUHAN',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Pilih taruhan Anda:',
     'game.connecting': 'Menghubungkan...',
     'game.spinning': 'Berputar...',
@@ -1977,8 +2033,10 @@ const translations = {
     
     // Tasks Screen
     'tasks.title': 'Tugas',
-    'tasks.claimed': 'DIKLAIM',
+    'tasks.claimed': 'Diklaim',
     'tasks.claim': 'KLAIM',
+    'tasks.reward': 'Hadiah',
+    'tasks.tickets': 'Tiket',
     'tasks.error.notCompleted': 'Tugas tidak selesai!',
     'tasks.error.claimFailed': 'Gagal mengklaim tugas',
     'tasks.success.claimed': 'Tugas berhasil diklaim',
@@ -1991,6 +2049,9 @@ const translations = {
     'transactionHistory.loading': 'Memuat...',
     'transactionHistory.noData': 'Tidak ada transaksi ditemukan',
     'transactionHistory.pagination': 'Halaman {current} dari {total}',
+    'transactionHistory.taskBonus': 'Bonus tugas',
+    'transactionHistory.taskId': 'ID Tugas',
+    'transactionHistory.roundId': 'ID Putaran',
     
     // Win History
     'winHistory.title': 'Riwayat kemenangan (30 hari)',
@@ -2160,8 +2221,8 @@ const translations = {
     'game.error.betRange': 'Bahis {min} ile {max} arasında olmalıdır',
     'game.error.maxBetExceeded': 'Bu oda için maksimum bahis limiti olan {max}\'ı aştınız. Mevcut toplam bahsiniz {current}, bu yüzden {remaining} daha fazla bahis yapabilirsiniz.',
     'game.bet': 'BAHİS',
-    'game.min': 'MIN',
-    'game.max': 'MAX',
+    'game.min': 'min',
+    'game.max': 'max',
     'game.chooseBet': 'Bahsinizi seçin:',
     'game.connecting': 'Bağlanıyor...',
     'game.spinning': 'Dönüyor...',
@@ -2177,6 +2238,8 @@ const translations = {
     'game.rules.realMode': '- Gerçek mod, gerçek para ile bahis yapmanıza olanak tanır.',
     'game.rules.setBet': 'Bahsinizi belirleyin ve "BAHİS"e dokunun.',
     'game.rules.multipliers': 'Olası çarpanlar: x0, x1.5, x3, x10, x50, x100',
+    'game.room': 'Oda',
+    'game.waitingForUsers': 'Oyuncular bekleniyor...',
     
     // Tasks Screen
     'tasks.title': 'Görevler',
@@ -2191,6 +2254,8 @@ const translations = {
     'tasks.join': 'Katıl',
     'tasks.open': 'Aç',
     'tasks.reward': 'Ödül',
+    'tasks.tickets': 'Biletler',
+    'tasks.claimed': 'Alındı',
     'tasks.loading': 'Yükleniyor...',
     'tasks.noData': 'Görev bulunamadı',
     'tasks.error.notCompleted': 'Görev tamamlanmadı!',
@@ -2205,6 +2270,9 @@ const translations = {
     'transactionHistory.loading': 'Yükleniyor...',
     'transactionHistory.noData': 'İşlem bulunamadı',
     'transactionHistory.pagination': 'Sayfa {current} / {total}',
+    'transactionHistory.taskBonus': 'Görev bonusu',
+    'transactionHistory.taskId': 'Görev ID',
+    'transactionHistory.roundId': 'Tur ID',
     
     // Win History
     'winHistory.title': 'Kazanç geçmişi (30 gün)',

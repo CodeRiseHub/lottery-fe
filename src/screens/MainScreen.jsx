@@ -1375,7 +1375,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 textAlign: 'center',
                 padding: '20px'
               }}>
-                Waiting for users...
+                {t('game.waitingForUsers')}
               </div>
             )}
             

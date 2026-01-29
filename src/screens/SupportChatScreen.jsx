@@ -216,70 +216,71 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
         </div>
         <br /><br /><br /><br /><br /><br />
         <div id="scroll-anchor" ref={scrollAnchorRef}></div>
-        <div className="support-chat__footer">
-          <div className="support-chat__controls">
+      </div>
+      
+      <div className="support-chat__footer">
+        <div className="support-chat__controls">
+          <button
+            className="support-chat__close"
+            id="closeTicket"
+            onClick={handleCloseTicket}
+            disabled={isClosed}
+          >
+            {isClosed ? t('supportChat.isClosed') : t('supportChat.close')}
+            <img
+              src={closeIcon}
+              alt="close"
+              width="21"
+              height="21"
+            />
+          </button>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              if (onBack) onBack()
+            }}
+            className="support-chat__back"
+          >
+            {t('supportChat.goBack')}
+            <img
+              src={backIcon}
+              alt="back"
+              width="29"
+              height="21"
+            />
+          </a>
+        </div>
+
+        {!isClosed && (
+          <div className="support-chat__input-wrapper" id="inputT">
+            <textarea
+              type="text"
+              className="support-chat__input"
+              placeholder={t('supportChat.placeholder')}
+              id="newMessageText"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              maxLength={MAX_MESSAGE_LENGTH}
+              disabled={isSending}
+            />
+            
             <button
-              className="support-chat__close"
-              id="closeTicket"
-              onClick={handleCloseTicket}
-              disabled={isClosed}
+              className="support-chat__send"
+              id="sendNewMessage"
+              onClick={handleSendMessage}
+              disabled={isSending || newMessage.trim().length < MIN_MESSAGE_LENGTH}
             >
-              {isClosed ? t('supportChat.isClosed') : t('supportChat.close')}
               <img
-                src={closeIcon}
-                alt="close"
-                width="21"
-                height="21"
+                src={arrowUpIcon}
+                alt="send"
+                width="15"
+                height="26"
               />
             </button>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault()
-                if (onBack) onBack()
-              }}
-              className="support-chat__back"
-            >
-              {t('supportChat.goBack')}
-              <img
-                src={backIcon}
-                alt="back"
-                width="29"
-                height="21"
-              />
-            </a>
           </div>
-
-          {!isClosed && (
-            <div className="support-chat__input-wrapper" id="inputT">
-              <textarea
-                type="text"
-                className="support-chat__input"
-                placeholder={t('supportChat.placeholder')}
-                id="newMessageText"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                maxLength={MAX_MESSAGE_LENGTH}
-                disabled={isSending}
-              />
-              
-              <button
-                className="support-chat__send"
-                id="sendNewMessage"
-                onClick={handleSendMessage}
-                disabled={isSending || newMessage.trim().length < MIN_MESSAGE_LENGTH}
-              >
-                <img
-                  src={arrowUpIcon}
-                  alt="send"
-                  width="15"
-                  height="26"
-                />
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </section>
   )

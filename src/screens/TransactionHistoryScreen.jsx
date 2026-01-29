@@ -64,9 +64,9 @@ export default function TransactionHistoryScreen({ onBack }) {
   const formatType = (transaction) => {
     let typeText = transaction.type
     if (transaction.type === 'Task bonus' && transaction.taskId) {
-      typeText = `${transaction.type} (TaskID: ${transaction.taskId})`
+      typeText = `${t('transactionHistory.taskBonus')} (${t('transactionHistory.taskId')}: ${transaction.taskId})`
     } else if ((transaction.type === 'Win' || transaction.type === 'Bet') && transaction.roundId) {
-      typeText = `${transaction.type} (RoundID: ${transaction.roundId})`
+      typeText = `${transaction.type} (${t('transactionHistory.roundId')}: ${transaction.roundId})`
     }
     return typeText
   }
