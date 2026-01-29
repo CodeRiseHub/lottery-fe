@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { t } from '../i18n'
 import starIcon from '../assets/purchase/star_1.png'
 import giftIcon from '../assets/purchase/gift_1.png'
 
@@ -27,7 +28,7 @@ export default function PayoutScreen({ onBack, onNavigate }) {
   return (
     <section className="payout">
       <div className="container">
-        <h1 className="title">Payout</h1>
+        <h1 className="title">{t('payout.title')}</h1>
 
         <div className="upgrade__currencies">
           <div className="upgrade__list">
@@ -49,8 +50,8 @@ export default function PayoutScreen({ onBack, onNavigate }) {
                 alt="Stars"
               />
               <div className="upgrade__info">
-                <p className="upgrade__name">Stars</p>
-                <p className="upgrade__network">Min. 15 Stars</p>
+                <p className="upgrade__name">{t('payout.stars')}</p>
+                <p className="upgrade__network">{t('payout.minStars')}</p>
               </div>
             </a>
             <a
@@ -71,8 +72,8 @@ export default function PayoutScreen({ onBack, onNavigate }) {
                 alt="Gift"
               />
               <div className="upgrade__info">
-                <p className="upgrade__name">Gift</p>
-                <p className="upgrade__network">Min. 15 Stars</p>
+                <p className="upgrade__name">{t('payout.gift')}</p>
+                <p className="upgrade__network">{t('payout.minStars')}</p>
               </div>
             </a>
           </div>

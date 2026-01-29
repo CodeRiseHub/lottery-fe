@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { t } from '../i18n'
 import infoIcon from '../assets/images/tasks/info.png'
 import historyIcon from '../assets/images/tasks/history.png'
 import arrowDownIcon from '../assets/images/tasks/arrow-down.png'
@@ -1477,14 +1478,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           </div>
 
           <div className="spin__bets">
-            <p className="spin__bets-title">Choose your bet:</p>
+            <p className="spin__bets-title">{t('game.chooseBet')}</p>
             
             <div className="spin__controls-row">
               <button
                 className="spin__control-btn changeBetBT"
                 onClick={() => handleBetChange('min')}
               >
-                <span>min</span>
+                <span>{t('game.min')}</span>
               </button>
               <input
                 type="text"
@@ -1499,7 +1500,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 className="spin__control-btn changeBetBT"
                 onClick={() => handleBetChange('max')}
               >
-                <span>max</span>
+                <span>{t('game.max')}</span>
               </button>
             </div>
 
@@ -1525,22 +1526,22 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                   >
                     <span className="education__button-text" id="textButton">
                       {(() => {
-                        const buttonText = !wsConnected ? 'Connecting...' : 
-                         buttonPhase === 'SPINNING' ? 'Spinning...' : 
-                         buttonPhase === 'RESOLUTION' ? 'Round Ended' :
-                         (isJoining || betCooldown) ? 'Placing bet...' :
-                         'BET'
+                        const buttonText = !wsConnected ? t('game.connecting') : 
+                         buttonPhase === 'SPINNING' ? t('game.spinning') : 
+                         buttonPhase === 'RESOLUTION' ? t('game.roundEnded') :
+                         (isJoining || betCooldown) ? t('game.placingBet') :
+                         t('game.bet')
                         return buttonText
                       })()}
                     </span>
                   </button>
           </div>
 
-          <p className="spin__subtitle">Completed Rounds</p>
+          <p className="spin__subtitle">{t('game.completedRounds')}</p>
           <div className="spin__bets-list">
             {completedRounds.length === 0 ? (
               <div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.5)', padding: '20px' }}>
-                No completed rounds yet
+                {t('game.noCompletedRounds')}
               </div>
             ) : (
               completedRounds.map((round) => {
@@ -1580,15 +1581,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                       <p className="spin__bets-name">{round.winnerScreenName || `User ${round.winnerUserId}`}</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>Bet:</span>
+                          <span>{t('game.betLabel')}:</span>
                           <span>{formatBalance(betDisplay)}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#6cc5a1' }}>
-                          <span>Win:</span>
+                          <span>{t('game.winLabel')}:</span>
                           <span>{formatBalance(payoutDisplay)}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>Chance:</span>
+                          <span>{t('game.chanceLabel')}:</span>
                           <span>{chanceDisplay}%</span>
                         </div>
                       </div>
@@ -1613,14 +1614,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           }}
         >
           <div className="modal modal__account-spin" onClick={(e) => e.stopPropagation()}>
-            <p className="modal__account-spin-title">Roulette Rules</p>
+            <p className="modal__account-spin-title">{t('game.rulesTitle')}</p>
             <p className="modal__account-spin-text">
               <span>
-                - Demo mode = no real money, just for fun. <br />
-                - Real mode allows you to place bets with real money.
+                {t('game.rules.demoMode')} <br />
+                {t('game.rules.realMode')}
               </span>
-              <span> Set your bet and tap "BET".</span>
-              <span> Possible multipliers: x0, x1.5, x3, x10, x50, x100 </span>
+              <span> {t('game.rules.setBet')}</span>
+              <span> {t('game.rules.multipliers')} </span>
             </p>
           </div>
         </div>

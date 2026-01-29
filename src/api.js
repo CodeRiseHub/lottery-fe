@@ -311,6 +311,18 @@ export async function fetchTransactions(page = 0) {
 }
 
 /**
+ * Updates user's language preference.
+ * @param {string} languageCode - Language code (EN, RU, DE, IT, NL, PL, FR, ES, ID, TR)
+ * @returns {Promise<void>}
+ */
+export async function updateLanguage(languageCode) {
+  return authFetch("/api/users/language", {
+    method: "PUT",
+    body: JSON.stringify({ languageCode })
+  });
+}
+
+/**
  * Creates a new support ticket with the first message.
  * @param {string} subject - Ticket subject (5-100 characters)
  * @param {string} message - First message (3-2000 characters)

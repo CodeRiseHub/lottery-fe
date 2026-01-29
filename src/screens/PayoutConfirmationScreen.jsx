@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
 export default function PayoutConfirmationScreen({ onBack }) {
@@ -49,21 +50,21 @@ export default function PayoutConfirmationScreen({ onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     // TODO: Handle payout submission
-    alert('Payout request submitted!')
+    alert(t('payoutConfirmation.success'))
   }
 
   return (
     <section className="payout">
       <div className="payout__container container">
-        <h1 className="payout__title title">Withdraw Toncoin</h1>
+        <h1 className="payout__title title">{t('payoutConfirmation.title')}</h1>
 
         <form action="" method="POST" onSubmit={handleSubmit}>
           <div className="payout__form">
             <div className="payout__field">
-              <p className="payout__label">Enter the wallet:</p>
+              <p className="payout__label">{t('payoutConfirmation.enterWallet')}</p>
               <textarea
                 className="payout__input"
-                placeholder="..."
+                placeholder={t('payoutConfirmation.walletPlaceholder')}
                 rows="3"
                 wrap="soft"
                 name="purse"
@@ -73,11 +74,11 @@ export default function PayoutConfirmationScreen({ onBack }) {
             </div>
 
             <div className="payout__field">
-              <p className="payout__label">Destination Tag:</p>
+              <p className="payout__label">{t('payoutConfirmation.destinationTag')}</p>
               <input
                 type="text"
                 className="payout__input"
-                placeholder="Optional, can be left empty"
+                placeholder={t('payoutConfirmation.destinationTagPlaceholder')}
                 name="destTag"
                 value={destTag}
                 onChange={(e) => setDestTag(e.target.value)}
@@ -85,12 +86,12 @@ export default function PayoutConfirmationScreen({ onBack }) {
             </div>
 
             <div className="payout__field">
-              <p className="payout__label">Your balance ( USD ):</p>
+              <p className="payout__label">{t('payoutConfirmation.yourBalance')}</p>
               <input
                 type="text"
                 className="payout__input"
                 name="sum228"
-                placeholder="Min: 0.37 USD"
+                placeholder={t('payoutConfirmation.minAmount')}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
@@ -106,38 +107,37 @@ export default function PayoutConfirmationScreen({ onBack }) {
             </div>
 
             <div className="payout__field payout__field--result">
-              <p className="payout__label">You will receive TON:</p>
+              <p className="payout__label">{t('payoutConfirmation.youWillReceive')}</p>
               <p className="payout__result" id="calc">
                 {tonAmount}
               </p>
             </div>
 
             <button type="submit" className="payout__button">
-              <span>CONFIRM</span>
+              <span>{t('payoutConfirmation.confirm')}</span>
             </button>
 
             <input type="hidden" name="control_payment" value="f0ca9d4b9ce23b8989e3f6a6f5638b7f" />
           </div>
         </form>
 
-        <p className="payout__note">Network fee Toncoin: 0.26 USD</p>
+        <p className="payout__note">{t('payoutConfirmation.networkFee')}</p>
         <p className="payout__text">
-          The fee is charged at the moment of the withdrawal request. This is not our fee, it's the
-          network's fee for sending coins.
+          {t('payoutConfirmation.feeDescription')}
         </p>
 
         <div className="payout__history">
-          <p className="payout__history-title">Your last 20 withdrawals</p>
+          <p className="payout__history-title">{t('payoutConfirmation.historyTitle')}</p>
 
           <div className="payout__history-row payout__history-row--header">
-            <p className="payout__history-col">AMOUNT</p>
-            <p className="payout__history-col">DATE</p>
-            <p className="payout__history-col">STATUS</p>
+            <p className="payout__history-col">{t('payoutConfirmation.historyAmount')}</p>
+            <p className="payout__history-col">{t('payoutConfirmation.historyDate')}</p>
+            <p className="payout__history-col">{t('payoutConfirmation.historyStatus')}</p>
           </div>
 
           <div className="payout__history-row" style={{ align: 'center' }}>
             <p className="payout__history-col">&nbsp;</p>
-            <p className="payout__history-col">NO DATA</p>
+            <p className="payout__history-col">{t('payoutConfirmation.noData')}</p>
             <p className="payout__history-col">&nbsp;</p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function PayoutConfirmationScreen({ onBack }) {
               }
             }}
           >
-            Back
+            {t('header.account.back')}
             <img src={backIcon} alt="back" width="29" height="21" />
           </a>
         </div>

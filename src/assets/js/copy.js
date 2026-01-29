@@ -11,20 +11,30 @@ document.querySelectorAll(".upgrade-pay__copy-button").forEach((button) => {
         const textToCopy = document.getElementById(targetId)?.textContent.trim();
 
         if (textToCopy) {
+            // Get translation function (fallback to English if not available)
+            const t = window.__lotteryTranslate || ((key) => {
+                const fallbacks = {
+                    'common.copied': 'COPIED!',
+                    'common.copyAmount': 'COPY AMOUNT',
+                    'common.copyWallet': 'COPY WALLET',
+                    'common.error.copyFailed': 'Copy failed'
+                };
+                return fallbacks[key] || key;
+            });
+
             navigator.clipboard
                 .writeText(textToCopy)
                 .then(() => {
-                    // Можно показать временное сообщение или изменить текст
                     button.classList.add("copied");
-                    button.querySelector("span").textContent = "COPIED!";
+                    button.querySelector("span").textContent = t('common.copied');
                     setTimeout(() => {
                         button.classList.remove("copied");
                         button.querySelector("span").textContent =
-                            targetId === "copyAmount" ? "COPY AMOUNT" : "COPY WALLET";
+                            targetId === "copyAmount" ? t('common.copyAmount') : t('common.copyWallet');
                     }, 1500);
                 })
                 .catch(() => {
-                    alert("Copy failed");
+                    alert(t('common.error.copyFailed'));
                 });
         }
     });

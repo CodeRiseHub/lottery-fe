@@ -3,6 +3,7 @@ import { bootstrapSession } from './auth/authService'
 import { getSessionToken } from './auth/sessionManager'
 import { fetchCurrentUser } from './api'
 import { formatBalance } from './utils/balanceFormatter'
+import { initLanguage } from './i18n'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HomeScreen from './screens/HomeScreen'
@@ -155,6 +156,10 @@ function App() {
             if (user.balanceA !== undefined) {
               setBalance(formatBalance(user.balanceA))
             }
+            // Initialize language from user's languageCode
+            if (user.languageCode) {
+              initLanguage(user.languageCode)
+            }
             setAuthInitialized(true)
             return
           } catch (error) {
@@ -180,6 +185,10 @@ function App() {
                   // Update balance in header
                   if (user.balanceA !== undefined) {
                     setBalance(formatBalance(user.balanceA))
+                  }
+                  // Initialize language from user's languageCode
+                  if (user.languageCode) {
+                    initLanguage(user.languageCode)
                   }
                 } catch (fetchError) {
                   // Continue anyway - user might be in dev mode
@@ -243,6 +252,19 @@ function App() {
     setBalance(formattedBalance)
   }, [])
 
+  const handleLanguageChange = useCallback(async (languageCode) => {
+    // Reload user data to get updated languageCode
+    try {
+      const user = await fetchCurrentUser()
+      if (user) {
+        setUserData(user)
+        // Language is already updated in i18n by Header component
+      }
+    } catch (error) {
+      console.error('Failed to reload user data after language change:', error)
+    }
+  }, [])
+
   // Scroll to top when screen changes
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -270,7 +292,13 @@ function App() {
 
   return (
     <div className="bg">
-      <Header onNavigate={handleNavigate} balance={balance} onBalanceUpdate={handleBalanceUpdate} userData={userData} />
+      <Header 
+        onNavigate={handleNavigate} 
+        balance={balance} 
+        onBalanceUpdate={handleBalanceUpdate} 
+        userData={userData}
+        onLanguageChange={handleLanguageChange}
+      />
       <main>
         {currentScreen === 'main' && <MainScreen onNavigate={handleNavigate} onBalanceUpdate={handleBalanceUpdate} userData={userData} roomNumber={screenProps.roomNumber} />}
         {currentScreen === 'gameHistory' && <GameHistoryScreen onBack={handleBack} roomNumber={screenProps.roomNumber} />}

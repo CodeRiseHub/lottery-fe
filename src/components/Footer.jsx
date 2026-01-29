@@ -4,6 +4,7 @@ import earnIcon from '../assets/images/nav/earn.png'
 import lotteryIcon from '../assets/images/nav/lottery.png'
 import taskIcon from '../assets/images/nav/task.png'
 import payoutIcon from '../assets/images/nav/payout.png'
+import { t } from '../i18n'
 import './Footer.css'
 
 export default function Footer({ currentScreen, onNavigate }) {
@@ -29,11 +30,11 @@ export default function Footer({ currentScreen, onNavigate }) {
   }, [])
 
   const navItems = [
-    { id: 'store', label: 'Store', icon: storeIcon, href: '#store' },
-    { id: 'earn', label: 'Earn', icon: earnIcon, href: '#earn' },
-    { id: 'game', label: 'Game', icon: lotteryIcon, href: '#game' },
-    { id: 'tasks', label: 'Tasks', icon: taskIcon, href: '#tasks' },
-    { id: 'payout', label: 'Payout', icon: payoutIcon, href: '#payout' }
+    { id: 'store', label: t('nav.store'), icon: storeIcon, href: '#store' },
+    { id: 'earn', label: t('nav.earn'), icon: earnIcon, href: '#earn' },
+    { id: 'game', label: t('nav.game'), icon: lotteryIcon, href: '#game' },
+    { id: 'tasks', label: t('nav.tasks'), icon: taskIcon, href: '#tasks' },
+    { id: 'payout', label: t('nav.payout'), icon: payoutIcon, href: '#payout' }
   ]
 
   return (

@@ -13,6 +13,8 @@ import idLangIcon from '../assets/images/lang/id.png'
 import trLangIcon from '../assets/images/lang/tr.png'
 import backIcon from '../assets/images/back.png'
 import { formatBalance } from '../utils/balanceFormatter'
+import { t, changeLanguage, initLanguage, getCurrentLanguage } from '../i18n'
+import { updateLanguage as updateLanguageAPI } from '../api'
 
 const languages = [
   { code: 'EN', icon: enLangIcon, name: 'English' },
@@ -27,13 +29,28 @@ const languages = [
   { code: 'TR', icon: trLangIcon, name: 'Türkçe' }
 ]
 
-export default function Header({ onNavigate, balance: balanceProp, onBalanceUpdate, userData }) {
+export default function Header({ onNavigate, balance: balanceProp, onBalanceUpdate, userData, onLanguageChange }) {
   const [showLangModal, setShowLangModal] = useState(false)
   const [showHeaderMenu, setShowHeaderMenu] = useState(false)
   const [showAccountDetail, setShowAccountDetail] = useState(false)
   const [currentLang, setCurrentLang] = useState('EN')
   const [balance, setBalance] = useState('0.00')
+  const [languageInitialized, setLanguageInitialized] = useState(false)
   const initializedRef = useRef(false)
+
+  // Initialize language from userData
+  useEffect(() => {
+    if (!languageInitialized && userData && userData.languageCode) {
+      const lang = initLanguage(userData.languageCode)
+      setCurrentLang(lang)
+      setLanguageInitialized(true)
+    } else if (!languageInitialized) {
+      // Initialize with default if no userData yet
+      const lang = initLanguage(null)
+      setCurrentLang(lang)
+      setLanguageInitialized(true)
+    }
+  }, [userData, languageInitialized])
 
   // Initialize balance from userData only once on mount
   useEffect(() => {
@@ -109,10 +126,28 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
     }
   }
 
-  const handleLangSelect = (langCode) => {
-    setCurrentLang(langCode)
-    closeModal('langModal')
-    // TODO: Implement language change API call
+  const handleLangSelect = async (langCode) => {
+    try {
+      // Update language in i18n system
+      changeLanguage(langCode)
+      setCurrentLang(langCode)
+      
+      // Call API to update user's language preference
+      await updateLanguageAPI(langCode)
+      
+      // Notify parent component to reload user data
+      if (onLanguageChange) {
+        onLanguageChange(langCode)
+      }
+      
+      closeModal('langModal')
+    } catch (error) {
+      console.error('Failed to update language:', error)
+      // Still update UI even if API call fails
+      changeLanguage(langCode)
+      setCurrentLang(langCode)
+      closeModal('langModal')
+    }
   }
 
   // Format registration date from Unix timestamp (seconds) to dd.MM at HH:mm
@@ -190,7 +225,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
         }}
       >
           <div className="modal modal--language-menu">
-            <p className="modal__title">Interface language:</p>
+            <p className="modal__title">{t('header.language.title')}</p>
             <ul className="modal__language-list" id="setLangQ">
               {languages.map((lang) => (
                 <li
@@ -226,7 +261,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
           <div className="modal modal__header--menu">
             <ul className="modal__header--menu__list">
               <li>
-                <a
+                  <a
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
@@ -234,7 +269,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
                     if (onNavigate) onNavigate('faq')
                   }}
                 >
-                  FAQ
+                  {t('header.menu.faq')}
                 </a>
               </li>
               <li>
@@ -246,7 +281,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
                     if (onNavigate) onNavigate('support')
                   }}
                 >
-                  Support
+                  {t('header.menu.support')}
                 </a>
               </li>
               <li>
@@ -257,7 +292,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
                     switchModal('headerMenu', 'accountDetail')
                   }}
                 >
-                  Account details
+                  {t('header.menu.accountDetails')}
                 </a>
               </li>
               <li>
@@ -269,7 +304,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
                     if (onNavigate) onNavigate('referral')
                   }}
                 >
-                  Referral program
+                  {t('header.menu.referral')}
                 </a>
               </li>
               <li>
@@ -281,7 +316,7 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
                     if (onNavigate) onNavigate('transactionHistory')
                   }}
                 >
-                  Transaction history
+                  {t('header.menu.transactionHistory')}
                 </a>
               </li>
             </ul>
@@ -299,32 +334,32 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
         }}
       >
           <div className="modal modal__account-detail">
-            <p className="modal__account-detail-title">Information about account</p>
+            <p className="modal__account-detail-title">{t('header.menu.accountDetails')}</p>
             <div className="relative">
               <div className="modal__account-detail-info">
                 <div className="modal__account-detail-item">
-                  <p className="modal__account-detail-label">ID on the project:</p>
+                  <p className="modal__account-detail-label">{t('header.account.id')}</p>
                   <p className="modal__account-detail-value">{userData?.id || '-'}</p>
                 </div>
                 <div className="modal__account-detail-item">
-                  <p className="modal__account-detail-label">Name:</p>
+                  <p className="modal__account-detail-label">{t('header.account.name')}</p>
                   <p className="modal__account-detail-value">{userData?.screenName || '-'}</p>
                 </div>
                 <div className="modal__account-detail-item">
-                  <p className="modal__account-detail-label">Registered:</p>
+                  <p className="modal__account-detail-label">{t('header.account.registered')}</p>
                   <p className="modal__account-detail-value">
                     {userData?.dateReg ? formatRegistrationDate(userData.dateReg) : '-'}
                   </p>
                 </div>
                 <div className="modal__account-detail-item">
-                  <p className="modal__account-detail-label">Balance:</p>
+                  <p className="modal__account-detail-label">{t('header.account.balance')}</p>
                   <p className="modal__account-detail-value">{balance}</p>
                 </div>
                 <button
                   onClick={() => switchModal('accountDetail', 'headerMenu')}
                   className="modal__back-button"
                 >
-                  Back
+                  {t('header.account.back')}
                   <img src={backIcon} alt="back" width="29" height="21" />
                 </button>
               </div>

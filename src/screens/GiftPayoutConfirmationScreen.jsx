@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPayout, fetchCurrentUser, fetchPayoutHistory } from '../api'
+import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
 // Import all gift images
@@ -140,7 +141,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
     // Username should start with @ followed by at least 1 English letter
     const usernamePattern = /^@[a-zA-Z]/
     if (value && !usernamePattern.test(value)) {
-      setUsernameError('Username must start with @ followed by at least one English letter')
+      setUsernameError(t('giftPayout.error.usernameInvalid'))
     } else {
       setUsernameError('')
     }
@@ -170,14 +171,14 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
     
     // Validate gift selection
     if (!selectedGift) {
-      setGiftError('Please select a gift')
+      setGiftError(t('giftPayout.error.giftRequired'))
       return
     }
 
     // Check if there are any errors
     const usernamePattern = /^@[a-zA-Z]/
     if (!username || !usernamePattern.test(username)) {
-      setUsernameError('Username must start with @ followed by at least one English letter')
+      setUsernameError(t('giftPayout.error.usernameInvalid'))
       return
     }
 
@@ -208,7 +209,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
         }
       }
 
-      alert('Gift payout request submitted successfully!')
+      alert(t('giftPayout.success'))
       if (onBack) {
         onBack()
       }
@@ -223,12 +224,12 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
   return (
     <section className="payout">
       <div className="payout__container container">
-        <h1 className="payout__title title">Send Gift</h1>
+        <h1 className="payout__title title">{t('giftPayout.title')}</h1>
 
         <form action="" method="POST" onSubmit={handleSubmit}>
           <div className="payout__form">
             <div className="payout__field">
-              <p className="payout__label">Enter the Username:</p>
+              <p className="payout__label">{t('giftPayout.enterUsername')}</p>
               <input
                 type="text"
                 className="payout__input"
@@ -244,7 +245,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
             </div>
 
             <div className="payout__field" style={{ position: 'relative' }}>
-              <p className="payout__label">Choose a gift:</p>
+              <p className="payout__label">{t('giftPayout.chooseGift')}</p>
               <div
                 className="payout__input"
                 data-gift-trigger
@@ -266,7 +267,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                     <span>{selectedGift.name}</span>
                   </div>
                 ) : (
-                  <span style={{ color: '#999', width: '100%', textAlign: 'center' }}>Select a gift</span>
+                  <span style={{ color: '#999', width: '100%', textAlign: 'center' }}>{t('giftPayout.selectGift')}</span>
                 )}
               </div>
               {giftError && (
@@ -322,7 +323,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
             </div>
 
             <div className="payout__field">
-              <p className="payout__label">Select the number:</p>
+              <p className="payout__label">{t('giftPayout.selectNumber')}</p>
               <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type="number"
@@ -414,7 +415,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
             </div>
 
             <div className="payout__field payout__field--result">
-              <p className="payout__label">Your balance (Tickets):</p>
+              <p className="payout__label">{t('giftPayout.yourBalance')}</p>
               <input
                 type="text"
                 className="payout__input"
@@ -435,7 +436,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
               className="payout__button"
               disabled={isSubmitting}
             >
-              <span>{isSubmitting ? 'SUBMITTING...' : 'CONFIRM'}</span>
+              <span>{isSubmitting ? t('giftPayout.submitting') : t('giftPayout.confirm')}</span>
             </button>
           </div>
         </form>
@@ -448,7 +449,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
             marginBottom: '15px',
             textAlign: 'center'
           }}>
-            Your last 20 withdrawals
+            {t('giftPayout.history.title')}
           </h2>
           <div style={{
             backgroundColor: '#2a3a4e',
@@ -466,7 +467,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                     borderBottom: '1px solid #3d4f65',
                     fontSize: '14px',
                     fontWeight: 'bold'
-                  }}>AMOUNT</th>
+                  }}>{t('giftPayout.history.amount')}</th>
                   <th style={{ 
                     color: '#fff', 
                     textAlign: 'center', 
@@ -474,7 +475,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                     borderBottom: '1px solid #3d4f65',
                     fontSize: '14px',
                     fontWeight: 'bold'
-                  }}>DATE</th>
+                  }}>{t('giftPayout.history.date')}</th>
                   <th style={{ 
                     color: '#fff', 
                     textAlign: 'center', 
@@ -482,7 +483,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                     borderBottom: '1px solid #3d4f65',
                     fontSize: '14px',
                     fontWeight: 'bold'
-                  }}>STATUS</th>
+                  }}>{t('giftPayout.history.status')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -494,7 +495,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                       padding: '20px',
                       fontSize: '14px'
                     }}>
-                      Loading...
+                      {t('giftPayout.history.loading')}
                     </td>
                   </tr>
                 ) : payoutHistory.length === 0 ? (
@@ -505,7 +506,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                       padding: '20px',
                       fontSize: '14px'
                     }}>
-                      NO DATA
+                      {t('giftPayout.history.noData')}
                     </td>
                   </tr>
                 ) : (
@@ -558,7 +559,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
               }
             }}
           >
-            Back
+            {t('header.account.back')}
             <img src={backIcon} alt="back" width="29" height="21" />
           </a>
         </div>

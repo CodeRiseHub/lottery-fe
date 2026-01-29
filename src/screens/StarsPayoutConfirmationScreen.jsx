@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPayout, fetchCurrentUser, fetchPayoutHistory } from '../api'
+import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
 export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
@@ -64,7 +65,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
 
     // Validate minimum stars
     if (starsAmount && stars < 15) {
-      setStarsError('Minimum 15 Stars required')
+      setStarsError(t('starsPayout.error.minimum'))
     } else {
       setStarsError('')
     }
@@ -74,7 +75,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     // Username should start with @ followed by at least 1 English letter
     const usernamePattern = /^@[a-zA-Z]/
     if (value && !usernamePattern.test(value)) {
-      setUsernameError('Username must start with @ followed by at least one English letter')
+      setUsernameError(t('starsPayout.error.usernameInvalid'))
     } else {
       setUsernameError('')
     }
@@ -109,14 +110,14 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     // Validate stars (must be integer)
     const stars = parseInt(starsAmount, 10)
     if (isNaN(stars) || stars < 15) {
-      setStarsError('Minimum 15 Stars required')
+      setStarsError(t('starsPayout.error.minimum'))
       return
     }
 
     // Check if there are any errors
     const usernamePattern = /^@[a-zA-Z]/
     if (!username || !usernamePattern.test(username)) {
-      setUsernameError('Username must start with @ followed by at least one English letter')
+      setUsernameError(t('starsPayout.error.usernameInvalid'))
       return
     }
 
@@ -144,7 +145,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
         }
       }
 
-      alert('Stars payout request submitted successfully!')
+      alert(t('starsPayout.success'))
       if (onBack) {
         onBack()
       }
@@ -159,12 +160,12 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   return (
     <section className="payout">
       <div className="payout__container container">
-        <h1 className="payout__title title">Withdraw Stars</h1>
+        <h1 className="payout__title title">{t('starsPayout.title')}</h1>
 
         <form action="" method="POST" onSubmit={handleSubmit}>
           <div className="payout__form">
             <div className="payout__field">
-              <p className="payout__label">Enter the Username:</p>
+              <p className="payout__label">{t('starsPayout.enterUsername')}</p>
               <input
                 type="text"
                 className="payout__input"
@@ -180,12 +181,12 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
             </div>
 
             <div className="payout__field">
-              <p className="payout__label">You will receive Stars:</p>
+              <p className="payout__label">{t('starsPayout.youWillReceive')}</p>
               <input
                 type="text"
                 className="payout__input"
                 name="stars"
-                placeholder="Min: 15 Stars"
+                placeholder={t('starsPayout.minStars')}
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={starsAmount}
@@ -211,7 +212,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
             </div>
 
             <div className="payout__field payout__field--result">
-              <p className="payout__label">Your balance (Tickets):</p>
+              <p className="payout__label">{t('starsPayout.yourBalance')}</p>
               <input
                 type="text"
                 className="payout__input"
@@ -232,7 +233,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
               className="payout__button"
               disabled={isSubmitting}
             >
-              <span>{isSubmitting ? 'SUBMITTING...' : 'CONFIRM'}</span>
+              <span>{isSubmitting ? t('starsPayout.submitting') : t('starsPayout.confirm')}</span>
             </button>
           </div>
         </form>
@@ -245,7 +246,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
             marginBottom: '15px',
             textAlign: 'center'
           }}>
-            Your last 20 withdrawals
+            {t('starsPayout.history.title')}
           </h2>
           <div style={{
             backgroundColor: '#2a3a4e',
@@ -263,7 +264,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                     borderBottom: '1px solid #3d4f65',
                     fontSize: '14px',
                     fontWeight: 'bold'
-                  }}>AMOUNT</th>
+                  }}>{t('starsPayout.history.amount')}</th>
                   <th style={{ 
                     color: '#fff', 
                     textAlign: 'center', 
@@ -271,7 +272,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                     borderBottom: '1px solid #3d4f65',
                     fontSize: '14px',
                     fontWeight: 'bold'
-                  }}>DATE</th>
+                  }}>{t('starsPayout.history.date')}</th>
                   <th style={{ 
                     color: '#fff', 
                     textAlign: 'center', 
@@ -279,7 +280,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                     borderBottom: '1px solid #3d4f65',
                     fontSize: '14px',
                     fontWeight: 'bold'
-                  }}>STATUS</th>
+                  }}>{t('starsPayout.history.status')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -291,7 +292,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                       padding: '20px',
                       fontSize: '14px'
                     }}>
-                      Loading...
+                      {t('starsPayout.history.loading')}
                     </td>
                   </tr>
                 ) : payoutHistory.length === 0 ? (
@@ -302,7 +303,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                       padding: '20px',
                       fontSize: '14px'
                     }}>
-                      NO DATA
+                      {t('starsPayout.history.noData')}
                     </td>
                   </tr>
                 ) : (
@@ -355,7 +356,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
               }
             }}
           >
-            Back
+            {t('header.account.back')}
             <img src={backIcon} alt="back" width="29" height="21" />
           </a>
         </div>

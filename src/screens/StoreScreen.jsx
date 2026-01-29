@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPaymentInvoice, cancelPayment, fetchCurrentUser } from '../api'
+import { t } from '../i18n'
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [amount, setAmount] = useState('50')
@@ -55,7 +56,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     }
 
     if (starsValue < minStars) {
-      setTextError(`Minimum: ${minStars} Stars`)
+      setTextError(t('store.minimum', { min: minStars }))
       setTickets('---')
       return
     } else {
@@ -63,7 +64,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     }
 
     if (starsValue > maxStars) {
-      setTextError(`Maximum: ${maxStars} Stars`)
+      setTextError(t('store.maximum', { max: maxStars }))
       setTickets('---')
       return
     } else {
@@ -177,11 +178,11 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   return (
     <section className="upgrade">
       <div className="container">
-        <h1 className="title">Store</h1>
+        <h1 className="title">{t('store.title')}</h1>
 
         <div className="upgrade__store-border">
           <div className="upgrade__store">
-            <p className="upgrade__label">Choose the Stars amount:</p>
+            <p className="upgrade__label">{t('store.chooseStars')}</p>
 
             <input
               className="upgrade__input"
@@ -223,12 +224,12 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               </p>
             )}
 
-            <p className="upgrade__sub-title">You will receive:</p>
+            <p className="upgrade__sub-title">{t('store.youWillReceive')}</p>
             <p className="upgrade__result">
               <span className="upgrade__number" id="power_gpu">
                 {tickets}
               </span>
-              <span className="upgrade__unit">&nbsp;Tickets</span>
+              <span className="upgrade__unit">&nbsp;{t('store.tickets')}</span>
             </p>
             <span className="upgrade__button-border">
               <a
@@ -241,7 +242,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                 }}
                 style={{ opacity: isProcessing ? 0.6 : 1, pointerEvents: isProcessing ? 'none' : 'auto' }}
               >
-                {isProcessing ? 'PROCESSING...' : 'BUY TICKETS'}
+                {isProcessing ? t('store.processing') : t('store.buyTickets')}
               </a>
             </span>
           </div>
@@ -265,7 +266,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                   cursor: 'pointer'
                 }}
               >
-                DAILY BONUS
+                {t('store.dailyBonus')}
               </a>
             </span>
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createSupportTicket, fetchTicketHistory } from '../api'
+import { t } from '../i18n'
 
 export default function SupportScreen({ onBack, onNavigate }) {
   const [subject, setSubject] = useState('')
@@ -119,9 +120,9 @@ export default function SupportScreen({ onBack, onNavigate }) {
   return (
     <section className="support">
       <div className="support__container container">
-        <h1 className="support__title title">Support</h1>
+        <h1 className="support__title title">{t('support.title')}</h1>
         
-        <p className="support__subtitle">Ask your question below</p>
+        <p className="support__subtitle">{t('support.askQuestion')}</p>
         {error && (
           <p className="support__subtitle" style={{ color: 'red' }}>
             {error}
@@ -130,7 +131,7 @@ export default function SupportScreen({ onBack, onNavigate }) {
         
         <div className="support__form">
           <div className="support__field">
-            <p className="support__label">Subject</p>
+            <p className="support__label">{t('support.subject')}</p>
             <textarea
               className="support__textarea"
               id="subject"
@@ -141,7 +142,7 @@ export default function SupportScreen({ onBack, onNavigate }) {
           </div>
 
           <div className="support__field">
-            <p className="support__label">Message</p>
+            <p className="support__label">{t('support.message')}</p>
             <textarea
               className="support__textarea"
               id="message"
@@ -157,18 +158,18 @@ export default function SupportScreen({ onBack, onNavigate }) {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            <span>{isSubmitting ? 'SUBMITTING...' : 'SUBMIT REQUEST'}</span>
+            <span>{isSubmitting ? t('support.sending') : t('support.send')}</span>
           </button>
         </div>
 
         {/* Ticket History - Only show if there are tickets */}
         {!loadingTickets && tickets.length > 0 && (
           <div className="support__history">
-            <p className="support__history-title">Your requests:</p>
+            <p className="support__history-title">{t('support.history')}</p>
 
             <div className="support__history-row support__history-row--head">
-              <p className="support__status">Status</p>
-              <p className="support__subject">Subject (Click to open)</p>
+              <p className="support__status">{t('support.status')}</p>
+              <p className="support__subject">{t('support.subjectClickToOpen')}</p>
             </div>
 
             {tickets.map((ticket) => (

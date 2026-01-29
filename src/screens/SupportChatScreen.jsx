@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchTicketDetail, addTicketMessage, closeTicket } from '../api'
+import { t } from '../i18n'
 import closeIcon from '../assets/images/close.png'
 import backIcon from '../assets/images/back.png'
 import arrowUpIcon from '../assets/images/arrow-up.png'
@@ -60,7 +61,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
       const mappedMessages = data.messages.map(msg => ({
         id: msg.id,
         sender: msg.isFromSupport ? 'supporter' : 'user',
-        name: msg.isFromSupport ? 'Support' : 'You',
+        name: msg.isFromSupport ? t('supportChat.supportName') : t('supportChat.you'),
         text: msg.message,
         createdAt: msg.createdAt
       }))
@@ -69,8 +70,8 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
       const supporterWaitMessage = {
         id: 'supporter-wait',
         sender: 'supporter',
-        name: 'Supporter',
-        text: 'Please wait! Support will answer soon.',
+        name: t('supportChat.supporterName'),
+        text: t('supportChat.waitMessage'),
         createdAt: null
       }
       
@@ -126,7 +127,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
       const newMsg = {
         id: messageData.id,
         sender: messageData.isFromSupport ? 'supporter' : 'user',
-        name: messageData.isFromSupport ? 'Support' : 'You',
+        name: messageData.isFromSupport ? t('supportChat.supportName') : t('supportChat.you'),
         text: messageData.message,
         createdAt: messageData.createdAt
       }
@@ -151,7 +152,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
   const handleCloseTicket = async () => {
     if (isClosed) return
 
-    const resp = confirm('Are you sure you want to close the ticket?')
+    const resp = confirm(t('supportChat.confirmClose'))
 
     if (!resp) return
 
@@ -162,7 +163,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
       await loadTicketDetail()
     } catch (error) {
       console.error('Failed to close ticket:', error)
-      const errorMessage = error.response?.message || error.message || 'Failed to close ticket. Please try again.'
+      const errorMessage = error.response?.message || error.message || t('supportChat.error.closeFailed')
       alert(errorMessage)
     }
   }
@@ -174,14 +175,14 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
     }
   }
 
-  const displaySubject = ticket?.subject || ticketSubject || 'Support Ticket'
+  const displaySubject = ticket?.subject || ticketSubject || t('supportChat.defaultSubject')
 
   if (isLoading) {
     return (
       <section className="support-chat">
         <div className="support-chat__container container">
           <h1 className="support-chat__title title">{displaySubject}</h1>
-          <p>Loading...</p>
+          <p>{t('supportChat.loading')}</p>
         </div>
       </section>
     )
@@ -198,7 +199,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
 
         <div className="support-chat__dialog" id="message-frame">
           {messages.length === 0 ? (
-            <p>No messages yet.</p>
+            <p>{t('supportChat.noMessages')}</p>
           ) : (
             messages.map((message) => (
               <div
@@ -223,7 +224,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
               onClick={handleCloseTicket}
               disabled={isClosed}
             >
-              {isClosed ? 'IS CLOSED' : 'Close ticket'}
+              {isClosed ? t('supportChat.isClosed') : t('supportChat.close')}
               <img
                 src={closeIcon}
                 alt="close"
@@ -239,7 +240,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
               }}
               className="support-chat__back"
             >
-              Go back
+              {t('supportChat.goBack')}
               <img
                 src={backIcon}
                 alt="back"
@@ -254,7 +255,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
               <textarea
                 type="text"
                 className="support-chat__input"
-                placeholder="Type something..."
+                placeholder={t('supportChat.placeholder')}
                 id="newMessageText"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}

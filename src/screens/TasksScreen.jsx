@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { initTabs } from '../utils/tabs'
 import { fetchTasks, claimTask, fetchCurrentUser } from '../api'
+import { t } from '../i18n'
 import friendIcon from '../assets/images/friend.png'
 import storeIcon from '../assets/images/tasks/store.png'
 import infoChannelIcon from '../assets/info_channel.png'
@@ -165,10 +166,10 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
         }
       } else {
         // Task not completed or already claimed
-        alert(response.message || 'Task cannot be claimed. Make sure the task is completed.')
+        alert(response.message || t('tasks.error.notCompleted'))
       }
     } catch (error) {
-      alert('Failed to claim task. Please try again.')
+      alert(t('tasks.error.claimFailed'))
     } finally {
       setClaimingTaskId(null)
     }
@@ -238,7 +239,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   return (
     <section>
       <div className="container">
-        <p className="title">Tasks</p>
+        <p className="title">{t('tasks.title')}</p>
         <div className="tabs" data-tabs>
           <ul className="tabs__nav" data-tabs-nav id="tabsNav">
             <li
@@ -246,21 +247,21 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               className={activeTab === 'referral' ? 'active' : ''}
               onClick={() => setActiveTab('referral')}
             >
-              <span>Referral</span>
+              <span>{t('tasks.tabs.referral')}</span>
             </li>
             <li
               data-tab-target="follow"
               className={activeTab === 'follow' ? 'active' : ''}
               onClick={() => setActiveTab('follow')}
             >
-              <span>Follow</span>
+              <span>{t('tasks.tabs.follow')}</span>
             </li>
             <li
               data-tab-target="other"
               className={activeTab === 'other' ? 'active' : ''}
               onClick={() => setActiveTab('other')}
             >
-              <span>Other</span>
+              <span>{t('tasks.tabs.other')}</span>
             </li>
             <div className="tabs__active-border tabs__active-position">
               <span className="tabs__active-bg tabs__active-position"></span>
@@ -270,9 +271,9 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
           <div className="tabs__content" data-tab-content="referral" hidden={activeTab !== 'referral'}>
             <div className="tabs__content--refferal">
               {loading ? (
-                <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+                <div style={{ padding: '20px', textAlign: 'center' }}>{t('tasks.loading')}</div>
               ) : referralTasks.length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center' }}>No tasks found</div>
+                <div style={{ padding: '20px', textAlign: 'center' }}>{t('tasks.noData')}</div>
               ) : (
                 referralTasks.map((task) => {
                   const friends = getFriendsCount(task.title)
@@ -353,7 +354,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         ) : null
                       })()}
 
-                      <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
 
                       <div className="task__actions">
                         <button
@@ -361,7 +362,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           id="openRefPage"
                           onClick={handleInviteClick}
                         >
-                          <span>Invite</span>
+                          <span>{t('tasks.invite')}</span>
                         </button>
                         <button 
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
@@ -369,7 +370,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           onClick={() => handleCheckTask(task.id)}
                           disabled={task.claimed || claimingTaskId === task.id}
                         >
-                          <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
+                          <span>{task.claimed ? t('tasks.claimed') : (claimingTaskId === task.id ? t('tasks.checking') : t('tasks.check'))}</span>
                         </button>
                       </div>
                     </div>
@@ -382,9 +383,9 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
           <div className="tabs__content" data-tab-content="follow" hidden={activeTab !== 'follow'}>
             <div className="tabs__content--follow">
               {loading ? (
-                <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+                <div style={{ padding: '20px', textAlign: 'center' }}>{t('tasks.loading')}</div>
               ) : followTasks.length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center' }}>No tasks found</div>
+                <div style={{ padding: '20px', textAlign: 'center' }}>{t('tasks.noData')}</div>
               ) : (
                 followTasks.map((task) => {
                   const modalId = `taskFollowModal_${task.id}`
@@ -416,7 +417,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                             </div>
                           ) : (
                             <button className="invite__progress invite__progress-button" id={`progSList_${task.id}`}>
-                              Check
+                              {t('tasks.check')}
                             </button>
                           )
                         })()}
@@ -456,7 +457,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         <p className="invite__title invite__title-two">{task.title}</p>
                       </div>
                       <p className="task__description">{task.description || task.title}</p>
-                      <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
                       <div className="task__actions">
                         <button
                           className="task__button task__button-one"
@@ -471,7 +472,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                             }
                           }}
                         >
-                          <span>Join</span>
+                          <span>{t('tasks.join')}</span>
                         </button>
                         <button 
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
@@ -479,7 +480,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           onClick={() => handleCheckTask(task.id)}
                           disabled={task.claimed || claimingTaskId === task.id}
                         >
-                          <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
+                          <span>{task.claimed ? t('tasks.claimed') : (claimingTaskId === task.id ? t('tasks.checking') : t('tasks.check'))}</span>
                         </button>
                       </div>
                     </div>
@@ -492,9 +493,9 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
           <div className="tabs__content" data-tab-content="other" hidden={activeTab !== 'other'}>
             <div className="tabs__content--other">
               {loading ? (
-                <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+                <div style={{ padding: '20px', textAlign: 'center' }}>{t('tasks.loading')}</div>
               ) : otherTasks.length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center' }}>No tasks found</div>
+                <div style={{ padding: '20px', textAlign: 'center' }}>{t('tasks.noData')}</div>
               ) : (
                 otherTasks.map((task) => {
                   const modalId = `taskInviteModal_${task.id}`
@@ -579,7 +580,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           </div>
                         ) : null
                       })()}
-                      <p className="task__reward">Reward: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {formatRewardAmount(task.rewardAmount)} {task.rewardType}</p>
 
                       <div className="task__actions">
                         <button
@@ -595,7 +596,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                             }
                           }}
                         >
-                          <span>Open</span>
+                          <span>{t('tasks.open')}</span>
                         </button>
                         <button 
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
@@ -603,7 +604,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           onClick={() => handleCheckTask(task.id)}
                           disabled={task.claimed || claimingTaskId === task.id}
                         >
-                          <span>{task.claimed ? 'CLAIMED' : (claimingTaskId === task.id ? 'Checking...' : 'Check')}</span>
+                          <span>{task.claimed ? t('tasks.claimed') : (claimingTaskId === task.id ? t('tasks.checking') : t('tasks.check'))}</span>
                         </button>
                       </div>
                     </div>

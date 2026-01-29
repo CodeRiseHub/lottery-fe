@@ -1,4 +1,5 @@
 import backIcon from '../assets/images/back.png'
+import { t } from '../i18n'
 
 export default function GameHistoryModal({ onClose }) {
   return (
@@ -14,16 +15,16 @@ export default function GameHistoryModal({ onClose }) {
       <div className="modal modal--game-history" onClick={(e) => e.stopPropagation()}>
         <section className="transaction">
           <div className="transaction__container container">
-            <h1 className="transaction__title title">Win history (30 days)</h1>
+            <h1 className="transaction__title title">{t('winHistory.title')}</h1>
             
             <button onClick={onClose} className="spin__back" style={{ textAlign: 'right', display: 'block', marginBottom: '20px' }}>
-              &lt;&lt;&lt; Back
+              &lt;&lt;&lt; {t('common.back')}
             </button>
             
             <div className="transaction__table">
               <div className="transaction__head">
-                <p className="transaction__head-col">AMOUNT</p>
-                <p className="transaction__head-col">DATE</p>
+                <p className="transaction__head-col">{t('winHistory.amount')}</p>
+                <p className="transaction__head-col">{t('winHistory.date')}</p>
               </div>
               {/* History items will be populated here */}
             </div>

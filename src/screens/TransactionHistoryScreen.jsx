@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchTransactions } from '../api'
+import { t } from '../i18n'
 import pagLeftIcon from '../assets/images/tasks/pag-left.png'
 import pagRightIcon from '../assets/images/tasks/pag-right.png'
 
@@ -87,18 +88,18 @@ export default function TransactionHistoryScreen({ onBack }) {
   return (
     <section className="transaction">
       <div className="transaction__container container">
-        <h1 className="transaction__title title">Transaction history (30 days)</h1>
+        <h1 className="transaction__title title">{t('transactionHistory.title')}</h1>
 
         <div className="transaction__table">
           <div className="transaction__head">
-            <p className="transaction__head-col">Amount</p>
-            <p className="transaction__head-col">Date</p>
+            <p className="transaction__head-col">{t('transactionHistory.amount')}</p>
+            <p className="transaction__head-col">{t('transactionHistory.date')}</p>
           </div>
           
           {loading && currentPage === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+            <div style={{ padding: '20px', textAlign: 'center' }}>{t('transactionHistory.loading')}</div>
           ) : transactions.length === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center' }}>No transactions found</div>
+            <div style={{ padding: '20px', textAlign: 'center' }}>{t('transactionHistory.noData')}</div>
           ) : (
             transactions.map((transaction, index) => (
               <div key={`${transaction.date}-${index}`} className="transaction__row">
@@ -111,7 +112,7 @@ export default function TransactionHistoryScreen({ onBack }) {
                   <p className="transaction__date">{transaction.date}</p>
                 </div>
                 <p className="transaction__type">
-                  <span>Type: {formatType(transaction)}</span>
+                  <span>{t('transactionHistory.type', { type: formatType(transaction) })}</span>
                 </p>
               </div>
             ))
@@ -128,7 +129,7 @@ export default function TransactionHistoryScreen({ onBack }) {
           >
             <img className="pagination__icon" src={pagLeftIcon} alt="prev" />
           </button>
-          <p className="earn__pagination-info">Page {currentPage + 1} of {totalPages}</p>
+          <p className="earn__pagination-info">{t('transactionHistory.pagination', { current: currentPage + 1, total: totalPages })}</p>
           <button
             className="earn__pagination-button"
             onClick={handleNextPage}

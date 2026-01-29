@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { initTabs } from '../utils/tabs'
 import { fetchReferrals } from '../api'
+import { t } from '../i18n'
 import refIcon from '../assets/images/ref.png'
 import pagLeftIcon from '../assets/images/tasks/pag-left.png'
 import pagRightIcon from '../assets/images/tasks/pag-right.png'
@@ -121,10 +122,9 @@ export default function ReferralScreen({ onBack, userData }) {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
-      // TODO: Show success message
-      alert('Link copied to clipboard!')
+      alert(t('referral.linkCopied'))
     }).catch(() => {
-      alert('Failed to copy link')
+      alert(t('referral.linkCopyFailed'))
     })
   }
 
@@ -133,14 +133,14 @@ export default function ReferralScreen({ onBack, userData }) {
   return (
     <section>
       <div className="container">
-        <p className="title">Invite friends!</p>
+        <p className="title">{t('referral.title')}</p>
         <div className="tabs" data-tabs>
           <ul className="tabs__nav tabs__nav-second" data-tabs-nav>
             <li data-tab-target="invite" className={activeTab === 'invite' ? 'active' : ''} onClick={() => setActiveTab('invite')}>
-              <span>Invite</span>
+              <span>{t('referral.invite')}</span>
             </li>
             <li data-tab-target="bonuses" className={activeTab === 'bonuses' ? 'active' : ''} onClick={() => setActiveTab('bonuses')}>
-              <span>Bonuses</span>
+              <span>{t('referral.bonuses')}</span>
             </li>
             <div className="tabs__active-border tabs__active-position-second tabs__active-position">
               <span className="tabs__active-bg tabs__active-position"></span>
@@ -150,7 +150,7 @@ export default function ReferralScreen({ onBack, userData }) {
           <div className="tabs__content" data-tab-content="invite" hidden={activeTab !== 'invite'}>
             <div className="tabs__content--invite">
               <div className="earn">
-                <p className="earn__label">Your personal referral link:</p>
+                <p className="earn__label">{t('referral.yourLink')}</p>
 
                 <div className="earn__link-wrapper">
                   <p className="earn__link" id="link_for_copy">{referralLink}</p>
@@ -158,7 +158,7 @@ export default function ReferralScreen({ onBack, userData }) {
                     <span
                       className="earn__copy"
                       id="copy_link_button"
-                      title="Copy to clipboard"
+                      title={t('referral.copyToClipboard')}
                       onClick={handleCopyLink}
                     >
                       <img
@@ -175,13 +175,13 @@ export default function ReferralScreen({ onBack, userData }) {
                 <button className="earn__button">
                   <span>
                     <a href={inviteUrl} style={{ textDecoration: 'none' }}>
-                      INVITE FRIEND
+                      {t('referral.inviteFriend')}
                     </a>
                   </span>
                 </button>
               </div>
               
-              <p className="earn__levels-title">Your referrals by level</p>
+              <p className="earn__levels-title">{t('referral.levels.title')}</p>
               <div className="earn__levels"> 
                 <p className={`earn__level ${activeLevel === 1 ? 'active' : ''}`}>
                   <span>
@@ -192,7 +192,7 @@ export default function ReferralScreen({ onBack, userData }) {
                         handleLevelChange(1)
                       }}
                     >
-                      1 Level
+                      {t('referral.levels.level1')}
                     </a>
                   </span>
                 </p>
@@ -205,7 +205,7 @@ export default function ReferralScreen({ onBack, userData }) {
                         handleLevelChange(2)
                       }}
                     >
-                      2 Level
+                      {t('referral.levels.level2')}
                     </a>
                   </span>
                 </p>
@@ -218,7 +218,7 @@ export default function ReferralScreen({ onBack, userData }) {
                         handleLevelChange(3)
                       }}
                     >
-                      3 Level
+                      {t('referral.levels.level3')}
                     </a>
                   </span>
                 </p>
@@ -226,14 +226,14 @@ export default function ReferralScreen({ onBack, userData }) {
               
               <div className="earn__list">
                 <div className="earn__list-header">
-                  <p className="earn__list-col">Name</p>
-                  <p className="earn__list-col">Commission</p>
+                  <p className="earn__list-col">{t('referral.list.name')}</p>
+                  <p className="earn__list-col">{t('referral.list.commission')}</p>
                 </div>
 
                 {loading ? (
-                  <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+                  <div style={{ padding: '20px', textAlign: 'center' }}>{t('referral.list.loading')}</div>
                 ) : referrals.length === 0 ? (
-                  <div style={{ padding: '20px', textAlign: 'center' }}>No referrals found</div>
+                  <div style={{ padding: '20px', textAlign: 'center' }}>{t('referral.list.noData')}</div>
                 ) : (
                   referrals.map((referral, index) => (
                     <div key={index} className="earn__list-item">
@@ -253,7 +253,7 @@ export default function ReferralScreen({ onBack, userData }) {
                   >
                     <img className="pagination__icon" src={pagLeftIcon} alt="prev" />
                   </button>
-                  <p className="earn__pagination-info">Page {currentPage + 1} of {totalPages}</p>
+                  <p className="earn__pagination-info">{t('referral.pagination', { current: currentPage + 1, total: totalPages })}</p>
                   <button 
                     className="earn__pagination-button"
                     onClick={handleNextPage}

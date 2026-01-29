@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getDailyBonusStatus, claimTask, fetchCurrentUser } from '../api'
 import ticketIcon from '../assets/images/header/ticket_1.png'
+import { t } from '../i18n'
 
 export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [bonusStatus, setBonusStatus] = useState(null)
@@ -125,7 +126,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
   return (
     <section className="upgrade">
       <div className="container">
-        <h1 className="title">Daily bonus</h1>
+        <h1 className="title">{t('dailyBonus.title')}</h1>
 
         <div className="upgrade__store-border">
           <div className="upgrade__store">
@@ -133,11 +134,11 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
               <>
                 {bonusStatus.available ? (
                   <p className="upgrade__label" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    Daily bonus is available
+                    {t('dailyBonus.available')}
                   </p>
                 ) : (
                   <p className="upgrade__label" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    You can claim your Daily bonus in {countdown || formatCountdown(bonusStatus.cooldownSeconds)}
+                    {t('dailyBonus.cooldown', { countdown: countdown || formatCountdown(bonusStatus.cooldownSeconds) })}
                   </p>
                 )}
 
@@ -164,14 +165,14 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                     }}
                   >
                     {isClaiming ? (
-                      'CLAIMING...'
+                      t('dailyBonus.claiming')
                     ) : bonusStatus.available ? (
                       <>
-                        CLAIM 1
+                        {t('dailyBonus.claim')}
                         <img src={ticketIcon} alt="ticket" width="24" height="24" style={{ display: 'inline-block' }} />
                       </>
                     ) : (
-                      'CLAIMED'
+                      t('dailyBonus.claimed')
                     )}
                   </a>
                 </span>
