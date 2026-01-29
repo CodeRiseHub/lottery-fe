@@ -509,6 +509,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         const currentPhase = roomPhase
         const statePhaseStr = newPhase // Use converted phase string for all comparisons
         
+        // Track if we're transitioning from RESOLUTION to WAITING (new round starting)
+        const isNewRoundStarting = currentPhase === 'RESOLUTION' && newPhase === 'WAITING'
+        
         // Validate phase transition (prevent skipping phases)
         // Allow: WAITING -> COUNTDOWN -> SPINNING -> RESOLUTION -> WAITING
         // Also allow: any -> WAITING (reset)
@@ -533,22 +536,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // The state machine guard was too aggressive and causing stuck states on mobile
           // Tape clearing is handled by the animation callback, so we don't need to block WAITING
           
-          // Only reset userTotalPendingBet if we're transitioning FROM another phase TO WAITING
-          const isTransitioningToWaiting = roomPhase !== 'WAITING' || buttonPhase !== 'WAITING'
+          // Reset userTotalPendingBet when transitioning FROM RESOLUTION TO WAITING (new round)
+          // Don't reset if we're already in WAITING (user might have just placed a bet)
+          const isNewRound = isNewRoundStarting || (roomPhase !== 'WAITING' || buttonPhase !== 'WAITING')
           
           setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Always increment counter to force re-render, even if buttonPhase is already WAITING
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
           
-          // Reset user's total bet only when transitioning TO WAITING from another phase (new round)
-          if (isTransitioningToWaiting) {
-            console.log('[Phase transition WAITING] Resetting userTotalPendingBet to 0', {
+          // Reset user's total bet when new round starts (RESOLUTION -> WAITING) or transitioning to WAITING
+          if (isNewRound) {
+            console.log('[Phase transition WAITING] Resetting userTotalPendingBet to 0 (new round or transition)', {
               newPhase,
               currentUserId,
               roomPhase,
               buttonPhase,
-              isTransitioningToWaiting
+              isNewRound,
+              isNewRoundStarting
             })
             setUserTotalPendingBet(0)
           } else {
@@ -557,7 +562,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               currentUserId,
               roomPhase,
               buttonPhase,
-              isTransitioningToWaiting
+              isNewRound,
+              isNewRoundStarting
             })
           }
           // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
@@ -574,13 +580,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          // Reset user's total bet only when transitioning TO WAITING from another phase
-          if (newPhase === 'WAITING' && (roomPhase !== 'WAITING' || buttonPhase !== 'WAITING')) {
+          // Reset user's total bet when new round starts (RESOLUTION -> WAITING) or transitioning to WAITING
+          if (newPhase === 'WAITING' && (isNewRoundStarting || roomPhase !== 'WAITING' || buttonPhase !== 'WAITING')) {
             console.log('[Valid transition WAITING] Resetting userTotalPendingBet to 0', {
               newPhase,
               currentUserId,
               roomPhase,
-              buttonPhase
+              buttonPhase,
+              isNewRoundStarting
             })
             setUserTotalPendingBet(0)
           }
@@ -591,13 +598,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          // Reset user's total bet only when transitioning TO WAITING from another phase
-          if (newPhase === 'WAITING' && (roomPhase !== 'WAITING' || buttonPhase !== 'WAITING')) {
+          // Reset user's total bet when new round starts (RESOLUTION -> WAITING) or transitioning to WAITING
+          if (newPhase === 'WAITING' && (isNewRoundStarting || roomPhase !== 'WAITING' || buttonPhase !== 'WAITING')) {
             console.log('[Valid transition WAITING] Resetting userTotalPendingBet to 0', {
               newPhase,
               currentUserId,
               roomPhase,
-              buttonPhase
+              buttonPhase,
+              isNewRoundStarting
             })
             setUserTotalPendingBet(0)
           }
@@ -738,6 +746,30 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             setIsJoining(false)
           }
           
+          // Reset user's total bet when spin starts (round is locked, prepare for next round)
+          // This ensures max bet shows 100 when the round ends
+          if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
+            console.log('[SPINNING phase] Resetting userTotalPendingBet to 0 (spin started)', {
+              statePhaseStr,
+              currentUserId,
+              roomPhase,
+              buttonPhase
+            })
+            setUserTotalPendingBet(0)
+          }
+          
+          // Reset user's total bet when spin starts (round is locked, prepare for next round)
+          // This ensures max bet shows 100 when the round ends
+          if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
+            console.log('[SPINNING phase] Resetting userTotalPendingBet to 0 (spin started)', {
+              statePhaseStr,
+              currentUserId,
+              roomPhase,
+              buttonPhase
+            })
+            setUserTotalPendingBet(0)
+          }
+          
           // Only start animation if not already running (prevent interruption)
           // This prevents "quick spin" when state changes rapidly
           if (!animationRunningRef.current && lineContainerRef.current && state.ps && state.ps.length > 0) {
@@ -777,13 +809,18 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           
           // Only reset user's total bet when transitioning TO WAITING from another phase (new round)
           // Don't reset if we're already in WAITING phase (user might have just placed a bet)
-          if (roomPhase !== 'WAITING' || buttonPhase !== 'WAITING') {
-            console.log('[WAITING phase handler] Resetting userTotalPendingBet to 0 (transitioning to WAITING)', {
+          // Use isNewRoundStarting to detect RESOLUTION -> WAITING transition (new round)
+          const wasInWaiting = roomPhase === 'WAITING' && buttonPhase === 'WAITING'
+          const shouldReset = isNewRoundStarting || !wasInWaiting
+          
+          if (shouldReset) {
+            console.log('[WAITING phase handler] Resetting userTotalPendingBet to 0 (new round or transition)', {
               statePhaseStr,
               currentUserId,
               roomPhase,
               buttonPhase,
-              previousPhase: roomPhase
+              wasInWaiting,
+              isNewRoundStarting
             })
             setUserTotalPendingBet(0)
           } else {
@@ -792,6 +829,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               currentUserId,
               roomPhase,
               buttonPhase,
+              wasInWaiting,
+              isNewRoundStarting,
               userTotalPendingBet
             })
           }
@@ -833,6 +872,18 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // Reset game started state when resolution phase starts
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in resolution
+          
+          // Reset user's total bet when resolution phase starts (round ended, prepare for next round)
+          // This ensures max bet shows 100 when the next round starts
+          if (roomPhase !== 'RESOLUTION' || buttonPhase !== 'RESOLUTION') {
+            console.log('[RESOLUTION phase] Resetting userTotalPendingBet to 0 (round ended)', {
+              statePhaseStr,
+              currentUserId,
+              roomPhase,
+              buttonPhase
+            })
+            setUserTotalPendingBet(0)
+          }
           
           // Clear tape synchronously when RESOLUTION arrives if animation is still running
           // This ensures tape is cleared before winner overlay is shown
