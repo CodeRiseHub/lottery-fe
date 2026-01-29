@@ -23,12 +23,6 @@ export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) 
     }
   }
 
-  const handleDecimalClick = () => {
-    if (!inputValue.includes('.')) {
-      setInputValue(inputValue + '.')
-    }
-  }
-
   const handleBackspace = () => {
     if (inputValue.length > 1) {
       setInputValue(inputValue.slice(0, -1))
@@ -38,7 +32,7 @@ export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) 
   }
 
   const handleConfirm = () => {
-    const numValue = parseFloat(inputValue)
+    const numValue = parseInt(inputValue, 10)
     if (!isNaN(numValue) && numValue > 0) {
       onChange(numValue)
     }
@@ -78,7 +72,6 @@ export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) 
           <button className="modal__keyboard-btn" onClick={() => handleNumberClick('7')}>7</button>
           <button className="modal__keyboard-btn" onClick={() => handleNumberClick('8')}>8</button>
           <button className="modal__keyboard-btn" onClick={() => handleNumberClick('9')}>9</button>
-          <button className="modal__keyboard-btn" onClick={handleDecimalClick}>.</button>
           <button className="modal__keyboard-btn" onClick={() => handleNumberClick('0')}>0</button>
           <button className="modal__keyboard-btn modal__keyboard-btn--backspace" onClick={handleBackspace}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

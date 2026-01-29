@@ -46,6 +46,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [countdownRemaining, setCountdownRemaining] = useState(null)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [pendingBets, setPendingBets] = useState(0) // Track pending bets optimistically
   const [registeredUsers, setRegisteredUsers] = useState(0)
   const [totalBet, setTotalBet] = useState(0)
   const [currentRoom, setCurrentRoom] = useState({ number: getInitialRoomNumber(), users: 0 })
@@ -473,6 +474,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         setWinner(null)
         // Reset animation completion time
         animationCompletedTimeRef.current = null
+        // Clear pending bets when new round starts
+        setPendingBets(0)
       }, 10000) // 10 seconds (6 seconds backend delay + 4 seconds buffer)
       
       return () => {
@@ -542,6 +545,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
+          // Clear pending bets when transitioning to WAITING (new round)
+          if (newPhase === 'WAITING') {
+            setPendingBets(0)
+          }
         } else {
           // Invalid transition - allow it (might be due to missed messages)
           // This is important for mobile where messages might arrive out of order
@@ -549,6 +556,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
+          // Clear pending bets when transitioning to WAITING (new round)
+          if (newPhase === 'WAITING') {
+            setPendingBets(0)
+          }
         }
         
         // Update room user counts for all rooms
@@ -676,6 +687,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // This ensures button shows "Joined" instead of "Joining..." when user reconnects
         if (userHasJoined && isJoining) {
           setIsJoining(false)
+          // Clear pending bets when server confirms the bet
+          setPendingBets(0)
         }
 
         // Handle spin - must be checked BEFORE other phases to start animation immediately
@@ -875,13 +888,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (roomPhase === 'WAITING' || buttonPhase === 'WAITING') {
       return 0
     }
-    if (!currentUserId || !participants || participants.length === 0) {
-      return 0
+    
+    // Start with pending bets (optimistic tracking)
+    let totalBet = pendingBets
+    
+    // Add confirmed bets from participants array
+    if (currentUserId && participants && participants.length > 0) {
+      const confirmedBet = participants
+        .filter(p => p.uI === currentUserId)
+        .reduce((sum, p) => sum + (p.b || 0), 0)
+      totalBet += confirmedBet
     }
-    // Sum all bets from the current user in this round
-    return participants
-      .filter(p => p.uI === currentUserId)
-      .reduce((sum, p) => sum + (p.b || 0), 0)
+    
+    return totalBet
   }
 
   const changeBet = (newBet) => {
@@ -927,6 +946,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     setShowKeyboardModal(true)
     if (typeof window.openModal === 'function') {
       window.openModal('customKeyboard')
+    }
+  }
+
+  const handleBetInputChange = (value) => {
+    // Update bet value as user types in the custom keyboard
+    if (value !== null && value !== undefined) {
+      const numValue = parseInt(value, 10)
+      if (!isNaN(numValue) && numValue >= 0) {
+        changeBet(numValue)
+      }
     }
   }
 
@@ -1069,6 +1098,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
     // Set joining state temporarily (will be reset after state update)
     setIsJoining(true)
+    
+    // Track pending bet optimistically (will be cleared when server confirms)
+    setPendingBets(prev => prev + currentBet)
 
     try {
       // Send bet amount in bigint format (database format)
@@ -1083,6 +1115,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       }
     } catch (error) {
       setIsJoining(false) // Reset on immediate error
+      // Clear pending bet on error
+      setPendingBets(prev => Math.max(0, prev - currentBet))
       setErrorMessage(error.message || 'Failed to place bet')
       setShowErrorModal(true)
     }
@@ -1189,6 +1223,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     currentPhaseRef.current = 'WAITING'
     animationCompletedTimeRef.current = null
     tapeHtmlRef.current = null
+    // Clear pending bets when switching rooms
+    setPendingBets(0)
     
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
