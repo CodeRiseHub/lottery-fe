@@ -117,27 +117,27 @@ export default function TransactionHistoryScreen({ onBack }) {
             ))
           )}
         </div>
-
-        {showPagination && (
-          <div className="earn__pagination">
-            <button
-              className="earn__pagination-button"
-              onClick={handlePreviousPage}
-              disabled={currentPage === 0 || loading}
-            >
-              <img className="pagination__icon" src={pagLeftIcon} alt="prev" />
-            </button>
-            <p className="earn__pagination-info">Page {currentPage + 1} of {totalPages}</p>
-            <button
-              className="earn__pagination-button"
-              onClick={handleNextPage}
-              disabled={currentPage >= totalPages - 1 || loading}
-            >
-              <img className="pagination__icon" src={pagRightIcon} alt="Next" />
-            </button>
-          </div>
-        )}
       </div>
+
+      {showPagination && (
+        <div className="earn__pagination">
+          <button
+            className="earn__pagination-button"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 0 || loading}
+          >
+            <img className="pagination__icon" src={pagLeftIcon} alt="prev" />
+          </button>
+          <p className="earn__pagination-info">Page {currentPage + 1} of {totalPages}</p>
+          <button
+            className="earn__pagination-button"
+            onClick={handleNextPage}
+            disabled={currentPage >= totalPages - 1 || loading}
+          >
+            <img className="pagination__icon" src={pagRightIcon} alt="Next" />
+          </button>
+        </div>
+      )}
     </section>
   )
 }
