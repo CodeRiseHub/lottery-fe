@@ -246,6 +246,30 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
             </span>
           </div>
         </div>
+
+        {/* Daily Bonus Section */}
+        <div className="upgrade__store-border" style={{ marginTop: '30px' }}>
+          <div className="upgrade__store">
+            <span className="upgrade__button-border" style={{ background: 'var(--gradient-border-primary)' }}>
+              <a
+                href="#"
+                className="upgrade__button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (onNavigate) {
+                    onNavigate('dailyBonus')
+                  }
+                }}
+                style={{ 
+                  background: 'var(--gradient-primary)',
+                  cursor: 'pointer'
+                }}
+              >
+                DAILY BONUS
+              </a>
+            </span>
+          </div>
+        </div>
       </div>
     </section>
   )

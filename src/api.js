@@ -217,6 +217,16 @@ export async function claimTask(taskId) {
 }
 
 /**
+ * Gets daily bonus status for the current user.
+ * @returns {Promise<{taskId: number, available: boolean, cooldownSeconds: number|null, rewardAmount: number}>}
+ */
+export async function getDailyBonusStatus() {
+  return authFetch("/api/tasks/daily-bonus", {
+    method: "GET"
+  });
+}
+
+/**
  * Fetches WIN transactions for the current user from the last 30 days with pagination.
  * @param {number} page - Page number (0-indexed, default 0)
  * @returns {Promise<{content: Array<{amount: number, date: string}>, number: number, totalPages: number, totalElements: number}>}

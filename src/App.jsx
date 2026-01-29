@@ -18,6 +18,7 @@ import TasksScreen from './screens/TasksScreen'
 import PayoutScreen from './screens/PayoutScreen'
 import StarsPayoutConfirmationScreen from './screens/StarsPayoutConfirmationScreen'
 import GiftPayoutConfirmationScreen from './screens/GiftPayoutConfirmationScreen'
+import DailyBonusScreen from './screens/DailyBonusScreen'
 import './utils/modals'
 import './App.css'
 
@@ -45,7 +46,7 @@ function App() {
       if (storedScreen) {
         const validScreens = ['main', 'gameHistory', 'faq', 'support', 'supportChat', 'referral', 
                               'transactionHistory', 'store', 'tasks', 'payout', 
-                              'starsPayoutConfirmation', 'giftPayoutConfirmation']
+                              'starsPayoutConfirmation', 'giftPayoutConfirmation', 'dailyBonus']
         if (validScreens.includes(storedScreen)) {
           screen = storedScreen
         }
@@ -311,6 +312,14 @@ function App() {
         {currentScreen === 'giftPayoutConfirmation' && (
           <GiftPayoutConfirmationScreen
             onBack={() => handleNavigate('payout')}
+            onBalanceUpdate={handleBalanceUpdate}
+            onUserDataUpdate={setUserData}
+          />
+        )}
+        {currentScreen === 'dailyBonus' && (
+          <DailyBonusScreen
+            onBack={() => handleNavigate('store')}
+            onNavigate={handleNavigate}
             onBalanceUpdate={handleBalanceUpdate}
             onUserDataUpdate={setUserData}
           />
