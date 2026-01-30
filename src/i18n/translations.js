@@ -9,6 +9,7 @@ const translations = {
     'common.error.copyFailed': 'Copy failed',
     'common.success': 'Success',
     'common.back': 'Back',
+    'common.error': 'Error',
     'common.copied': 'COPIED!',
     'common.copyAmount': 'COPY AMOUNT',
     'common.copyWallet': 'COPY WALLET',
@@ -46,6 +47,8 @@ const translations = {
     'store.error.telegramNotAvailable': 'Telegram WebApp is not available',
     'store.error.paymentFailed': 'Payment failed. Please try again.',
     'store.error.statusUnknown': 'Payment status unknown. Please check your balance.',
+    'store.error.minimumStars': 'Minimum: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'Invoice URL not received from backend',
     'store.success.purchased': 'Successfully purchased {tickets} tickets!',
     'store.error.tooManyRequests': 'Too many requests. Please wait a moment before trying again.',
     'store.error.failedToCreate': 'Failed to create payment. Please try again.',
@@ -64,6 +67,8 @@ const translations = {
     'game.error.insufficientBalance': 'Insufficient balance',
     'game.error.betRange': 'Bet must be between {min} and {max}',
     'game.error.maxBetExceeded': 'You have exceeded the maximum bet limit of {max} for this room. Your current total bet is {current}, so you can bet up to {remaining} more.',
+    'game.error.failedToPlaceBet': 'Failed to place bet',
+    'game.error.websocketConnection': 'WebSocket connection error',
     'game.bet': 'BET',
     'game.min': 'min',
     'game.max': 'max',
@@ -151,6 +156,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Gift',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'Processing',
+    'payout.status.completed': 'Completed',
+    'payout.status.cancelled': 'Cancelled',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Withdraw Stars',
@@ -221,6 +229,10 @@ const translations = {
     'support.history': 'Your requests:',
     'support.noTickets': 'No tickets found',
     'support.error.createFailed': 'Failed to create ticket',
+    'support.error.subjectMinLength': 'Subject must be at least {min} characters.',
+    'support.error.subjectMaxLength': 'Subject must not exceed {max} characters.',
+    'support.error.messageMinLength': 'Message must be at least {min} characters.',
+    'support.error.messageMaxLength': 'Message must not exceed {max} characters.',
     'support.status.opened': 'Open',
     'support.status.closed': 'Closed',
     'support.status.processing': 'Processing',
@@ -241,6 +253,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Failed to load ticket detail',
     'supportChat.error.sendFailed': 'Failed to send message',
     'supportChat.error.closeFailed': 'Failed to close ticket',
+    'supportChat.error.ticketClosed': 'This ticket is closed. You cannot send messages to a closed ticket.',
     
     // FAQ Screen
     'faq.title': 'FAQ',
@@ -285,6 +298,7 @@ const translations = {
     'common.error.copyFailed': 'Не удалось скопировать',
     'common.success': 'Успешно',
     'common.back': 'Назад',
+    'common.error': 'Ошибка',
     'common.copied': 'СКОПИРОВАНО!',
     'common.copyAmount': 'СКОПИРОВАТЬ СУММУ',
     'common.copyWallet': 'СКОПИРОВАТЬ КОШЕЛЕК',
@@ -325,6 +339,8 @@ const translations = {
     'store.success.purchased': 'Успешно приобретено {tickets} билетов!',
     'store.error.tooManyRequests': 'Слишком много запросов. Пожалуйста, подождите немного перед повторной попыткой.',
     'store.error.failedToCreate': 'Не удалось создать платеж. Пожалуйста, попробуйте снова.',
+    'store.error.minimumStars': 'Минимум: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'URL счета не получен от сервера',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Ежедневный бонус',
@@ -340,6 +356,8 @@ const translations = {
     'game.error.insufficientBalance': 'Недостаточно средств',
     'game.error.betRange': 'Ставка должна быть между {min} и {max}',
     'game.error.maxBetExceeded': 'Вы превысили максимальный лимит ставки {max} для этой комнаты. Ваша текущая общая ставка составляет {current}, поэтому вы можете поставить еще до {remaining}.',
+    'game.error.failedToPlaceBet': 'Не удалось сделать ставку',
+    'game.error.websocketConnection': 'Ошибка подключения WebSocket',
     'game.bet': 'СТАВКА',
     'game.min': 'мин',
     'game.max': 'макс',
@@ -427,6 +445,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Подарок',
     'payout.minStars': 'Мин. 15 Stars',
+    'payout.status.processing': 'В обработке',
+    'payout.status.completed': 'Завершено',
+    'payout.status.cancelled': 'Отменено',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Вывод Stars',
@@ -497,6 +518,10 @@ const translations = {
     'support.history': 'Ваши запросы:',
     'support.noTickets': 'Тикеты не найдены',
     'support.error.createFailed': 'Не удалось создать тикет',
+    'support.error.subjectMinLength': 'Тема должна содержать не менее {min} символов.',
+    'support.error.subjectMaxLength': 'Тема не должна превышать {max} символов.',
+    'support.error.messageMinLength': 'Сообщение должно содержать не менее {min} символов.',
+    'support.error.messageMaxLength': 'Сообщение не должно превышать {max} символов.',
     'support.status.opened': 'Открыт',
     'support.status.closed': 'Закрыт',
     'support.status.processing': 'В обработке',
@@ -517,6 +542,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Не удалось загрузить детали тикета',
     'supportChat.error.sendFailed': 'Не удалось отправить сообщение',
     'supportChat.error.closeFailed': 'Не удалось закрыть тикет',
+    'supportChat.error.ticketClosed': 'Этот тикет закрыт. Вы не можете отправлять сообщения в закрытый тикет.',
     
     // FAQ Screen
     'faq.title': 'FAQ',
@@ -543,6 +569,7 @@ const translations = {
     'common.error.copyFailed': 'Kopieren fehlgeschlagen',
     'common.success': 'Erfolg',
     'common.back': 'Zurück',
+    'common.error': 'Fehler',
     'common.copied': 'KOPIERT!',
     'common.copyAmount': 'BETRAG KOPIEREN',
     'common.copyWallet': 'WALLET KOPIEREN',
@@ -583,6 +610,8 @@ const translations = {
     'store.success.purchased': 'Erfolgreich {tickets} Tickets gekauft!',
     'store.error.tooManyRequests': 'Zu viele Anfragen. Bitte warten Sie einen Moment, bevor Sie es erneut versuchen.',
     'store.error.failedToCreate': 'Zahlung konnte nicht erstellt werden. Bitte versuchen Sie es erneut.',
+    'store.error.minimumStars': 'Minimum: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'Rechnungs-URL wurde nicht vom Server erhalten',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Täglicher Bonus',
@@ -598,6 +627,8 @@ const translations = {
     'game.error.insufficientBalance': 'Unzureichendes Guthaben',
     'game.error.betRange': 'Einsatz muss zwischen {min} und {max} liegen',
     'game.error.maxBetExceeded': 'Sie haben das maximale Einsatzlimit von {max} für diesen Raum überschritten. Ihr aktueller Gesamteinsatz beträgt {current}, daher können Sie noch bis zu {remaining} mehr setzen.',
+    'game.error.failedToPlaceBet': 'Einsatz konnte nicht platziert werden',
+    'game.error.websocketConnection': 'WebSocket-Verbindungsfehler',
     'game.bet': 'SETZEN',
     'game.min': 'min',
     'game.max': 'max',
@@ -685,6 +716,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Geschenk',
     'payout.minStars': 'Mind. 15 Stars',
+    'payout.status.processing': 'In Bearbeitung',
+    'payout.status.completed': 'Abgeschlossen',
+    'payout.status.cancelled': 'Abgebrochen',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Stars auszahlen',
@@ -755,6 +789,10 @@ const translations = {
     'support.history': 'Ihre Anfragen:',
     'support.noTickets': 'Keine Tickets gefunden',
     'support.error.createFailed': 'Ticket konnte nicht erstellt werden',
+    'support.error.subjectMinLength': 'Betreff muss mindestens {min} Zeichen lang sein.',
+    'support.error.subjectMaxLength': 'Betreff darf {max} Zeichen nicht überschreiten.',
+    'support.error.messageMinLength': 'Nachricht muss mindestens {min} Zeichen lang sein.',
+    'support.error.messageMaxLength': 'Nachricht darf {max} Zeichen nicht überschreiten.',
     'support.status.opened': 'Offen',
     'support.status.closed': 'Geschlossen',
     'support.status.processing': 'In Bearbeitung',
@@ -775,6 +813,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Ticket-Details konnten nicht geladen werden',
     'supportChat.error.sendFailed': 'Nachricht konnte nicht gesendet werden',
     'supportChat.error.closeFailed': 'Ticket konnte nicht geschlossen werden',
+    'supportChat.error.ticketClosed': 'Dieses Ticket ist geschlossen. Sie können keine Nachrichten an ein geschlossenes Ticket senden.',
     
     // FAQ Screen
     'faq.title': 'FAQ',
@@ -820,6 +859,7 @@ const translations = {
     'common.error.copyFailed': 'Copia fallita',
     'common.success': 'Successo',
     'common.back': 'Indietro',
+    'common.error': 'Errore',
     'common.copied': 'COPIATO!',
     'common.copyAmount': 'COPIA IMPORTO',
     'common.copyWallet': 'COPIA WALLET',
@@ -860,6 +900,8 @@ const translations = {
     'store.success.purchased': 'Acquistati con successo {tickets} biglietti!',
     'store.error.tooManyRequests': 'Troppe richieste. Si prega di attendere un momento prima di riprovare.',
     'store.error.failedToCreate': 'Impossibile creare il pagamento. Si prega di riprovare.',
+    'store.error.minimumStars': 'Minimo: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'URL della fattura non ricevuto dal server',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Bonus giornaliero',
@@ -875,6 +917,8 @@ const translations = {
     'game.error.insufficientBalance': 'Saldo insufficiente',
     'game.error.betRange': 'La scommessa deve essere tra {min} e {max}',
     'game.error.maxBetExceeded': 'Hai superato il limite massimo di scommessa di {max} per questa stanza. La tua scommessa totale attuale è {current}, quindi puoi scommettere fino a {remaining} in più.',
+    'game.error.failedToPlaceBet': 'Impossibile piazzare la scommessa',
+    'game.error.websocketConnection': 'Errore di connessione WebSocket',
     'game.bet': 'SCOMMETTI',
     'game.min': 'min',
     'game.max': 'max',
@@ -962,6 +1006,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Regalo',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'In elaborazione',
+    'payout.status.completed': 'Completato',
+    'payout.status.cancelled': 'Annullato',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Preleva Stars',
@@ -1032,6 +1079,10 @@ const translations = {
     'support.history': 'Le tue richieste:',
     'support.noTickets': 'Nessun ticket trovato',
     'support.error.createFailed': 'Impossibile creare il ticket',
+    'support.error.subjectMinLength': 'L\'oggetto deve contenere almeno {min} caratteri.',
+    'support.error.subjectMaxLength': 'L\'oggetto non deve superare {max} caratteri.',
+    'support.error.messageMinLength': 'Il messaggio deve contenere almeno {min} caratteri.',
+    'support.error.messageMaxLength': 'Il messaggio non deve superare {max} caratteri.',
     'support.status.opened': 'Aperto',
     'support.status.closed': 'Chiuso',
     'support.status.processing': 'In elaborazione',
@@ -1052,6 +1103,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Impossibile caricare i dettagli del ticket',
     'supportChat.error.sendFailed': 'Impossibile inviare il messaggio',
     'supportChat.error.closeFailed': 'Impossibile chiudere il ticket',
+    'supportChat.error.ticketClosed': 'Questo ticket è chiuso. Non è possibile inviare messaggi a un ticket chiuso.',
     
     // FAQ Screen
     'faq.title': 'FAQ',
@@ -1097,6 +1149,7 @@ const translations = {
     'common.error.copyFailed': 'Kopiëren mislukt',
     'common.success': 'Succes',
     'common.back': 'Terug',
+    'common.error': 'Fout',
     'common.copied': 'GEKOPIEERD!',
     'common.copyAmount': 'BEDRAG KOPIËREN',
     'common.copyWallet': 'PORTEMONNEE KOPIËREN',
@@ -1137,6 +1190,8 @@ const translations = {
     'store.success.purchased': 'Succesvol {tickets} tickets gekocht!',
     'store.error.tooManyRequests': 'Te veel verzoeken. Wacht even voordat u het opnieuw probeert.',
     'store.error.failedToCreate': 'Betaling kon niet worden gemaakt. Probeer het opnieuw.',
+    'store.error.minimumStars': 'Minimum: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'Factuur-URL niet ontvangen van server',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Dagelijkse bonus',
@@ -1152,6 +1207,8 @@ const translations = {
     'game.error.insufficientBalance': 'Onvoldoende saldo',
     'game.error.betRange': 'Inzet moet tussen {min} en {max} liggen',
     'game.error.maxBetExceeded': 'U heeft de maximale inzetlimiet van {max} voor deze ruimte overschreden. Uw huidige totale inzet is {current}, dus u kunt nog tot {remaining} meer inzetten.',
+    'game.error.failedToPlaceBet': 'Inzet kon niet worden geplaatst',
+    'game.error.websocketConnection': 'WebSocket-verbindingsfout',
     'game.bet': 'INZETTEN',
     'game.min': 'min',
     'game.max': 'max',
@@ -1239,6 +1296,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Cadeau',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'In elaborazione',
+    'payout.status.completed': 'Completato',
+    'payout.status.cancelled': 'Annullato',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Stars opnemen',
@@ -1304,6 +1364,10 @@ const translations = {
     'support.history': 'Ticketgeschiedenis',
     'support.noTickets': 'Geen tickets gevonden',
     'support.error.createFailed': 'Ticket kon niet worden aangemaakt',
+    'support.error.subjectMinLength': 'Onderwerp moet minimaal {min} tekens bevatten.',
+    'support.error.subjectMaxLength': 'Onderwerp mag niet meer dan {max} tekens bevatten.',
+    'support.error.messageMinLength': 'Bericht moet minimaal {min} tekens bevatten.',
+    'support.error.messageMaxLength': 'Bericht mag niet meer dan {max} tekens bevatten.',
     'support.status.opened': 'Open',
     'support.status.closed': 'Gesloten',
     'support.status.processing': 'In behandeling',
@@ -1324,6 +1388,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Ticketdetails konden niet worden geladen',
     'supportChat.error.sendFailed': 'Bericht kon niet worden verzonden',
     'supportChat.error.closeFailed': 'Ticket kon niet worden gesloten',
+    'supportChat.error.ticketClosed': 'Dit ticket is gesloten. U kunt geen berichten naar een gesloten ticket sturen.',
     
     // FAQ Screen
     'faq.title': 'FAQ',
@@ -1369,6 +1434,7 @@ const translations = {
     'common.error.copyFailed': 'Kopiowanie nie powiodło się',
     'common.success': 'Sukces',
     'common.back': 'Wstecz',
+    'common.error': 'Błąd',
     'common.copied': 'SKOPIOWANO!',
     'common.copyAmount': 'SKOPIUJ KWOTĘ',
     'common.copyWallet': 'SKOPIUJ PORTFEL',
@@ -1409,6 +1475,8 @@ const translations = {
     'store.success.purchased': 'Pomyślnie zakupiono {tickets} biletów!',
     'store.error.tooManyRequests': 'Zbyt wiele żądań. Poczekaj chwilę przed ponowną próbą.',
     'store.error.failedToCreate': 'Nie udało się utworzyć płatności. Spróbuj ponownie.',
+    'store.error.minimumStars': 'Minimum: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'URL faktury nie został otrzymany z serwera',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Codzienny bonus',
@@ -1424,6 +1492,8 @@ const translations = {
     'game.error.insufficientBalance': 'Niewystarczające saldo',
     'game.error.betRange': 'Zakład musi być między {min} a {max}',
     'game.error.maxBetExceeded': 'Przekroczyłeś maksymalny limit zakładu {max} dla tego pokoju. Twój obecny całkowity zakład to {current}, więc możesz postawić jeszcze do {remaining}.',
+    'game.error.failedToPlaceBet': 'Nie udało się postawić zakładu',
+    'game.error.websocketConnection': 'Błąd połączenia WebSocket',
     'game.bet': 'ZAKŁAD',
     'game.min': 'min',
     'game.max': 'max',
@@ -1511,6 +1581,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Prezent',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'W trakcie',
+    'payout.status.completed': 'Zakończono',
+    'payout.status.cancelled': 'Anulowano',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Wypłać Stars',
@@ -1576,6 +1649,10 @@ const translations = {
     'support.history': 'Historia zgłoszeń',
     'support.noTickets': 'Nie znaleziono zgłoszeń',
     'support.error.createFailed': 'Nie udało się utworzyć zgłoszenia',
+    'support.error.subjectMinLength': 'Temat musi zawierać co najmniej {min} znaków.',
+    'support.error.subjectMaxLength': 'Temat nie może przekraczać {max} znaków.',
+    'support.error.messageMinLength': 'Wiadomość musi zawierać co najmniej {min} znaków.',
+    'support.error.messageMaxLength': 'Wiadomość nie może przekraczać {max} znaków.',
     'support.status.opened': 'Otwarty',
     'support.status.closed': 'Zamknięty',
     'support.status.processing': 'W trakcie',
@@ -1584,6 +1661,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Nie udało się załadować szczegółów zgłoszenia',
     'supportChat.error.sendFailed': 'Nie udało się wysłać wiadomości',
     'supportChat.error.closeFailed': 'Nie udało się zamknąć zgłoszenia',
+    'supportChat.error.ticketClosed': 'To zgłoszenie jest zamknięte. Nie możesz wysyłać wiadomości do zamkniętego zgłoszenia.',
     'supportChat.close': 'ZAMKNIJ ZGŁOSZENIE',
     'supportChat.closing': 'ZAMYKANIE...',
     
@@ -1612,6 +1690,7 @@ const translations = {
     'common.error.copyFailed': 'Échec de la copie',
     'common.success': 'Succès',
     'common.back': 'Retour',
+    'common.error': 'Erreur',
     'common.copied': 'COPIÉ!',
     'common.copyAmount': 'COPIER LE MONTANT',
     'common.copyWallet': 'COPIER LE PORTEFEUILLE',
@@ -1652,6 +1731,8 @@ const translations = {
     'store.success.purchased': '{tickets} billets achetés avec succès!',
     'store.error.tooManyRequests': 'Trop de demandes. Veuillez attendre un moment avant de réessayer.',
     'store.error.failedToCreate': 'Impossible de créer le paiement. Veuillez réessayer.',
+    'store.error.minimumStars': 'Minimum: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'URL de facture non reçue du serveur',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Bonus quotidien',
@@ -1667,6 +1748,8 @@ const translations = {
     'game.error.insufficientBalance': 'Solde insuffisant',
     'game.error.betRange': 'Le pari doit être entre {min} et {max}',
     'game.error.maxBetExceeded': 'Vous avez dépassé la limite maximale de pari de {max} pour cette salle. Votre pari total actuel est {current}, vous pouvez donc parier jusqu\'à {remaining} de plus.',
+    'game.error.failedToPlaceBet': 'Impossible de placer le pari',
+    'game.error.websocketConnection': 'Erreur de connexion WebSocket',
     'game.bet': 'PARIER',
     'game.min': 'min',
     'game.max': 'max',
@@ -1754,6 +1837,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Cadeau',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'En cours',
+    'payout.status.completed': 'Terminé',
+    'payout.status.cancelled': 'Annulé',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Retirer Stars',
@@ -1819,6 +1905,10 @@ const translations = {
     'support.history': 'Historique des tickets',
     'support.noTickets': 'Aucun ticket trouvé',
     'support.error.createFailed': 'Impossible de créer le ticket',
+    'support.error.subjectMinLength': 'Le sujet doit contenir au moins {min} caractères.',
+    'support.error.subjectMaxLength': 'Le sujet ne doit pas dépasser {max} caractères.',
+    'support.error.messageMinLength': 'Le message doit contenir au moins {min} caractères.',
+    'support.error.messageMaxLength': 'Le message ne doit pas dépasser {max} caractères.',
     'support.status.opened': 'Ouvert',
     'support.status.closed': 'Fermé',
     'support.status.processing': 'En cours',
@@ -1827,6 +1917,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Impossible de charger les détails du ticket',
     'supportChat.error.sendFailed': 'Impossible d\'envoyer le message',
     'supportChat.error.closeFailed': 'Impossible de fermer le ticket',
+    'supportChat.error.ticketClosed': 'Ce ticket est fermé. Vous ne pouvez pas envoyer de messages à un ticket fermé.',
     'supportChat.close': 'FERMER LE TICKET',
     'supportChat.closing': 'FERMETURE...',
     
@@ -1855,6 +1946,7 @@ const translations = {
     'common.error.copyFailed': 'Error al copiar',
     'common.success': 'Éxito',
     'common.back': 'Atrás',
+    'common.error': 'Error',
     'common.copied': '¡COPIADO!',
     'common.copyAmount': 'COPIAR MONTO',
     'common.copyWallet': 'COPIAR BILLETERA',
@@ -1895,6 +1987,8 @@ const translations = {
     'store.success.purchased': '¡{tickets} boletos comprados exitosamente!',
     'store.error.tooManyRequests': 'Demasiadas solicitudes. Por favor, espere un momento antes de intentar de nuevo.',
     'store.error.failedToCreate': 'No se pudo crear el pago. Por favor, inténtelo de nuevo.',
+    'store.error.minimumStars': 'Mínimo: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'URL de factura no recibida del servidor',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Bonus diario',
@@ -1910,6 +2004,8 @@ const translations = {
     'game.error.insufficientBalance': 'Saldo insuficiente',
     'game.error.betRange': 'La apuesta debe estar entre {min} y {max}',
     'game.error.maxBetExceeded': 'Has excedido el límite máximo de apuesta de {max} para esta sala. Tu apuesta total actual es {current}, por lo que puedes apostar hasta {remaining} más.',
+    'game.error.failedToPlaceBet': 'No se pudo realizar la apuesta',
+    'game.error.websocketConnection': 'Error de conexión WebSocket',
     'game.bet': 'APOSTAR',
     'game.min': 'min',
     'game.max': 'max',
@@ -1997,6 +2093,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Regalo',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'En proceso',
+    'payout.status.completed': 'Completado',
+    'payout.status.cancelled': 'Cancelado',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Retirar Stars',
@@ -2065,6 +2164,10 @@ const translations = {
     'support.history': 'Sus solicitudes:',
     'support.noTickets': 'No se encontraron tickets',
     'support.error.createFailed': 'No se pudo crear el ticket',
+    'support.error.subjectMinLength': 'El asunto debe tener al menos {min} caracteres.',
+    'support.error.subjectMaxLength': 'El asunto no debe exceder {max} caracteres.',
+    'support.error.messageMinLength': 'El mensaje debe tener al menos {min} caracteres.',
+    'support.error.messageMaxLength': 'El mensaje no debe exceder {max} caracteres.',
     'support.status.opened': 'Abierto',
     'support.status.closed': 'Cerrado',
     'support.status.processing': 'En proceso',
@@ -2085,6 +2188,7 @@ const translations = {
     'supportChat.error.loadFailed': 'No se pudo cargar el detalle del ticket',
     'supportChat.error.sendFailed': 'No se pudo enviar el mensaje',
     'supportChat.error.closeFailed': 'No se pudo cerrar el ticket',
+    'supportChat.error.ticketClosed': 'Este ticket está cerrado. No puede enviar mensajes a un ticket cerrado.',
     
     // FAQ Screen
     'faq.title': 'FAQ',
@@ -2130,6 +2234,7 @@ const translations = {
     'common.error.copyFailed': 'Gagal menyalin',
     'common.success': 'Berhasil',
     'common.back': 'Kembali',
+    'common.error': 'Kesalahan',
     'common.copied': 'DISALIN!',
     'common.copyAmount': 'SALIN JUMLAH',
     'common.copyWallet': 'SALIN DOMpet',
@@ -2170,6 +2275,8 @@ const translations = {
     'store.success.purchased': 'Berhasil membeli {tickets} tiket!',
     'store.error.tooManyRequests': 'Terlalu banyak permintaan. Silakan tunggu sebentar sebelum mencoba lagi.',
     'store.error.failedToCreate': 'Gagal membuat pembayaran. Silakan coba lagi.',
+    'store.error.minimumStars': 'Minimum: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'URL faktur tidak diterima dari server',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Bonus harian',
@@ -2185,6 +2292,8 @@ const translations = {
     'game.error.insufficientBalance': 'Saldo tidak mencukupi',
     'game.error.betRange': 'Taruhan harus antara {min} dan {max}',
     'game.error.maxBetExceeded': 'Anda telah melebihi batas taruhan maksimum {max} untuk ruangan ini. Total taruhan Anda saat ini adalah {current}, jadi Anda dapat bertaruh hingga {remaining} lagi.',
+    'game.error.failedToPlaceBet': 'Gagal menempatkan taruhan',
+    'game.error.websocketConnection': 'Kesalahan koneksi WebSocket',
     'game.bet': 'TARUHAN',
     'game.min': 'min',
     'game.max': 'max',
@@ -2260,6 +2369,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Hadiah',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'Sedang diproses',
+    'payout.status.completed': 'Selesai',
+    'payout.status.cancelled': 'Dibatalkan',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Tarik Stars',
@@ -2325,6 +2437,10 @@ const translations = {
     'support.history': 'Riwayat tiket',
     'support.noTickets': 'Tidak ada tiket ditemukan',
     'support.error.createFailed': 'Gagal membuat tiket',
+    'support.error.subjectMinLength': 'Subjek harus memiliki setidaknya {min} karakter.',
+    'support.error.subjectMaxLength': 'Subjek tidak boleh melebihi {max} karakter.',
+    'support.error.messageMinLength': 'Pesan harus memiliki setidaknya {min} karakter.',
+    'support.error.messageMaxLength': 'Pesan tidak boleh melebihi {max} karakter.',
     'support.status.opened': 'Terbuka',
     'support.status.closed': 'Tertutup',
     'support.status.processing': 'Sedang diproses',
@@ -2333,6 +2449,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Gagal memuat detail tiket',
     'supportChat.error.sendFailed': 'Gagal mengirim pesan',
     'supportChat.error.closeFailed': 'Gagal menutup tiket',
+    'supportChat.error.ticketClosed': 'Tiket ini ditutup. Anda tidak dapat mengirim pesan ke tiket yang ditutup.',
     'supportChat.close': 'TUTUP TIKET',
     'supportChat.closing': 'MENUTUP...',
     
@@ -2361,6 +2478,7 @@ const translations = {
     'common.error.copyFailed': 'Kopyalama başarısız',
     'common.success': 'Başarılı',
     'common.back': 'Geri',
+    'common.error': 'Hata',
     'common.copied': 'KOPYALANDI!',
     'common.copyAmount': 'TUTARI KOPYALA',
     'common.copyWallet': 'CÜZDANI KOPYALA',
@@ -2401,6 +2519,8 @@ const translations = {
     'store.success.purchased': 'Başarıyla {tickets} bilet satın alındı!',
     'store.error.tooManyRequests': 'Çok fazla istek. Lütfen tekrar denemeden önce bir süre bekleyin.',
     'store.error.failedToCreate': 'Ödeme oluşturulamadı. Lütfen tekrar deneyin.',
+    'store.error.minimumStars': 'Minimum: {min} Stars',
+    'store.error.invoiceUrlNotReceived': 'Fatura URL\'si sunucudan alınamadı',
     
     // Daily Bonus Screen
     'dailyBonus.title': 'Günlük bonus',
@@ -2416,6 +2536,8 @@ const translations = {
     'game.error.insufficientBalance': 'Yetersiz bakiye',
     'game.error.betRange': 'Bahis {min} ile {max} arasında olmalıdır',
     'game.error.maxBetExceeded': 'Bu oda için maksimum bahis limiti olan {max}\'ı aştınız. Mevcut toplam bahsiniz {current}, bu yüzden {remaining} daha fazla bahis yapabilirsiniz.',
+    'game.error.failedToPlaceBet': 'Bahis yerleştirilemedi',
+    'game.error.websocketConnection': 'WebSocket bağlantı hatası',
     'game.bet': 'BAHİS',
     'game.min': 'min',
     'game.max': 'max',
@@ -2503,6 +2625,9 @@ const translations = {
     'payout.stars': 'Stars',
     'payout.gift': 'Hediye',
     'payout.minStars': 'Min. 15 Stars',
+    'payout.status.processing': 'İşleniyor',
+    'payout.status.completed': 'Tamamlandı',
+    'payout.status.cancelled': 'İptal edildi',
     
     // Stars Payout Confirmation
     'starsPayout.title': 'Stars çek',
@@ -2573,6 +2698,10 @@ const translations = {
     'support.history': 'İstekleriniz:',
     'support.noTickets': 'Bilet bulunamadı',
     'support.error.createFailed': 'Bilet oluşturulamadı',
+    'support.error.subjectMinLength': 'Konu en az {min} karakter içermelidir.',
+    'support.error.subjectMaxLength': 'Konu {max} karakteri aşmamalıdır.',
+    'support.error.messageMinLength': 'Mesaj en az {min} karakter içermelidir.',
+    'support.error.messageMaxLength': 'Mesaj {max} karakteri aşmamalıdır.',
     'support.status.opened': 'Açık',
     'support.status.closed': 'Kapalı',
     'support.status.processing': 'İşleniyor',
@@ -2593,6 +2722,7 @@ const translations = {
     'supportChat.error.loadFailed': 'Bilet detayları yüklenemedi',
     'supportChat.error.sendFailed': 'Mesaj gönderilemedi',
     'supportChat.error.closeFailed': 'Bilet kapatılamadı',
+    'supportChat.error.ticketClosed': 'Bu bilet kapatıldı. Kapalı bir bilete mesaj gönderemezsiniz.',
     
     // FAQ Screen
     'faq.title': 'SSS',

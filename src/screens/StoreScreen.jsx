@@ -82,7 +82,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     // Parse as integer (no floating point allowed)
     let starsValue = parseInt(amount, 10) || 0
     if (isNaN(starsValue) || starsValue < 1) {
-      setTextError(`Minimum: ${minStars} Stars`)
+      setTextError(t('store.error.minimumStars', { min: minStars }))
       return
     }
 
@@ -97,7 +97,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     // Check if Telegram WebApp is available
     const tg = window.Telegram?.WebApp
     if (!tg) {
-      setTextError('Telegram WebApp is not available')
+      setTextError(t('store.error.telegramNotAvailable'))
       return
     }
     
@@ -111,7 +111,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       const invoiceUrl = invoiceData.invoiceUrl
 
       if (!invoiceUrl) {
-        throw new Error('Invoice URL not received from backend')
+        throw new Error(t('store.error.invoiceUrlNotReceived'))
       }
 
       // Step 2: Open Telegram payment UI
@@ -157,10 +157,10 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
           }
         } else if (status === 'failed') {
           // Payment failed
-          setTextError('Payment failed. Please try again.')
+          setTextError(t('store.error.paymentFailed'))
         } else {
           // Unknown status
-          setTextError('Payment status unknown. Please check your balance.')
+          setTextError(t('store.error.statusUnknown'))
         }
       })
     } catch (error) {
@@ -168,9 +168,9 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       
       // Handle rate limit error specifically
       if (error.response?.status === 429) {
-        setTextError('Too many requests. Please wait a moment before trying again.')
+        setTextError(t('store.error.tooManyRequests'))
       } else {
-        setTextError(error.response?.data?.message || error.response?.message || error.message || 'Failed to create payment. Please try again.')
+        setTextError(error.response?.data?.message || error.response?.message || error.message || t('store.error.failedToCreate'))
       }
     }
   }

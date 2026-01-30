@@ -170,8 +170,8 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
               src={ticketIcon}
               alt="Star"
               className="header__icon"
-              width="35"
-              height="34"
+              width="45"
+              height="33"
             />
             <a
               href="#"

@@ -841,7 +841,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // Don't clear winner for other phases (COUNTDOWN, SPINNING) - keep it visible during transition
       },
       (error) => {
-        setErrorMessage(error || 'WebSocket connection error')
+        setErrorMessage(error || t('game.error.websocketConnection'))
         setShowErrorModal(true)
         // Don't disconnect on join errors - only on connection errors
         if (error && (error.includes('connection') || error.includes('WebSocket') || error.includes('reconnect'))) {
@@ -1082,14 +1082,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     
     // Validate single bet amount
     if (currentBet < minBet || currentBet > maxBet) {
-      setErrorMessage(`Bet must be between ${minBet} and ${maxBet}`)
+      setErrorMessage(t('game.error.betRange', { min: minBet, max: maxBet }))
       setShowErrorModal(true)
       return
     }
     
     // Validate total bet doesn't exceed max bet for the room
     if (totalBetAfterThis > maxBet) {
-      setErrorMessage(`You have exceeded the maximum bet limit of ${maxBet} for this room. Your current total bet is ${userTotalBet}, so you can bet up to ${maxBet - userTotalBet} more.`)
+      setErrorMessage(t('game.error.maxBetExceeded', { max: maxBet, current: userTotalBet, remaining: maxBet - userTotalBet }))
       setShowErrorModal(true)
       return
     }
@@ -1100,7 +1100,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     
     // Check balance (balance is in bigint format with 6 decimal places)
     if (userBalance < betBigint) {
-      setErrorMessage('Insufficient balance')
+      setErrorMessage(t('game.error.insufficientBalance'))
       setShowErrorModal(true)
       return
     }
@@ -1136,7 +1136,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       setIsJoining(false) // Reset on immediate error
       // Revert user's total bet on error (bet was not placed)
       setUserTotalPendingBet(prev => Math.max(0, prev - currentBet))
-      setErrorMessage(error.message || 'Failed to place bet')
+      setErrorMessage(error.message || t('game.error.failedToPlaceBet'))
       setShowErrorModal(true)
     }
   }
@@ -1338,7 +1338,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             {/* Right half - total bet centered */}
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {formatNumber(totalBet)} <img src={ticketIcon} alt="star" width="18" height="18" />
+                {formatNumber(totalBet)} <img src={ticketIcon} alt="star" width="26" height="18" />
               </span>
             </div>
           </div>
@@ -1651,7 +1651,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         >
           <div className="modal modal__account-spin" onClick={(e) => e.stopPropagation()}>
             <p className="modal__account-spin-title" style={{ color: 'red' }}>
-              Error
+              {t('common.error')}
             </p>
             <p className="modal__account-spin-text">{errorMessage}</p>
             <button

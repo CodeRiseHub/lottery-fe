@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPayout, fetchCurrentUser, fetchPayoutHistory } from '../api'
-import { t } from '../i18n'
+import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
 // Import all gift images
@@ -106,6 +106,29 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
       }
     }
     loadHistory()
+  }, [])
+
+  // Refetch payout history when language changes (to update localized statuses)
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      const loadHistory = async () => {
+        try {
+          setLoadingHistory(true)
+          const history = await fetchGiftPayoutHistory()
+          setPayoutHistory(history || [])
+        } catch (error) {
+          console.error('Failed to load payout history:', error)
+          setPayoutHistory([])
+        } finally {
+          setLoadingHistory(false)
+        }
+      }
+      loadHistory()
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
   useEffect(() => {
@@ -538,7 +561,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                           padding: '10px',
                           fontSize: '14px'
                         }}>
-                          {entry.status}
+                          {t(`payout.status.${entry.status.toLowerCase()}`)}
                         </td>
                       </tr>
                     )

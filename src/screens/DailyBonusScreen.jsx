@@ -15,7 +15,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
       setBonusStatus(status)
       setError('')
     } catch (error) {
-      setError('Failed to load daily bonus status')
+      setError(t('dailyBonus.error.loadFailed'))
       console.error('Error loading daily bonus status:', error)
     }
   }, [])
@@ -111,10 +111,10 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
         // Reload status to update cooldown
         await loadBonusStatus()
       } else {
-        setError(response.message || 'Failed to claim bonus')
+        setError(response.message || t('dailyBonus.error.claimFailed'))
       }
     } catch (error) {
-      setError(error.response?.data?.message || error.message || 'Failed to claim bonus')
+      setError(error.response?.data?.message || error.message || t('dailyBonus.error.claimFailed'))
       console.error('Error claiming daily bonus:', error)
     } finally {
       setIsClaiming(false)
@@ -169,7 +169,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                     ) : bonusStatus.available ? (
                       <>
                         {t('dailyBonus.claim')}
-                        <img src={ticketIcon} alt="ticket" width="24" height="24" style={{ display: 'inline-block' }} />
+                        <img src={ticketIcon} alt="ticket" width="39" height="28" style={{ display: 'inline-block' }} />
                       </>
                     ) : (
                       t('dailyBonus.claimed')

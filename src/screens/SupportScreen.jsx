@@ -69,22 +69,22 @@ export default function SupportScreen({ onBack, onNavigate }) {
     const messageTrimmed = message.trim()
 
     if (subjectTrimmed.length < MIN_SUBJECT_LENGTH) {
-      setError(`Subject must be at least ${MIN_SUBJECT_LENGTH} characters.`)
+      setError(t('support.error.subjectMinLength', { min: MIN_SUBJECT_LENGTH }))
       return false
     }
 
     if (subjectTrimmed.length > MAX_SUBJECT_LENGTH) {
-      setError(`Subject must not exceed ${MAX_SUBJECT_LENGTH} characters.`)
+      setError(t('support.error.subjectMaxLength', { max: MAX_SUBJECT_LENGTH }))
       return false
     }
 
     if (messageTrimmed.length < MIN_MESSAGE_LENGTH) {
-      setError(`Message must be at least ${MIN_MESSAGE_LENGTH} characters.`)
+      setError(t('support.error.messageMinLength', { min: MIN_MESSAGE_LENGTH }))
       return false
     }
 
     if (messageTrimmed.length > MAX_MESSAGE_LENGTH) {
-      setError(`Message must not exceed ${MAX_MESSAGE_LENGTH} characters.`)
+      setError(t('support.error.messageMaxLength', { max: MAX_MESSAGE_LENGTH }))
       return false
     }
 
@@ -115,7 +115,7 @@ export default function SupportScreen({ onBack, onNavigate }) {
     } catch (error) {
       console.error('Failed to create ticket:', error)
       // Extract user-friendly error message
-      const errorMessage = error.response?.message || error.message || 'Failed to create ticket. Please try again.'
+      const errorMessage = error.response?.message || error.message || t('support.error.createFailed')
       setError(errorMessage)
     } finally {
       setIsSubmitting(false)

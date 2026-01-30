@@ -91,7 +91,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
       setMessages([supporterWaitMessage, ...mappedMessages])
     } catch (error) {
       console.error('Failed to load ticket detail:', error)
-      const errorMessage = error.response?.message || error.message || 'Failed to load ticket. Please try again.'
+      const errorMessage = error.response?.message || error.message || t('supportChat.error.loadFailed')
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -108,12 +108,12 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
     const messageTrimmed = newMessage.trim()
 
     if (messageTrimmed.length < MIN_MESSAGE_LENGTH) {
-      setError(`Message must be at least ${MIN_MESSAGE_LENGTH} characters.`)
+      setError(t('support.error.messageMinLength', { min: MIN_MESSAGE_LENGTH }))
       return false
     }
 
     if (messageTrimmed.length > MAX_MESSAGE_LENGTH) {
-      setError(`Message must not exceed ${MAX_MESSAGE_LENGTH} characters.`)
+      setError(t('support.error.messageMaxLength', { max: MAX_MESSAGE_LENGTH }))
       return false
     }
 
@@ -126,7 +126,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
     }
 
     if (isClosed) {
-      setError('This ticket is closed. You cannot send messages to a closed ticket.')
+      setError(t('supportChat.error.ticketClosed'))
       return
     }
 
@@ -155,7 +155,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
     } catch (error) {
       console.error('Failed to send message:', error)
       // Extract user-friendly error message from backend
-      const errorMessage = error.response?.message || error.message || 'Failed to send message. Please try again.'
+      const errorMessage = error.response?.message || error.message || t('supportChat.error.sendFailed')
       setError(errorMessage)
     } finally {
       setIsSending(false)
