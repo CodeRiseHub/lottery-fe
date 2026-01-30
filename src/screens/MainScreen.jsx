@@ -833,6 +833,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setWinner(state.w)
           // Balance update will be received via WebSocket balance update message
           // No need to manually update here - WebSocket will send the updated balance
+          
+          // Auto-hide winner after 3 seconds
+          setTimeout(() => {
+            setWinner(null)
+          }, 3000)
         } else if (statePhaseStr === 'WAITING') {
           // Only clear winner when actually in WAITING phase (new round started)
           setWinner(null)
@@ -1403,7 +1408,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 }}>
                   {/* Winner name - centered on top */}
                   <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center' }}>
-                    Winner: {winner.sN || `User ${winner.uI}`}
+                    {t('game.winner')}: {winner.sN || `${t('game.user')} ${winner.uI}`}
                   </div>
                   
                   {/* Bet/Win/Chance block divided into left (avatar) and right (text) parts */}
@@ -1449,10 +1454,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         width: '100%'
                       }}>
                         <div style={{ fontSize: '16px', textAlign: 'center', marginBottom: '8px' }}>
-                          Bet: {winner.b ? winner.b.toFixed(2) : '0.00'}
+                          {t('game.betLabel')}: {winner.b ? winner.b.toFixed(2) : '0.00'}
                         </div>
                         <div style={{ fontSize: '16px', color: '#6cc5a1', textAlign: 'center', marginBottom: '8px' }}>
-                          Win: {formatBalance(winner.pO)}
+                          {t('game.winLabel')}: {formatBalance(winner.pO)}
                         </div>
                         <div style={{ fontSize: '14px', opacity: 0.8, textAlign: 'center' }}>
                           {(() => {
@@ -1466,7 +1471,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                               ? backendWinChance 
                               : frontendCalculatedChance
                             
-                            return `Chance: ${displayChance.toFixed(2)}%`
+                            return `${t('game.chanceLabel')}: ${displayChance.toFixed(2)}%`
                           })()}
                         </div>
                       </div>

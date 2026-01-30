@@ -16,18 +16,19 @@ import ringImg from '../assets/purchase/gifts/ring.png'
 import diamondImg from '../assets/purchase/gifts/diamond.png'
 import champagneImg from '../assets/purchase/gifts/champagne.png'
 
+// Gift names will be localized in the component using t() function
 const gifts = [
-  { id: 'heart', name: 'Heart', image: heartImg, price: 18 },
-  { id: 'bear', name: 'Bear', image: bearImg, price: 18 },
-  { id: 'giftbox', name: 'Gift Box', image: giftboxImg, price: 28 },
-  { id: 'flower', name: 'Flower', image: flowerImg, price: 28 },
-  { id: 'cake', name: 'Cake', image: cakeImg, price: 55 },
-  { id: 'bouquet', name: 'Bouquet', image: bouquetImg, price: 55 },
-  { id: 'rocket', name: 'Rocket', image: rocketImg, price: 55 },
-  { id: 'champagne', name: 'Champagne', image: champagneImg, price: 55 },
-  { id: 'cup', name: 'Cup', image: cupImg, price: 110 },
-  { id: 'ring', name: 'Ring', image: ringImg, price: 110 },
-  { id: 'diamond', name: 'Diamond', image: diamondImg, price: 110 },
+  { id: 'heart', nameKey: 'giftPayout.gift.heart', image: heartImg, price: 18 },
+  { id: 'bear', nameKey: 'giftPayout.gift.bear', image: bearImg, price: 18 },
+  { id: 'giftbox', nameKey: 'giftPayout.gift.giftbox', image: giftboxImg, price: 28 },
+  { id: 'flower', nameKey: 'giftPayout.gift.flower', image: flowerImg, price: 28 },
+  { id: 'cake', nameKey: 'giftPayout.gift.cake', image: cakeImg, price: 55 },
+  { id: 'bouquet', nameKey: 'giftPayout.gift.bouquet', image: bouquetImg, price: 55 },
+  { id: 'rocket', nameKey: 'giftPayout.gift.rocket', image: rocketImg, price: 55 },
+  { id: 'champagne', nameKey: 'giftPayout.gift.champagne', image: champagneImg, price: 55 },
+  { id: 'cup', nameKey: 'giftPayout.gift.cup', image: cupImg, price: 110 },
+  { id: 'ring', nameKey: 'giftPayout.gift.ring', image: ringImg, price: 110 },
+  { id: 'diamond', nameKey: 'giftPayout.gift.diamond', image: diamondImg, price: 110 },
 ]
 
 export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
@@ -263,8 +264,8 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
               >
                 {selectedGift ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <img src={selectedGift.image} alt={selectedGift.name} width="30" height="30" />
-                    <span>{selectedGift.name}</span>
+                    <img src={selectedGift.image} alt={t(selectedGift.nameKey)} width="30" height="30" />
+                    <span>{t(selectedGift.nameKey)}</span>
                   </div>
                 ) : (
                   <span style={{ color: '#999', width: '100%', textAlign: 'center' }}>{t('giftPayout.selectGift')}</span>
@@ -313,9 +314,9 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                         backgroundColor: selectedGift?.id === gift.id ? '#1e2a35' : 'transparent'
                       }}
                     >
-                      <img src={gift.image} alt={gift.name} width="50" height="50" />
-                      <span style={{ marginTop: '5px', fontSize: '12px', textAlign: 'center' }}>{gift.name}</span>
-                      <span style={{ marginTop: '2px', fontSize: '10px', color: '#999' }}>{gift.price} Tickets</span>
+                      <img src={gift.image} alt={t(gift.nameKey)} width="50" height="50" />
+                      <span style={{ marginTop: '5px', fontSize: '12px', textAlign: 'center' }}>{t(gift.nameKey)}</span>
+                      <span style={{ marginTop: '2px', fontSize: '10px', color: '#999' }}>{gift.price} {t('tasks.tickets')}</span>
                     </div>
                   ))}
                 </div>

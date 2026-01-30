@@ -63,11 +63,30 @@ export default function TransactionHistoryScreen({ onBack }) {
   // Format transaction type with taskID or roundID
   const formatType = (transaction) => {
     let typeText = transaction.type
-    if (transaction.type === 'Task bonus' && transaction.taskId) {
-      typeText = `${t('transactionHistory.taskBonus')} (${t('transactionHistory.taskId')}: ${transaction.taskId})`
-    } else if ((transaction.type === 'Win' || transaction.type === 'Bet') && transaction.roundId) {
-      typeText = `${transaction.type} (${t('transactionHistory.roundId')}: ${transaction.roundId})`
+    // Map transaction types to localization keys
+    const typeMap = {
+      'TASK_BONUS': 'transactionHistory.type.taskBonus',
+      'WIN': 'transactionHistory.type.win',
+      'BET': 'transactionHistory.type.bet',
+      'WITHDRAWAL': 'transactionHistory.type.withdrawal',
+      'DEPOSIT': 'transactionHistory.type.deposit'
     }
+    
+    // Handle legacy format (Task bonus, Win, Bet) and new format (TASK_BONUS, WIN, BET, WITHDRAWAL, DEPOSIT)
+    const normalizedType = transaction.type.toUpperCase().replace(' ', '_')
+    const localizationKey = typeMap[normalizedType] || typeMap[transaction.type] || null
+    
+    if (localizationKey) {
+      typeText = t(localizationKey)
+    }
+    
+    // Add taskID or roundID if available
+    if ((normalizedType === 'TASK_BONUS' || transaction.type === 'Task bonus') && transaction.taskId) {
+      typeText = `${typeText} (${t('transactionHistory.taskId')}: ${transaction.taskId})`
+    } else if ((normalizedType === 'WIN' || normalizedType === 'BET' || transaction.type === 'Win' || transaction.type === 'Bet') && transaction.roundId) {
+      typeText = `${typeText} (${t('transactionHistory.roundId')}: ${transaction.roundId})`
+    }
+    
     return typeText
   }
 
