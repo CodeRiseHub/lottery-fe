@@ -128,12 +128,12 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
 
   const handleLangSelect = async (langCode) => {
     try {
-      // Update language in i18n system
+      // First, update backend language preference (so backend uses new language for subsequent API calls)
+      await updateLanguageAPI(langCode)
+      
+      // Then update language in i18n system (this triggers listeners, which may refetch data)
       changeLanguage(langCode)
       setCurrentLang(langCode)
-      
-      // Call API to update user's language preference
-      await updateLanguageAPI(langCode)
       
       // Notify parent component to reload user data
       if (onLanguageChange) {
