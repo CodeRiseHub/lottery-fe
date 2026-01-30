@@ -17,8 +17,8 @@ export default function ReferralScreen({ onBack, userData }) {
   
   // Generate referral link dynamically using user ID
   const referralLink = userData?.id 
-    ? `https://t.me/secret_lottery_bot?start=${userData.id}`
-    : 'https://t.me/secret_lottery_bot?start=0'
+    ? `https://t.me/wspin_bot?start=${userData.id}`
+    : 'https://t.me/wspin_bot?start=0'
   
   // Format commission: divide by 1,000,000 and format as Tickets
   const formatCommission = (commission) => {
@@ -268,52 +268,57 @@ export default function ReferralScreen({ onBack, userData }) {
 
           <div className="tabs__content" data-tab-content="bonuses" hidden={activeTab !== 'bonuses'}>
             <div className="tabs__content--bonuses bonuses">
-              <p className="bonuses__title">Earn Rewards for Inviting Friends!</p>
+              <p className="bonuses__title">{t('referral.bonuses.title')}</p>
 
               <div className="bonuses__list">
                 <p className="bonuses__item">
-                  Boost your mining power by
-                  <span className="bonuses__highlight">+200 POWER</span> for
-                  every user who registers through your unique referral
-                  link!
+                  {t('referral.bonuses.intro')} 🎫.
                 </p>
 
-                <p className="bonuses__item--dark">
-                  <span className="bonuses__highlight">Important!</span> The
-                  200 POWER referral bonus is added to the bonus for
-                  completing the friend invitation task. This means you
-                  will receive at least
-                  <span className="bonuses__highlight">450 POWER</span> to your
-                  power for each invited friend.
+                <p className="bonuses__item">
+                  {t('referral.bonuses.additional')}
                 </p>
 
                 <p className="bonuses__item bonuses__item--line">
-                  Get
-                  <span className="bonuses__highlight">2,500 POWER</span> when
-                  your referred friend makes their first deposit — no
-                  matter the amount!
+                  <span className="bonuses__highlight">{t('referral.bonuses.percentages.title')}</span>
                 </p>
 
                 <div className="bonuses__item">
-                  Plus, earn ongoing commissions from all
-                  <span className="bonuses__highlight">spending/deposits</span>
-                  made by your referrals within the project:
-                  <p className="bonuses__item--flex">
-                    <span className="bonuses__level"><span>– 15% </span> of the amount spent by your 1st-level referrals</span>
-                    <span className="bonuses__level"><span>– 7%</span>  of the amount spent by your 2nd-level referrals</span>
-                    <span className="bonuses__level"><span>– 2% </span> of the amount spent by your 3rd-level referrals</span>
+                  <p className="bonuses__level-title">{t('referral.bonuses.percentages.level1.title')}</p>
+                  <p className="bonuses__level">
+                    <span>• {t('referral.bonuses.percentages.level1.loss')}</span>
+                  </p>
+                  <p className="bonuses__level">
+                    <span>• {t('referral.bonuses.percentages.level1.win')}</span>
+                  </p>
+                </div>
+
+                <div className="bonuses__item">
+                  <p className="bonuses__level-title">{t('referral.bonuses.percentages.level2.title')}</p>
+                  <p className="bonuses__level">
+                    <span>• {t('referral.bonuses.percentages.level2.loss')}</span>
+                  </p>
+                  <p className="bonuses__level">
+                    <span>• {t('referral.bonuses.percentages.level2.win')}</span>
+                  </p>
+                </div>
+
+                <div className="bonuses__item">
+                  <p className="bonuses__level-title">{t('referral.bonuses.percentages.level3.title')}</p>
+                  <p className="bonuses__level">
+                    <span>• {t('referral.bonuses.percentages.level3.loss')}</span>
+                  </p>
+                  <p className="bonuses__level">
+                    <span>• {t('referral.bonuses.percentages.level3.win')}</span>
                   </p>
                 </div>
 
                 <p className="bonuses__item--dark bonuses__note">
-                  *Rewards are credited instantly to your balance, and you
-                  can request a payout at any time.
+                  {t('referral.bonuses.percentages.note')}
                 </p>
 
-                <p className="bonuses__item bonuses__warning">
-                  ⚠️ Important: To prevent fraud, the bonus for inviting a
-                  friend is awarded only after they start mining in the
-                  app.
+                <p className="bonuses__item bonuses__item--line">
+                  {t('referral.bonuses.unlimited')}
                 </p>
               </div>
             </div>
