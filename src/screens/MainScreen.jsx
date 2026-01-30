@@ -465,8 +465,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       }
     } else if (roomPhase === 'RESOLUTION') {
       const timeout = setTimeout(() => {
-        // If still in RESOLUTION after 10 seconds, force transition to WAITING
+        // If still in RESOLUTION after 7 seconds, force transition to WAITING
         // This handles cases where WAITING message was missed
+        // Backend transitions after 4 seconds, so 8 seconds is a safe fallback (4 + 4 buffer)
         setButtonPhase('WAITING') // Update button phase state FIRST (triggers re-render)
         setButtonUpdateCounter(prev => prev + 1) // Force re-render
         setRoomPhase('WAITING') // Update room phase state
@@ -477,7 +478,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         animationCompletedTimeRef.current = null
         // Reset user's total bet when new round starts
         setUserTotalPendingBet(0)
-      }, 10000) // 10 seconds (6 seconds backend delay + 4 seconds buffer)
+      }, 7000) // 8 seconds (4 seconds backend delay + 4 seconds buffer)
       
       return () => {
         clearTimeout(timeout)
@@ -833,11 +834,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setWinner(state.w)
           // Balance update will be received via WebSocket balance update message
           // No need to manually update here - WebSocket will send the updated balance
-          
-          // Auto-hide winner after 3 seconds
-          setTimeout(() => {
-            setWinner(null)
-          }, 3000)
         } else if (statePhaseStr === 'WAITING') {
           // Only clear winner when actually in WAITING phase (new round started)
           setWinner(null)
