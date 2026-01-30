@@ -220,6 +220,9 @@ const translations = {
     'support.history': 'Your requests:',
     'support.noTickets': 'No tickets found',
     'support.error.createFailed': 'Failed to create ticket',
+    'support.status.open': 'Open',
+    'support.status.closed': 'Closed',
+    'support.status.processing': 'Processing',
     
     // Support Chat Screen
     'supportChat.loading': 'Loading...',
@@ -492,6 +495,9 @@ const translations = {
     'support.history': 'Ваши запросы:',
     'support.noTickets': 'Тикеты не найдены',
     'support.error.createFailed': 'Не удалось создать тикет',
+    'support.status.open': 'Открыт',
+    'support.status.closed': 'Закрыт',
+    'support.status.processing': 'В обработке',
     
     // Support Chat Screen
     'supportChat.loading': 'Загрузка...',
@@ -746,6 +752,9 @@ const translations = {
     'support.history': 'Ihre Anfragen:',
     'support.noTickets': 'Keine Tickets gefunden',
     'support.error.createFailed': 'Ticket konnte nicht erstellt werden',
+    'support.status.open': 'Offen',
+    'support.status.closed': 'Geschlossen',
+    'support.status.processing': 'In Bearbeitung',
     
     // Support Chat Screen
     'supportChat.loading': 'Wird geladen...',
@@ -1019,6 +1028,9 @@ const translations = {
     'support.history': 'Le tue richieste:',
     'support.noTickets': 'Nessun ticket trovato',
     'support.error.createFailed': 'Impossibile creare il ticket',
+    'support.status.open': 'Aperto',
+    'support.status.closed': 'Chiuso',
+    'support.status.processing': 'In elaborazione',
     
     // Support Chat Screen
     'supportChat.loading': 'Caricamento...',
@@ -1287,6 +1299,9 @@ const translations = {
     'support.history': 'Ticketgeschiedenis',
     'support.noTickets': 'Geen tickets gevonden',
     'support.error.createFailed': 'Ticket kon niet worden aangemaakt',
+    'support.status.open': 'Open',
+    'support.status.closed': 'Gesloten',
+    'support.status.processing': 'In behandeling',
     
     // Support Chat Screen
     'supportChat.loading': 'Laden...',
@@ -1555,6 +1570,9 @@ const translations = {
     'support.history': 'Historia zgłoszeń',
     'support.noTickets': 'Nie znaleziono zgłoszeń',
     'support.error.createFailed': 'Nie udało się utworzyć zgłoszenia',
+    'support.status.open': 'Otwarty',
+    'support.status.closed': 'Zamknięty',
+    'support.status.processing': 'W trakcie',
     
     // Support Chat Screen
     'supportChat.error.loadFailed': 'Nie udało się załadować szczegółów zgłoszenia',
@@ -1794,6 +1812,9 @@ const translations = {
     'support.history': 'Historique des tickets',
     'support.noTickets': 'Aucun ticket trouvé',
     'support.error.createFailed': 'Impossible de créer le ticket',
+    'support.status.open': 'Ouvert',
+    'support.status.closed': 'Fermé',
+    'support.status.processing': 'En cours',
     
     // Support Chat Screen
     'supportChat.error.loadFailed': 'Impossible de charger les détails du ticket',
@@ -2036,6 +2057,9 @@ const translations = {
     'support.history': 'Sus solicitudes:',
     'support.noTickets': 'No se encontraron tickets',
     'support.error.createFailed': 'No se pudo crear el ticket',
+    'support.status.open': 'Abierto',
+    'support.status.closed': 'Cerrado',
+    'support.status.processing': 'En proceso',
     
     // Support Chat Screen
     'supportChat.loading': 'Cargando...',
@@ -2292,6 +2316,9 @@ const translations = {
     'support.history': 'Riwayat tiket',
     'support.noTickets': 'Tidak ada tiket ditemukan',
     'support.error.createFailed': 'Gagal membuat tiket',
+    'support.status.open': 'Terbuka',
+    'support.status.closed': 'Tertutup',
+    'support.status.processing': 'Sedang diproses',
     
     // Support Chat Screen
     'supportChat.error.loadFailed': 'Gagal memuat detail tiket',
@@ -2536,6 +2563,9 @@ const translations = {
     'support.history': 'İstekleriniz:',
     'support.noTickets': 'Bilet bulunamadı',
     'support.error.createFailed': 'Bilet oluşturulamadı',
+    'support.status.open': 'Açık',
+    'support.status.closed': 'Kapalı',
+    'support.status.processing': 'İşleniyor',
     
     // Support Chat Screen
     'supportChat.loading': 'Yükleniyor...',

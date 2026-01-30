@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createSupportTicket, fetchTicketHistory } from '../api'
-import { t } from '../i18n'
+import { t, subscribeToLanguageChange } from '../i18n'
 
 export default function SupportScreen({ onBack, onNavigate }) {
   const [subject, setSubject] = useState('')
@@ -38,6 +38,17 @@ export default function SupportScreen({ onBack, onNavigate }) {
 
   useEffect(() => {
     loadTicketHistory()
+  }, [])
+
+  // Refetch tickets when language changes (backend provides localized content)
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      loadTicketHistory()
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
   const loadTicketHistory = async () => {
@@ -175,7 +186,7 @@ export default function SupportScreen({ onBack, onNavigate }) {
             {tickets.map((ticket) => (
               <div key={ticket.id} className="support__history-row">
                 <p className={`support__status ${ticket.status === 'CLOSED' ? 'support__status-closed' : ''}`}>
-                  {ticket.status}
+                  {t(`support.status.${ticket.status.toLowerCase()}`)}
                 </p>
                 <p className="support__subject">
                   <a

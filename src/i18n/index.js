@@ -38,6 +38,11 @@ export const getCurrentLanguage = () => {
   return i18n.getCurrentLanguage()
 }
 
+// Export function to subscribe to language changes
+export const subscribeToLanguageChange = (listener) => {
+  return i18n.subscribe(listener)
+}
+
 // Initialize language from localStorage or default
 export const initLanguage = (userLanguageCode) => {
   // Priority: userLanguageCode from API > localStorage > default

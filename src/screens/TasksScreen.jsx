@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { initTabs } from '../utils/tabs'
 import { fetchTasks, claimTask, fetchCurrentUser } from '../api'
-import { t } from '../i18n'
+import { t, subscribeToLanguageChange } from '../i18n'
 import friendIcon from '../assets/images/friend.png'
 import storeIcon from '../assets/images/tasks/store.png'
 import infoChannelIcon from '../assets/info_channel.png'
@@ -44,6 +44,34 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     }
 
     loadTasks()
+  }, [activeTab])
+
+  // Refetch tasks when language changes (backend provides localized content)
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      // Reload tasks for the current active tab when language changes
+      const loadTasks = async () => {
+        try {
+          if (activeTab === 'referral') {
+            const tasks = await fetchTasks('referral')
+            setReferralTasks(tasks || [])
+          } else if (activeTab === 'follow') {
+            const tasks = await fetchTasks('follow')
+            setFollowTasks(tasks || [])
+          } else if (activeTab === 'other') {
+            const tasks = await fetchTasks('other')
+            setOtherTasks(tasks || [])
+          }
+        } catch (error) {
+          console.error('Failed to reload tasks after language change:', error)
+        }
+      }
+      loadTasks()
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [activeTab])
 
   useEffect(() => {
