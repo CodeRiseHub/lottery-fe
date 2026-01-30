@@ -66,13 +66,14 @@ export default function TransactionHistoryScreen({ onBack }) {
     // Map transaction types to localization keys
     const typeMap = {
       'TASK_BONUS': 'transactionHistory.type.taskBonus',
+      'DAILY_BONUS': 'transactionHistory.type.dailyBonus',
       'WIN': 'transactionHistory.type.win',
       'BET': 'transactionHistory.type.bet',
       'WITHDRAWAL': 'transactionHistory.type.withdrawal',
       'DEPOSIT': 'transactionHistory.type.deposit'
     }
     
-    // Handle legacy format (Task bonus, Win, Bet) and new format (TASK_BONUS, WIN, BET, WITHDRAWAL, DEPOSIT)
+    // Handle legacy format (Task bonus, Daily bonus, Win, Bet) and new format (TASK_BONUS, DAILY_BONUS, WIN, BET, WITHDRAWAL, DEPOSIT)
     const normalizedType = transaction.type.toUpperCase().replace(' ', '_')
     const localizationKey = typeMap[normalizedType] || typeMap[transaction.type] || null
     
@@ -81,11 +82,13 @@ export default function TransactionHistoryScreen({ onBack }) {
     }
     
     // Add taskID or roundID if available
+    // Don't add taskId for DAILY_BONUS (it should be null, but check to be safe)
     if ((normalizedType === 'TASK_BONUS' || transaction.type === 'Task bonus') && transaction.taskId) {
       typeText = `${typeText} (${t('transactionHistory.taskId')}: ${transaction.taskId})`
     } else if ((normalizedType === 'WIN' || normalizedType === 'BET' || transaction.type === 'Win' || transaction.type === 'Bet') && transaction.roundId) {
       typeText = `${typeText} (${t('transactionHistory.roundId')}: ${transaction.roundId})`
     }
+    // DAILY_BONUS doesn't show taskId (intentionally excluded)
     
     return typeText
   }

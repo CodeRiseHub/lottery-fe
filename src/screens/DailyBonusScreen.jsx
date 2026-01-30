@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getDailyBonusStatus, claimTask, fetchCurrentUser } from '../api'
-import ticketIcon from '../assets/images/header/ticket_1.png'
+import ticketIcon from '../assets/images/header/ticket_horizontal.png'
 import { t } from '../i18n'
 
 export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {

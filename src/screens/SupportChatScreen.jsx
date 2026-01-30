@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchTicketDetail, addTicketMessage, closeTicket } from '../api'
-import { t } from '../i18n'
+import { t, subscribeToLanguageChange } from '../i18n'
 import closeIcon from '../assets/images/close.png'
 import backIcon from '../assets/images/back.png'
 import arrowUpIcon from '../assets/images/arrow-up.png'
@@ -42,6 +42,19 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
   useEffect(() => {
     if (ticketId) {
       loadTicketDetail()
+    }
+  }, [ticketId])
+
+  // Refetch ticket detail when language changes (to update localized messages)
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      if (ticketId) {
+        loadTicketDetail()
+      }
+    })
+
+    return () => {
+      unsubscribe()
     }
   }, [ticketId])
 
