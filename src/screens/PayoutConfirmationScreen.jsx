@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
@@ -7,6 +7,39 @@ export default function PayoutConfirmationScreen({ onBack }) {
   const [destTag, setDestTag] = useState('')
   const [amount, setAmount] = useState('0.00')
   const [tonAmount, setTonAmount] = useState('0')
+  const walletInputRef = useRef(null)
+  const destTagInputRef = useRef(null)
+  const amountInputRef = useRef(null)
+
+  // Reset form state when component mounts (fixes Telegram Desktop focus issue)
+  useEffect(() => {
+    setWallet('')
+    setDestTag('')
+    setAmount('0.00')
+    
+    // Fix Telegram Desktop focus issue: ensure inputs are editable after navigation
+    // This happens because Telegram Desktop may block input events after navigation
+    const fixInputFocus = () => {
+      const inputs = [walletInputRef.current, destTagInputRef.current, amountInputRef.current]
+      inputs.forEach(input => {
+        if (input) {
+          // Remove any attributes that might block input
+          input.removeAttribute('readonly')
+          input.removeAttribute('disabled')
+          // Force a reflow to reset any internal state
+          input.style.pointerEvents = 'auto'
+          // Ensure the input can receive focus
+          input.tabIndex = 0
+        }
+      })
+    }
+    
+    // Apply fix immediately and after a short delay
+    fixInputFocus()
+    const timer = setTimeout(fixInputFocus, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -63,6 +96,7 @@ export default function PayoutConfirmationScreen({ onBack }) {
             <div className="payout__field">
               <p className="payout__label">{t('payoutConfirmation.enterWallet')}</p>
               <textarea
+                ref={walletInputRef}
                 className="payout__input"
                 placeholder={t('payoutConfirmation.walletPlaceholder')}
                 rows="3"
@@ -70,30 +104,77 @@ export default function PayoutConfirmationScreen({ onBack }) {
                 name="purse"
                 value={wallet}
                 onChange={(e) => setWallet(e.target.value)}
+                onClick={(e) => {
+                  // Force focus and ensure input is editable (fixes Telegram Desktop issue)
+                  const input = e.target
+                  input.focus()
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
+                onFocus={(e) => {
+                  // Ensure input is editable on focus
+                  const input = e.target
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
               ></textarea>
             </div>
 
             <div className="payout__field">
               <p className="payout__label">{t('payoutConfirmation.destinationTag')}</p>
               <input
+                ref={destTagInputRef}
                 type="text"
                 className="payout__input"
                 placeholder={t('payoutConfirmation.destinationTagPlaceholder')}
                 name="destTag"
                 value={destTag}
                 onChange={(e) => setDestTag(e.target.value)}
+                onClick={(e) => {
+                  // Force focus and ensure input is editable (fixes Telegram Desktop issue)
+                  const input = e.target
+                  input.focus()
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
+                onFocus={(e) => {
+                  // Ensure input is editable on focus
+                  const input = e.target
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
               />
             </div>
 
             <div className="payout__field">
               <p className="payout__label">{t('payoutConfirmation.yourBalance')}</p>
               <input
+                ref={amountInputRef}
                 type="text"
                 className="payout__input"
                 name="sum228"
                 placeholder={t('payoutConfirmation.minAmount')}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                onClick={(e) => {
+                  // Force focus and ensure input is editable (fixes Telegram Desktop issue)
+                  const input = e.target
+                  input.focus()
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
+                onFocus={(e) => {
+                  // Ensure input is editable on focus
+                  const input = e.target
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
               />
 
               <input

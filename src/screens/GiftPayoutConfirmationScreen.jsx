@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPayout, fetchCurrentUser, fetchPayoutHistory } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
@@ -43,6 +43,38 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
   const [submitError, setSubmitError] = useState('')
   const [payoutHistory, setPayoutHistory] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(true)
+  const usernameInputRef = useRef(null)
+
+  // Reset form state when component mounts (fixes Telegram Desktop focus issue)
+  useEffect(() => {
+    setUsername('')
+    setSelectedGift(null)
+    setQuantity(1)
+    setUsernameError('')
+    setGiftError('')
+    setSubmitError('')
+    
+    // Fix Telegram Desktop focus issue: ensure input is editable after navigation
+    // This happens because Telegram Desktop may block input events after navigation
+    const fixInputFocus = () => {
+      if (usernameInputRef.current) {
+        const input = usernameInputRef.current
+        // Remove any attributes that might block input
+        input.removeAttribute('readonly')
+        input.removeAttribute('disabled')
+        // Force a reflow to reset any internal state
+        input.style.pointerEvents = 'auto'
+        // Ensure the input can receive focus
+        input.tabIndex = 0
+      }
+    }
+    
+    // Apply fix immediately and after a short delay
+    fixInputFocus()
+    const timer = setTimeout(fixInputFocus, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -114,7 +146,7 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
       const loadHistory = async () => {
         try {
           setLoadingHistory(true)
-          const history = await fetchGiftPayoutHistory()
+          const history = await fetchPayoutHistory()
           setPayoutHistory(history || [])
         } catch (error) {
           console.error('Failed to load payout history:', error)
@@ -255,12 +287,28 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
             <div className="payout__field">
               <p className="payout__label">{t('giftPayout.enterUsername')}</p>
               <input
+                ref={usernameInputRef}
                 type="text"
                 className="payout__input"
                 placeholder="@username"
                 name="username"
                 value={username}
                 onChange={handleUsernameChange}
+                onClick={(e) => {
+                  // Force focus and ensure input is editable (fixes Telegram Desktop issue)
+                  const input = e.target
+                  input.focus()
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
+                onFocus={(e) => {
+                  // Ensure input is editable on focus
+                  const input = e.target
+                  input.removeAttribute('readonly')
+                  input.removeAttribute('disabled')
+                  input.style.pointerEvents = 'auto'
+                }}
                 style={{ height: '42px', fontSize: '22px', textAlign: 'center' }}
               />
               {usernameError && (
