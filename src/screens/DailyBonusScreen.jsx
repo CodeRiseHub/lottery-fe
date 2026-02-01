@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { getDailyBonusStatus, claimTask, fetchCurrentUser, getRecentDailyBonusClaims } from '../api'
 import ticketIcon from '../assets/images/header/ticket_horizontal.png'
 import ParticipantAvatar from '../components/ParticipantAvatar'
-import { t } from '../i18n'
+import { t, subscribeToLanguageChange } from '../i18n'
 
 export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [bonusStatus, setBonusStatus] = useState(null)
@@ -49,22 +49,34 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
     loadBonusStatus()
   }, [loadBonusStatus])
 
+  // Load recent claims function
+  const loadRecentClaims = useCallback(async () => {
+    try {
+      setLoadingClaims(true)
+      const claims = await getRecentDailyBonusClaims()
+      setRecentClaims(claims || [])
+    } catch (error) {
+      console.error('Error loading recent claims:', error)
+      setRecentClaims([])
+    } finally {
+      setLoadingClaims(false)
+    }
+  }, [])
+
   // Load recent claims on mount
   useEffect(() => {
-    const loadRecentClaims = async () => {
-      try {
-        setLoadingClaims(true)
-        const claims = await getRecentDailyBonusClaims()
-        setRecentClaims(claims || [])
-      } catch (error) {
-        console.error('Error loading recent claims:', error)
-        setRecentClaims([])
-      } finally {
-        setLoadingClaims(false)
-      }
-    }
     loadRecentClaims()
-  }, [])
+  }, [loadRecentClaims])
+
+  // Refetch recent claims when language changes (to update localized "at" word in dates)
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      loadRecentClaims()
+    })
+    return () => {
+      unsubscribe()
+    }
+  }, [loadRecentClaims])
 
   // Update countdown every second
   useEffect(() => {
@@ -151,38 +163,6 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
     }
   }
 
-  // Format date and time for display (same format as transaction history: dd.mm at hh:mm)
-  const formatDateTime = (dateTimeString) => {
-    if (!dateTimeString) return '-'
-    try {
-      const date = new Date(dateTimeString)
-      // Get user's timezone from browser
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-      
-      // Format date in user's timezone
-      const formatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: timezone,
-        day: '2-digit',
-        month: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
-      
-      const parts = formatter.formatToParts(date)
-      const day = parts.find(p => p.type === 'day').value
-      const month = parts.find(p => p.type === 'month').value
-      const hours = parts.find(p => p.type === 'hour').value
-      const minutes = parts.find(p => p.type === 'minute').value
-      
-      // Get localized "at" word
-      const atWord = t('dateTime.at')
-      
-      return `${day}.${month} ${atWord} ${hours}:${minutes}`
-    } catch (e) {
-      return dateTimeString
-    }
-  }
 
   const isButtonDisabled = !bonusStatus || !bonusStatus.available || isClaiming
 
@@ -291,7 +271,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                           {claim.screenName || '-'}
                         </p>
                         <p className="transaction__date" style={{ margin: 0, flex: '0 0 auto', textAlign: 'right', paddingLeft: '10px' }}>
-                          {formatDateTime(claim.claimedAt)}
+                          {claim.date || '-'}
                         </p>
                       </div>
                     </div>

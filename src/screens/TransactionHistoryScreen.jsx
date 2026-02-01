@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchTransactions } from '../api'
-import { t } from '../i18n'
+import { t, subscribeToLanguageChange } from '../i18n'
 import pagLeftIcon from '../assets/images/tasks/pag-left.png'
 import pagRightIcon from '../assets/images/tasks/pag-right.png'
 
@@ -50,6 +50,33 @@ export default function TransactionHistoryScreen({ onBack }) {
     }
 
     loadTransactions()
+  }, [currentPage])
+
+  // Refetch transactions when language changes (to update localized "at" word in dates)
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      const loadTransactions = async () => {
+        try {
+          setLoading(true)
+          const response = await fetchTransactions(currentPage)
+          setTransactions(response.content || [])
+          setCurrentPage(response.number || 0)
+          setTotalPages(response.totalPages || 0)
+        } catch (error) {
+          console.error('Failed to load transactions:', error)
+          setTransactions([])
+          setCurrentPage(0)
+          setTotalPages(0)
+        } finally {
+          setLoading(false)
+        }
+      }
+      loadTransactions()
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [currentPage])
 
   // Format amount from bigint to display format

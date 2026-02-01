@@ -227,11 +227,13 @@ export async function getDailyBonusStatus() {
 }
 
 /**
- * Fetches the 20 most recent daily bonus claims.
+ * Fetches the 50 most recent daily bonus claims.
  * @returns {Promise<Array<{avatarUrl: string|null, screenName: string, claimedAt: string}>>}
  */
 export async function getRecentDailyBonusClaims() {
-  return authFetch("/api/tasks/daily-bonus/recent-claims", {
+  // Get user's timezone from browser (same as transaction history)
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return authFetch(`/api/tasks/daily-bonus/recent-claims?timezone=${encodeURIComponent(timezone)}`, {
     method: "GET"
   });
 }
