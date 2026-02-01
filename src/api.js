@@ -227,6 +227,16 @@ export async function getDailyBonusStatus() {
 }
 
 /**
+ * Fetches the 20 most recent daily bonus claims.
+ * @returns {Promise<Array<{avatarUrl: string|null, screenName: string, claimedAt: string}>>}
+ */
+export async function getRecentDailyBonusClaims() {
+  return authFetch("/api/tasks/daily-bonus/recent-claims", {
+    method: "GET"
+  });
+}
+
+/**
  * Fetches WIN transactions for the current user from the last 30 days with pagination.
  * @param {number} page - Page number (0-indexed, default 0)
  * @returns {Promise<{content: Array<{amount: number, date: string}>, number: number, totalPages: number, totalElements: number}>}

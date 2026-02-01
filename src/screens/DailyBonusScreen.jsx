@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getDailyBonusStatus, claimTask, fetchCurrentUser } from '../api'
+import { getDailyBonusStatus, claimTask, fetchCurrentUser, getRecentDailyBonusClaims } from '../api'
 import ticketIcon from '../assets/images/header/ticket_horizontal.png'
+import ParticipantAvatar from '../components/ParticipantAvatar'
 import { t } from '../i18n'
 
 export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
@@ -8,6 +9,8 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
   const [isClaiming, setIsClaiming] = useState(false)
   const [countdown, setCountdown] = useState(null)
   const [error, setError] = useState('')
+  const [recentClaims, setRecentClaims] = useState([])
+  const [loadingClaims, setLoadingClaims] = useState(true)
 
   const loadBonusStatus = useCallback(async () => {
     try {
@@ -45,6 +48,23 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
   useEffect(() => {
     loadBonusStatus()
   }, [loadBonusStatus])
+
+  // Load recent claims on mount
+  useEffect(() => {
+    const loadRecentClaims = async () => {
+      try {
+        setLoadingClaims(true)
+        const claims = await getRecentDailyBonusClaims()
+        setRecentClaims(claims || [])
+      } catch (error) {
+        console.error('Error loading recent claims:', error)
+        setRecentClaims([])
+      } finally {
+        setLoadingClaims(false)
+      }
+    }
+    loadRecentClaims()
+  }, [])
 
   // Update countdown every second
   useEffect(() => {
@@ -110,6 +130,16 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
         
         // Reload status to update cooldown
         await loadBonusStatus()
+        
+        // Reload recent claims to show the new claim (refresh table after successful claim)
+        // This ensures the table is updated immediately after claiming
+        try {
+          const claims = await getRecentDailyBonusClaims()
+          setRecentClaims(claims || [])
+        } catch (error) {
+          console.error('Error refreshing recent claims:', error)
+          // Don't show error to user, just log it - table will update on next page load
+        }
       } else {
         setError(response.message || t('dailyBonus.error.claimFailed'))
       }
@@ -118,6 +148,42 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
       console.error('Error claiming daily bonus:', error)
     } finally {
       setIsClaiming(false)
+    }
+  }
+
+  // Format date and time for display
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return '-'
+    try {
+      const date = new Date(dateTimeString)
+      const now = new Date()
+      const diffMs = now - date
+      const diffMins = Math.floor(diffMs / 60000)
+      const diffHours = Math.floor(diffMs / 3600000)
+      const diffDays = Math.floor(diffMs / 86400000)
+      
+      // Show relative time if recent, otherwise show absolute date/time
+      if (diffMins < 1) {
+        return t('dailyBonus.recentClaims.justNow')
+      } else if (diffMins < 60) {
+        return t('dailyBonus.recentClaims.minutesAgo', { count: diffMins })
+      } else if (diffHours < 24) {
+        return t('dailyBonus.recentClaims.hoursAgo', { count: diffHours })
+      } else if (diffDays < 7) {
+        return t('dailyBonus.recentClaims.daysAgo', { count: diffDays })
+      } else {
+        // Format as date and time
+        const options = { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }
+        return date.toLocaleDateString(undefined, options)
+      }
+    } catch (e) {
+      return dateTimeString
     }
   }
 
@@ -184,6 +250,64 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                 {error}
               </p>
             )}
+
+            {/* Recent Claims Table */}
+            <div style={{ marginTop: '30px' }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: 'bold', 
+                marginBottom: '15px',
+                textAlign: 'center',
+                color: 'var(--text-primary, #fff)'
+              }}>
+                {t('dailyBonus.recentClaims.title')}
+              </h3>
+              
+              {loadingClaims ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary, #ccc)' }}>
+                  {t('dailyBonus.recentClaims.loading')}
+                </div>
+              ) : recentClaims.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary, #ccc)' }}>
+                  {t('dailyBonus.recentClaims.noData')}
+                </div>
+              ) : (
+                <div className="transaction__table" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  <div className="transaction__head">
+                    <p className="transaction__head-col" style={{ flex: '0 0 50px' }}></p>
+                    <p className="transaction__head-col" style={{ flex: '1' }}>{t('dailyBonus.recentClaims.user')}</p>
+                    <p className="transaction__head-col" style={{ flex: '1', textAlign: 'right' }}>{t('dailyBonus.recentClaims.date')}</p>
+                  </div>
+                  
+                  {recentClaims.map((claim, index) => (
+                    <div key={`claim-${index}-${claim.claimedAt}`} className="transaction__row">
+                      <div className="transaction__main" style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
+                        <div style={{ flex: '0 0 40px' }}>
+                          <ParticipantAvatar 
+                            avatarUrl={claim.avatarUrl} 
+                            userId={index}
+                            size={40}
+                          />
+                        </div>
+                        <p className="transaction__type" style={{ 
+                          margin: 0, 
+                          flex: '1',
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          minWidth: 0
+                        }}>
+                          {claim.screenName || '-'}
+                        </p>
+                        <p className="transaction__date" style={{ margin: 0, flex: '0 0 auto', textAlign: 'right', paddingLeft: '10px' }}>
+                          {formatDateTime(claim.claimedAt)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
