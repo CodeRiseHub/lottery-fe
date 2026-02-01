@@ -151,37 +151,34 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
     }
   }
 
-  // Format date and time for display
+  // Format date and time for display (same format as transaction history: dd.mm at hh:mm)
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return '-'
     try {
       const date = new Date(dateTimeString)
-      const now = new Date()
-      const diffMs = now - date
-      const diffMins = Math.floor(diffMs / 60000)
-      const diffHours = Math.floor(diffMs / 3600000)
-      const diffDays = Math.floor(diffMs / 86400000)
+      // Get user's timezone from browser
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
       
-      // Show relative time if recent, otherwise show absolute date/time
-      if (diffMins < 1) {
-        return t('dailyBonus.recentClaims.justNow')
-      } else if (diffMins < 60) {
-        return t('dailyBonus.recentClaims.minutesAgo', { count: diffMins })
-      } else if (diffHours < 24) {
-        return t('dailyBonus.recentClaims.hoursAgo', { count: diffHours })
-      } else if (diffDays < 7) {
-        return t('dailyBonus.recentClaims.daysAgo', { count: diffDays })
-      } else {
-        // Format as date and time
-        const options = { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }
-        return date.toLocaleDateString(undefined, options)
-      }
+      // Format date in user's timezone
+      const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: timezone,
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+      
+      const parts = formatter.formatToParts(date)
+      const day = parts.find(p => p.type === 'day').value
+      const month = parts.find(p => p.type === 'month').value
+      const hours = parts.find(p => p.type === 'hour').value
+      const minutes = parts.find(p => p.type === 'minute').value
+      
+      // Get localized "at" word
+      const atWord = t('dateTime.at')
+      
+      return `${day}.${month} ${atWord} ${hours}:${minutes}`
     } catch (e) {
       return dateTimeString
     }
@@ -273,12 +270,6 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                 </div>
               ) : (
                 <div className="transaction__table" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                  <div className="transaction__head">
-                    <p className="transaction__head-col" style={{ flex: '0 0 50px' }}></p>
-                    <p className="transaction__head-col" style={{ flex: '1' }}>{t('dailyBonus.recentClaims.user')}</p>
-                    <p className="transaction__head-col" style={{ flex: '1', textAlign: 'right' }}>{t('dailyBonus.recentClaims.date')}</p>
-                  </div>
-                  
                   {recentClaims.map((claim, index) => (
                     <div key={`claim-${index}-${claim.claimedAt}`} className="transaction__row">
                       <div className="transaction__main" style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
@@ -289,7 +280,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                             size={40}
                           />
                         </div>
-                        <p className="transaction__type" style={{ 
+                        <p style={{ 
                           margin: 0, 
                           flex: '1',
                           textOverflow: 'ellipsis',

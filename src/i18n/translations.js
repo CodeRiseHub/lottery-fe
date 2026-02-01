@@ -72,6 +72,9 @@ const translations = {
     'dailyBonus.recentClaims.hoursAgo': '{count} h ago',
     'dailyBonus.recentClaims.daysAgo': '{count} d ago',
     
+    // Date/Time formatting
+    'dateTime.at': 'at',
+    
     // Game Screen
     'game.error.insufficientBalance': 'Insufficient balance',
     'game.error.betRange': 'Bet must be between {min} and {max}',
@@ -385,6 +388,9 @@ const translations = {
     'dailyBonus.recentClaims.hoursAgo': '{count} ч назад',
     'dailyBonus.recentClaims.daysAgo': '{count} дн назад',
     
+    // Date/Time formatting
+    'dateTime.at': 'в',
+    
     // Game Screen
     'game.error.insufficientBalance': 'Недостаточно средств',
     'game.error.betRange': 'Ставка должна быть между {min} и {max}',
@@ -679,6 +685,9 @@ const translations = {
     'dailyBonus.recentClaims.minutesAgo': 'vor {count} Min',
     'dailyBonus.recentClaims.hoursAgo': 'vor {count} Std',
     'dailyBonus.recentClaims.daysAgo': 'vor {count} T',
+    
+    // Date/Time formatting
+    'dateTime.at': 'um',
     
     // Game Screen
     'game.error.insufficientBalance': 'Unzureichendes Guthaben',
@@ -984,6 +993,10 @@ const translations = {
     'dailyBonus.claiming': 'OTTenimento...',
     'dailyBonus.error.loadFailed': 'Impossibile caricare lo stato del bonus giornaliero',
     'dailyBonus.error.claimFailed': 'Impossibile ottenere il bonus',
+    'dailyBonus.recentClaims.daysAgo': '{count} g fa',
+    
+    // Date/Time formatting
+    'dateTime.at': 'alle',
     
     // Game Screen
     'game.error.insufficientBalance': 'Saldo insufficiente',
@@ -1289,6 +1302,10 @@ const translations = {
     'dailyBonus.claiming': 'WORDT OPGEGAALD...',
     'dailyBonus.error.loadFailed': 'Status van dagelijkse bonus kon niet worden geladen',
     'dailyBonus.error.claimFailed': 'Bonus kon niet worden opgehaald',
+    'dailyBonus.recentClaims.daysAgo': '{count} d geleden',
+    
+    // Date/Time formatting
+    'dateTime.at': 'om',
     
     // Game Screen
     'game.error.insufficientBalance': 'Onvoldoende saldo',
@@ -1590,6 +1607,10 @@ const translations = {
     'dailyBonus.claiming': 'ODBIERANIE...',
     'dailyBonus.error.loadFailed': 'Nie udało się załadować statusu codziennego bonusu',
     'dailyBonus.error.claimFailed': 'Nie udało się odebrać bonusu',
+    'dailyBonus.recentClaims.daysAgo': '{count} d temu',
+    
+    // Date/Time formatting
+    'dateTime.at': 'o',
     
     // Game Screen
     'game.error.insufficientBalance': 'Niewystarczające saldo',
@@ -1872,6 +1893,9 @@ const translations = {
     'dailyBonus.recentClaims.hoursAgo': 'Il y a {count} h',
     'dailyBonus.recentClaims.daysAgo': 'Il y a {count} j',
     
+    // Date/Time formatting
+    'dateTime.at': 'à',
+    
     // Game Screen
     'game.error.insufficientBalance': 'Solde insuffisant',
     'game.error.betRange': 'Le pari doit être entre {min} et {max}',
@@ -2143,6 +2167,10 @@ const translations = {
     'dailyBonus.claiming': 'RECLAMANDO...',
     'dailyBonus.error.loadFailed': 'No se pudo cargar el estado del bonus diario',
     'dailyBonus.error.claimFailed': 'No se pudo reclamar el bonus',
+    'dailyBonus.recentClaims.daysAgo': 'Hace {count} d',
+    
+    // Date/Time formatting
+    'dateTime.at': 'a las',
     
     // Game Screen
     'game.error.insufficientBalance': 'Saldo insuficiente',
@@ -2447,6 +2475,10 @@ const translations = {
     'dailyBonus.claiming': 'MENGKLAIM...',
     'dailyBonus.error.loadFailed': 'Gagal memuat status bonus harian',
     'dailyBonus.error.claimFailed': 'Gagal mengklaim bonus',
+    'dailyBonus.recentClaims.daysAgo': '{count} hari lalu',
+    
+    // Date/Time formatting
+    'dateTime.at': 'pada',
     
     // Game Screen
     'game.error.insufficientBalance': 'Saldo tidak mencukupi',
@@ -2716,6 +2748,9 @@ const translations = {
     'dailyBonus.recentClaims.minutesAgo': '{count} dk önce',
     'dailyBonus.recentClaims.hoursAgo': '{count} sa önce',
     'dailyBonus.recentClaims.daysAgo': '{count} gün önce',
+    
+    // Date/Time formatting
+    'dateTime.at': 'saat',
     
     // Game Screen
     'game.error.insufficientBalance': 'Yetersiz bakiye',
