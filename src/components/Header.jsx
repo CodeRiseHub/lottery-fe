@@ -158,7 +158,8 @@ export default function Header({ onNavigate, balance: balanceProp, onBalanceUpda
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const hours = String(date.getHours()).padStart(2, '0')
     const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${day}.${month} at ${hours}:${minutes}`
+    const atWord = t('dateTime.at')
+    return `${day}.${month} ${atWord} ${hours}:${minutes}`
   }
 
   return (

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { t } from '../i18n'
 
 export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) {
   const [inputValue, setInputValue] = useState(value && !isNaN(value) ? value.toString() : '0')
@@ -51,7 +52,7 @@ export default function CustomKeyboard({ value, onChange, onConfirm, onClose }) 
       }}
     >
       <div className="modal modal--keyboard" onClick={(e) => e.stopPropagation()}>
-        <p className="modal__keyboard-title">Enter amount</p>
+        <p className="modal__keyboard-title">{t('common.enterAmount')}</p>
         
         <div className="modal__keyboard-input-container">
           <input
