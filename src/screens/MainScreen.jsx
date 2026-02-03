@@ -70,7 +70,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [isJoining, setIsJoining] = useState(false) // Track if JOIN request was sent but not yet acknowledged (reset on reconnect)
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const [minBet, setMinBet] = useState(1) // Room-specific min bet (from backend state)
-  const [maxBet, setMaxBet] = useState(100) // Room-specific max bet (from backend state)
+  const [maxBet, setMaxBet] = useState(50) // Room-specific max bet (from backend state)
   const [betCooldown, setBetCooldown] = useState(false) // Track button cooldown (1.5 seconds)
   const lastBetTimeRef = useRef(null) // Track last bet click time
   const lineContainerRef = useRef(null)
@@ -728,7 +728,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           }
           
           // Reset user's total bet when spin starts (round is locked, prepare for next round)
-          // This ensures max bet shows 100 when the round ends
+          // This ensures max bet resets when the round ends
           if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
             setUserTotalPendingBet(0)
             // Also reset per-room storage for current room
@@ -821,7 +821,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setIsJoining(false) // Always reset joining state in resolution
           
           // Reset user's total bet when resolution phase starts (round ended, prepare for next round)
-          // This ensures max bet shows 100 when the next round starts
+          // This ensures max bet resets when the next round starts
           if (roomPhase !== 'RESOLUTION' || buttonPhase !== 'RESOLUTION') {
             setUserTotalPendingBet(0)
           }
