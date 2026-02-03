@@ -48,6 +48,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [userTotalPendingBet, setUserTotalPendingBet] = useState(0) // Track user's total bet for current round (client-side only)
+  // Per-room storage for user's total bet (persists across room switches)
+  const userTotalBetPerRoomRef = useRef(new Map()) // Map<roomNumber, totalBet>
   const [registeredUsers, setRegisteredUsers] = useState(0)
   const [totalBet, setTotalBet] = useState(0)
   const [currentRoom, setCurrentRoom] = useState({ number: getInitialRoomNumber(), users: 0 })
@@ -545,6 +547,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // Reset user's total bet when new round starts (RESOLUTION -> WAITING) or transitioning to WAITING
           if (isNewRound) {
             setUserTotalPendingBet(0)
+            // Also reset per-room storage for current room
+            userTotalBetPerRoomRef.current.set(currentRoom.number, 0)
           }
           // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
           // This ensures roomPhase state is updated before any ref resets, preventing button state issues
@@ -616,6 +620,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           const newMaxBet = state.mX
           setMinBet(newMinBet)
           setMaxBet(newMaxBet)
+          
+          // Restore user's total bet for this room when room changes or state updates
+          if (currentRoom.number !== state.rN) {
+            // Room changed - restore per-room bet
+            const savedTotalBet = userTotalBetPerRoomRef.current.get(state.rN) || 0
+            setUserTotalPendingBet(savedTotalBet)
+          } else {
+            // Same room - ensure per-room storage is in sync
+            const currentTotalBet = userTotalPendingBet
+            userTotalBetPerRoomRef.current.set(state.rN, currentTotalBet)
+          }
           
           // Update currentBet to minBet if it's outside the new limits or if room changed
           if (currentBet < newMinBet || currentBet > newMaxBet || currentRoom.number !== state.rN) {
@@ -716,12 +731,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // This ensures max bet shows 100 when the round ends
           if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
             setUserTotalPendingBet(0)
-          }
-          
-          // Reset user's total bet when spin starts (round is locked, prepare for next round)
-          // This ensures max bet shows 100 when the round ends
-          if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
-            setUserTotalPendingBet(0)
+            // Also reset per-room storage for current room
+            userTotalBetPerRoomRef.current.set(currentRoom.number, 0)
           }
           
           // Only start animation if not already running (prevent interruption)
@@ -1119,7 +1130,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     
     // Immediately update user's total bet for this round (client-side tracking)
     // Backend validation will prevent exploitation, so we can update UI immediately
-    setUserTotalPendingBet(prev => prev + currentBet)
+    setUserTotalPendingBet(prev => {
+      const newTotal = prev + currentBet
+      // Also update per-room storage
+      userTotalBetPerRoomRef.current.set(currentRoom.number, newTotal)
+      return newTotal
+    })
 
     try {
       // Send bet amount in bigint format (database format)
@@ -1135,7 +1151,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     } catch (error) {
       setIsJoining(false) // Reset on immediate error
       // Revert user's total bet on error (bet was not placed)
-      setUserTotalPendingBet(prev => Math.max(0, prev - currentBet))
+      setUserTotalPendingBet(prev => {
+        const newTotal = Math.max(0, prev - currentBet)
+        // Also update per-room storage
+        userTotalBetPerRoomRef.current.set(currentRoom.number, newTotal)
+        return newTotal
+      })
       setErrorMessage(error.message || t('game.error.failedToPlaceBet'))
       setShowErrorModal(true)
     }
@@ -1200,8 +1221,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   // This allows manual room changes via dropdown to work
   useEffect(() => {
     if (roomNumber !== undefined && roomNumber !== null && roomNumber !== currentRoom.number) {
+      // Save current user's total bet for the current room before switching
+      userTotalBetPerRoomRef.current.set(currentRoom.number, userTotalPendingBet)
+      
       const targetRoom = rooms.find(r => r.number === roomNumber) || { number: roomNumber, users: 0 }
       setCurrentRoom(targetRoom)
+      
+      // Restore user's total bet for the new room (if they had bets in this room)
+      const savedTotalBet = userTotalBetPerRoomRef.current.get(roomNumber) || 0
+      setUserTotalPendingBet(savedTotalBet)
       
       // Store selected room in localStorage when prop changes
       try {
@@ -1213,6 +1241,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   }, [roomNumber]) // Only depend on roomNumber prop, not currentRoom.number to avoid conflicts
 
   const handleRoomChange = (room) => {
+    // Save current user's total bet for the current room before switching
+    const currentRoomNumber = currentRoom.number
+    userTotalBetPerRoomRef.current.set(currentRoomNumber, userTotalPendingBet)
+    
     // Store selected room in localStorage for persistence across page refreshes
     try {
       localStorage.setItem('lottery_selected_room', room.number.toString())
@@ -1225,6 +1257,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (onNavigate) {
       onNavigate('main', { roomNumber: room.number })
     }
+    
+    // Restore user's total bet for the new room (if they had bets in this room)
+    const savedTotalBet = userTotalBetPerRoomRef.current.get(room.number) || 0
+    setUserTotalPendingBet(savedTotalBet)
     
     // Clear all game state when switching rooms to prevent stale data
     setParticipants([])
