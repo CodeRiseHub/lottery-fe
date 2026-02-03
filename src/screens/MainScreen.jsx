@@ -48,8 +48,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [userTotalPendingBet, setUserTotalPendingBet] = useState(0) // Track user's total bet for current round (client-side only)
-  // Per-room storage for user's total bet (persists across room switches)
-  const userTotalBetPerRoomRef = useRef(new Map()) // Map<roomNumber, totalBet>
+  // Per-room storage for remaining bet capacity (maxBet - userTotalBet)
+  // This persists across room switches and app restarts
+  // When user enters a room, initialize with maxBet for that room
+  // When user places a bet, subtract bet amount from remaining capacity
+  // When round starts (SPINNING/RESOLUTION), reset to maxBet for that room
+  const remainingBetCapacityPerRoomRef = useRef(new Map()) // Map<roomNumber, remainingCapacity>
   const [registeredUsers, setRegisteredUsers] = useState(0)
   const [totalBet, setTotalBet] = useState(0)
   const [currentRoom, setCurrentRoom] = useState({ number: getInitialRoomNumber(), users: 0 })
@@ -423,6 +427,65 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       }
     }
   }, [userData]) // Only depend on userData, not onBalanceUpdate
+  
+  // Restore user's bet from participants when currentUserId becomes available (for app reopen case)
+  // Calculate remaining capacity: remaining = maxBet - userBet
+  // Only restore during WAITING or COUNTDOWN phases (not during SPINNING/RESOLUTION)
+  useEffect(() => {
+    // Don't restore during SPINNING or RESOLUTION - round has started, capacity should be reset
+    if (roomPhase === 'SPINNING' || roomPhase === 'RESOLUTION') {
+      return
+    }
+    
+    // Don't restore if we're in WAITING phase with empty participants (new round started)
+    if (roomPhase === 'WAITING' && (!participants || participants.length === 0)) {
+      return
+    }
+    
+    // Only restore during WAITING or COUNTDOWN phases when user is actually in participants
+    // If user is NOT in participants during WAITING, don't restore (new round started, user didn't join)
+    if ((roomPhase === 'WAITING' || roomPhase === 'COUNTDOWN') && 
+        currentUserId && participants && participants.length > 0) {
+      const userParticipant = participants.find(p => p.uI === currentUserId)
+      const currentRemainingCapacity = remainingBetCapacityPerRoomRef.current.get(currentRoom.number) || maxBet
+      
+      // CRITICAL: If Map already has maxBet and userTotalPendingBet is 0, we just reset
+      // Don't restore from participants in this case - it's likely stale data from the previous round
+      // Wait until the user actually places a new bet, which will update the Map correctly
+      const wasJustReset = currentRemainingCapacity === maxBet && userTotalPendingBet === 0
+      
+      // Only restore if user is actually in participants AND we didn't just reset
+      // If we just reset, don't restore - wait for user to place a new bet
+      if (userParticipant && userParticipant.b && !wasJustReset) {
+        const userBetTickets = userParticipant.b || 0
+        const remainingCapacity = maxBet - userBetTickets
+        // Update Map with calculated remaining capacity
+        remainingBetCapacityPerRoomRef.current.set(currentRoom.number, remainingCapacity)
+        setUserTotalPendingBet(userBetTickets)
+        console.log('[MAX_BET_DEBUG] Restored from participants (useEffect):', {
+          room: currentRoom.number,
+          userId: currentUserId,
+          userBet: userBetTickets,
+          remainingCapacity: remainingCapacity,
+          maxBet: maxBet,
+          roomPhase: roomPhase,
+          wasJustReset: wasJustReset
+        })
+      } else {
+        // User is not in participants OR we just reset and this is stale data - don't restore
+        console.log('[MAX_BET_DEBUG] Not restoring from participants (useEffect):', {
+          room: currentRoom.number,
+          userId: currentUserId,
+          userInParticipants: !!userParticipant,
+          userBet: userParticipant?.b || 0,
+          roomPhase: roomPhase,
+          wasJustReset: wasJustReset,
+          currentRemainingCapacity: currentRemainingCapacity,
+          userTotalPendingBet: userTotalPendingBet
+        })
+      }
+    }
+  }, [currentUserId, participants, currentRoom.number, roomPhase, maxBet]) // Restore when userId or participants change
 
   // Animation flag timeout - reset if stuck for more than 10 seconds
   useEffect(() => {
@@ -544,11 +607,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
           
-          // Reset user's total bet when new round starts (RESOLUTION -> WAITING) or transitioning to WAITING
+          // Reset remaining capacity when new round starts (RESOLUTION -> WAITING)
+          // This is handled in the backend state update, but we also handle it here for phase transitions
           if (isNewRound) {
-            setUserTotalPendingBet(0)
-            // Also reset per-room storage for current room
-            userTotalBetPerRoomRef.current.set(currentRoom.number, 0)
+            const userInParticipants = currentUserId && state.ps && state.ps.some(p => p.uI === currentUserId)
+            if (!userInParticipants) {
+              console.log('[MAX_BET_DEBUG] New round starting (WAITING phase), user not in participants, resetting remaining capacity for room', currentRoom.number)
+              // Reset will be handled by backend state update when maxBet is received
+              setUserTotalPendingBet(0)
+            }
           }
           // Don't reset animationCompletedTimeRef here - let WAITING handler do it after phase is confirmed
           // This ensures roomPhase state is updated before any ref resets, preventing button state issues
@@ -564,9 +631,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setButtonUpdateCounter(prev => prev + 1) // Force re-render
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          // Reset user's total bet when new round starts (RESOLUTION -> WAITING) or transitioning to WAITING
+          // Reset remaining capacity when new round starts (RESOLUTION -> WAITING)
+          // This is handled in the backend state update, but we also handle it here for phase transitions
           if (newPhase === 'WAITING' && (isNewRoundStarting || roomPhase !== 'WAITING' || buttonPhase !== 'WAITING')) {
-            setUserTotalPendingBet(0)
+            const userInParticipants = currentUserId && state.ps && state.ps.some(p => p.uI === currentUserId)
+            if (!userInParticipants) {
+              console.log('[MAX_BET_DEBUG] New round starting (WAITING phase in valid transition), user not in participants, resetting remaining capacity for room', currentRoom.number)
+              // Reset will be handled by backend state update when maxBet is received
+              setUserTotalPendingBet(0)
+            }
           }
         } else {
           // Invalid transition - allow it (might be due to missed messages)
@@ -618,22 +691,114 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         if (state.mB !== undefined && state.mX !== undefined) {
           const newMinBet = state.mB
           const newMaxBet = state.mX
+          const roomChanged = currentRoom.number !== state.rN
+          
+          console.log('[MAX_BET_DEBUG] Backend state update:', {
+            roomFromState: state.rN,
+            currentRoom: currentRoom.number,
+            roomChanged: roomChanged,
+            newMinBet: newMinBet,
+            newMaxBet: newMaxBet,
+            currentMaxBet: maxBet,
+            currentUserTotalBet: userTotalPendingBet,
+            perRoomMap: Array.from(remainingBetCapacityPerRoomRef.current.entries())
+          })
+          
           setMinBet(newMinBet)
           setMaxBet(newMaxBet)
           
-          // Restore user's total bet for this room when room changes or state updates
-          if (currentRoom.number !== state.rN) {
-            // Room changed - restore per-room bet
-            const savedTotalBet = userTotalBetPerRoomRef.current.get(state.rN) || 0
-            setUserTotalPendingBet(savedTotalBet)
-          } else {
-            // Same room - ensure per-room storage is in sync
-            const currentTotalBet = userTotalPendingBet
-            userTotalBetPerRoomRef.current.set(state.rN, currentTotalBet)
+          // Initialize remaining capacity for this room if not set (user enters room)
+          if (!remainingBetCapacityPerRoomRef.current.has(state.rN)) {
+            remainingBetCapacityPerRoomRef.current.set(state.rN, newMaxBet)
+            console.log('[MAX_BET_DEBUG] Initialized remaining capacity for room', state.rN, ':', newMaxBet)
+          }
+          
+          // Reset remaining capacity to maxBet when round starts (SPINNING or RESOLUTION phase)
+          // This happens when transitioning from WAITING/COUNTDOWN to SPINNING or RESOLUTION
+          // Only reset if user is NOT in participants (round ended, user not in new round)
+          const userInParticipants = currentUserId && state.ps && state.ps.some(p => p.uI === currentUserId)
+          if ((newPhase === 'SPINNING' || newPhase === 'RESOLUTION') && 
+              (roomPhase === 'WAITING' || roomPhase === 'COUNTDOWN') &&
+              !userInParticipants) {
+            console.log('[MAX_BET_DEBUG] Round started, user not in participants, resetting remaining capacity to maxBet for room', state.rN, ':', newMaxBet)
+            remainingBetCapacityPerRoomRef.current.set(state.rN, newMaxBet)
+            setUserTotalPendingBet(0) // Also reset user's total bet
+          }
+          
+          // Restore user's bet from participants on app reopen
+          // Calculate remaining capacity: remaining = maxBet - userBet
+          // Only restore during WAITING or COUNTDOWN phases (not during SPINNING/RESOLUTION)
+          // During SPINNING/RESOLUTION, the round has started and capacity should be reset
+          // Also check: if transitioning back to WAITING and user is NOT in participants, keep capacity at maxBet
+          if ((newPhase === 'WAITING' || newPhase === 'COUNTDOWN') &&
+              currentUserId && state.ps && state.ps.length > 0 && userInParticipants) {
+            const userParticipant = state.ps.find(p => p.uI === currentUserId)
+            const currentRemainingCapacity = remainingBetCapacityPerRoomRef.current.get(state.rN) || newMaxBet
+            
+            // CRITICAL: If Map already has maxBet and userTotalPendingBet is 0, we just reset
+            // Don't restore from participants in this case - it's likely stale data from the previous round
+            // Wait until the user actually places a new bet, which will update the Map correctly
+            const wasJustReset = currentRemainingCapacity === newMaxBet && userTotalPendingBet === 0
+            
+            // Only restore if user is actually in participants AND we didn't just reset
+            // If we just reset, don't restore - wait for user to place a new bet
+            if (userParticipant && userParticipant.b && !wasJustReset) {
+              const userBetTickets = userParticipant.b || 0
+              const remainingCapacity = newMaxBet - userBetTickets
+              // Update Map with calculated remaining capacity
+              remainingBetCapacityPerRoomRef.current.set(state.rN, remainingCapacity)
+              setUserTotalPendingBet(userBetTickets)
+              console.log('[MAX_BET_DEBUG] Restored from participants:', {
+                room: state.rN,
+                userId: currentUserId,
+                userBet: userBetTickets,
+                remainingCapacity: remainingCapacity,
+                maxBet: newMaxBet,
+                phase: newPhase,
+                wasJustReset: wasJustReset
+              })
+            } else {
+              console.log('[MAX_BET_DEBUG] Not restoring from participants (backend state update):', {
+                room: state.rN,
+                userId: currentUserId,
+                userInParticipants: !!userParticipant,
+                userBet: userParticipant?.b || 0,
+                wasJustReset: wasJustReset,
+                currentRemainingCapacity: currentRemainingCapacity,
+                userTotalPendingBet: userTotalPendingBet,
+                phase: newPhase
+              })
+            }
+          } else if (newPhase === 'WAITING' && 
+                     (roomPhase === 'RESOLUTION' || roomPhase === 'SPINNING') &&
+                     !userInParticipants) {
+            // Transitioning FROM RESOLUTION/SPINNING TO WAITING and user is NOT in participants
+            // This handles the case when round ends and user didn't join the new round
+            // Only reset if we're actually transitioning (not already in WAITING)
+            const currentRemainingCapacity = remainingBetCapacityPerRoomRef.current.get(state.rN)
+            if (currentRemainingCapacity !== newMaxBet) {
+              console.log('[MAX_BET_DEBUG] Transitioning from', roomPhase, 'to WAITING, user not in participants, ensuring capacity is maxBet for room', state.rN, ':', newMaxBet)
+              remainingBetCapacityPerRoomRef.current.set(state.rN, newMaxBet)
+              setUserTotalPendingBet(0)
+            }
+          }
+          
+          // Restore remaining capacity when room changes
+          if (roomChanged) {
+            const savedRemainingCapacity = remainingBetCapacityPerRoomRef.current.get(state.rN) || newMaxBet
+            // Calculate userTotalPendingBet from remaining capacity
+            const restoredUserTotalBet = newMaxBet - savedRemainingCapacity
+            setUserTotalPendingBet(restoredUserTotalBet)
+            console.log('[MAX_BET_DEBUG] Room changed, restored remaining capacity:', {
+              room: state.rN,
+              remainingCapacity: savedRemainingCapacity,
+              userTotalBet: restoredUserTotalBet,
+              maxBet: newMaxBet
+            })
           }
           
           // Update currentBet to minBet if it's outside the new limits or if room changed
-          if (currentBet < newMinBet || currentBet > newMaxBet || currentRoom.number !== state.rN) {
+          if (currentBet < newMinBet || currentBet > newMaxBet || roomChanged) {
             setCurrentBet(newMinBet)
           }
         }
@@ -729,11 +894,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           
           // Reset user's total bet when spin starts (round is locked, prepare for next round)
           // This ensures max bet resets when the round ends
-          if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
-            setUserTotalPendingBet(0)
-            // Also reset per-room storage for current room
-            userTotalBetPerRoomRef.current.set(currentRoom.number, 0)
-          }
+          // BUT: Don't reset here - let the new round check (WAITING with empty participants) handle it
+          // This prevents clearing the Map when user is still in the round
+          // The Map will be cleared when the new round actually starts (WAITING with empty participants)
           
           // Only start animation if not already running (prevent interruption)
           // This prevents "quick spin" when state changes rapidly
@@ -820,9 +983,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in resolution
           
-          // Reset user's total bet when resolution phase starts (round ended, prepare for next round)
+          // Reset remaining capacity when resolution phase starts (round ended, prepare for next round)
           // This ensures max bet resets when the next round starts
           if (roomPhase !== 'RESOLUTION' || buttonPhase !== 'RESOLUTION') {
+            // Reset will be handled by backend state update when maxBet is received
             setUserTotalPendingBet(0)
           }
           
@@ -934,14 +1098,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
   const changeBet = (newBet) => {
     let bet = parseInt(newBet, 10)
-    const userTotalBet = getUserTotalBet()
-    const remainingBetCapacity = maxBet - userTotalBet
+    // Get remaining capacity from Map (source of truth)
+    const remainingCapacity = remainingBetCapacityPerRoomRef.current.get(currentRoom.number) || maxBet
     
-    // Clamp bet to valid range considering user's total bet
+    // Clamp bet to valid range
     bet = bet <= minBet ? minBet : bet
     // Don't allow bet to exceed remaining capacity
-    if (bet > remainingBetCapacity) {
-      bet = Math.max(minBet, remainingBetCapacity)
+    if (bet > remainingCapacity) {
+      bet = Math.max(minBet, remainingCapacity)
     }
     // Also don't exceed maxBet (safety check)
     if (bet > maxBet) {
@@ -954,8 +1118,18 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (action === 'min') {
       changeBet(minBet)
     } else if (action === 'max') {
-      const userTotalBet = getUserTotalBet()
-      const remainingBetCapacity = maxBet - userTotalBet
+      // Use remaining capacity from Map (source of truth, room-specific)
+      const remainingBetCapacity = remainingBetCapacityPerRoomRef.current.get(currentRoom.number) || maxBet
+      // Calculate userTotalBet from remaining capacity for logging
+      const userTotalBet = maxBet - remainingBetCapacity
+      
+      console.log('[MAX_BET_DEBUG] Max bet button clicked:', {
+        room: currentRoom.number,
+        maxBet: maxBet,
+        userTotalBet: userTotalBet,
+        remainingBetCapacity: remainingBetCapacity,
+        perRoomMap: Array.from(remainingBetCapacityPerRoomRef.current.entries())
+      })
       
       // Use actual balance
       const balanceDisplay = formatBalance(userBalance)
@@ -967,6 +1141,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         remainingBetCapacity,
         maxBet
       )
+      console.log('[MAX_BET_DEBUG] Calculated max bet value:', max)
       changeBet(Math.max(minBet, max))
     }
   }
@@ -1087,8 +1262,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       return // Ignore click if less than 1500ms since last click
     }
 
-    // Calculate user's total bet for the current round
-    const userTotalBet = getUserTotalBet()
+    // Calculate user's total bet for the current round from Map (room-specific)
+    const remainingCapacity = remainingBetCapacityPerRoomRef.current.get(currentRoom.number) || maxBet
+    const userTotalBet = maxBet - remainingCapacity
     const totalBetAfterThis = userTotalBet + currentBet
     
     // Validate single bet amount
@@ -1100,7 +1276,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     
     // Validate total bet doesn't exceed max bet for the room
     if (totalBetAfterThis > maxBet) {
-      setErrorMessage(t('game.error.maxBetExceeded', { max: maxBet, current: userTotalBet, remaining: maxBet - userTotalBet }))
+      setErrorMessage(t('game.error.maxBetExceeded', { max: maxBet, current: userTotalBet, remaining: remainingCapacity }))
       setShowErrorModal(true)
       return
     }
@@ -1128,12 +1304,24 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // Set joining state temporarily (will be reset after state update)
     setIsJoining(true)
     
-    // Immediately update user's total bet for this round (client-side tracking)
+    // Immediately update user's total bet and remaining capacity for this round
     // Backend validation will prevent exploitation, so we can update UI immediately
     setUserTotalPendingBet(prev => {
       const newTotal = prev + currentBet
-      // Also update per-room storage
-      userTotalBetPerRoomRef.current.set(currentRoom.number, newTotal)
+      // Update remaining capacity: subtract bet amount from remaining capacity
+      const currentRemainingCapacity = remainingBetCapacityPerRoomRef.current.get(currentRoom.number) || maxBet
+      const newRemainingCapacity = Math.max(0, currentRemainingCapacity - currentBet)
+      remainingBetCapacityPerRoomRef.current.set(currentRoom.number, newRemainingCapacity)
+      console.log('[MAX_BET_DEBUG] Bet placed:', {
+        room: currentRoom.number,
+        betAmount: currentBet,
+        previousTotal: prev,
+        newTotal: newTotal,
+        maxBet: maxBet,
+        previousRemainingCapacity: currentRemainingCapacity,
+        newRemainingCapacity: newRemainingCapacity,
+        perRoomMap: Array.from(remainingBetCapacityPerRoomRef.current.entries())
+      })
       return newTotal
     })
 
@@ -1150,11 +1338,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       }
     } catch (error) {
       setIsJoining(false) // Reset on immediate error
-      // Revert user's total bet on error (bet was not placed)
+      // Revert user's total bet and remaining capacity on error (bet was not placed)
       setUserTotalPendingBet(prev => {
         const newTotal = Math.max(0, prev - currentBet)
-        // Also update per-room storage
-        userTotalBetPerRoomRef.current.set(currentRoom.number, newTotal)
+        // Restore remaining capacity: add bet amount back
+        const currentRemainingCapacity = remainingBetCapacityPerRoomRef.current.get(currentRoom.number) || maxBet
+        const newRemainingCapacity = Math.min(maxBet, currentRemainingCapacity + currentBet)
+        remainingBetCapacityPerRoomRef.current.set(currentRoom.number, newRemainingCapacity)
         return newTotal
       })
       setErrorMessage(error.message || t('game.error.failedToPlaceBet'))
@@ -1221,15 +1411,21 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   // This allows manual room changes via dropdown to work
   useEffect(() => {
     if (roomNumber !== undefined && roomNumber !== null && roomNumber !== currentRoom.number) {
-      // Save current user's total bet for the current room before switching
-      userTotalBetPerRoomRef.current.set(currentRoom.number, userTotalPendingBet)
+      console.log('[MAX_BET_DEBUG] Room changed via useEffect (roomNumber prop):', {
+        fromRoom: currentRoom.number,
+        toRoom: roomNumber,
+        currentUserTotalBet: userTotalPendingBet,
+        currentMaxBet: maxBet,
+        perRoomMap: Array.from(remainingBetCapacityPerRoomRef.current.entries())
+      })
+      
+      // Map already stores remaining capacity per room, no need to save/restore here
+      // The backend state update will handle restoring when room changes
       
       const targetRoom = rooms.find(r => r.number === roomNumber) || { number: roomNumber, users: 0 }
       setCurrentRoom(targetRoom)
       
-      // Restore user's total bet for the new room (if they had bets in this room)
-      const savedTotalBet = userTotalBetPerRoomRef.current.get(roomNumber) || 0
-      setUserTotalPendingBet(savedTotalBet)
+      // Backend state update will restore remaining capacity and userTotalPendingBet
       
       // Store selected room in localStorage when prop changes
       try {
@@ -1237,13 +1433,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       } catch (e) {
         // Ignore localStorage errors
       }
+      
+      // Backend state update will handle restoring remaining capacity and userTotalPendingBet
     }
   }, [roomNumber]) // Only depend on roomNumber prop, not currentRoom.number to avoid conflicts
 
   const handleRoomChange = (room) => {
-    // Save current user's total bet for the current room before switching
-    const currentRoomNumber = currentRoom.number
-    userTotalBetPerRoomRef.current.set(currentRoomNumber, userTotalPendingBet)
+    // Map already stores remaining capacity per room, no need to save/restore here
+    // The backend state update will handle restoring when room changes
     
     // Store selected room in localStorage for persistence across page refreshes
     try {
@@ -1257,10 +1454,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (onNavigate) {
       onNavigate('main', { roomNumber: room.number })
     }
-    
-    // Restore user's total bet for the new room (if they had bets in this room)
-    const savedTotalBet = userTotalBetPerRoomRef.current.get(room.number) || 0
-    setUserTotalPendingBet(savedTotalBet)
     
     // Clear all game state when switching rooms to prevent stale data
     setParticipants([])
@@ -1278,12 +1471,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     currentPhaseRef.current = 'WAITING'
     animationCompletedTimeRef.current = null
     tapeHtmlRef.current = null
-    // Reset user's total bet when switching rooms
-    setUserTotalPendingBet(0)
     
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
     // The useEffect with currentRoom.number dependency will trigger reconnection
+    // Backend state update will restore remaining capacity and userTotalPendingBet
   }
 
   return (
