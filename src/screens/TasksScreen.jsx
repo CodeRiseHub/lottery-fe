@@ -490,7 +490,17 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         <button
                           className="task__button task__button-one"
                           onClick={() => {
-                            const channelUrl = "https://t.me/lottery_2026_test_channel"
+                            // Determine channel URL based on task requirement
+                            // requirement=1 for News channel, requirement=2 for Withdrawals channel
+                            let channelUrl
+                            if (task.requirement === 1) {
+                              channelUrl = "https://t.me/win_spin_news"
+                            } else if (task.requirement === 2) {
+                              channelUrl = "https://t.me/win_spin_withdrawals"
+                            } else {
+                              // Fallback to News channel
+                              channelUrl = "https://t.me/win_spin_news"
+                            }
                             // Use Telegram WebApp API to open link in the same window
                             if (window.Telegram?.WebApp?.openTelegramLink) {
                               window.Telegram.WebApp.openTelegramLink(channelUrl)
