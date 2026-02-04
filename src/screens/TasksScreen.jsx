@@ -94,38 +94,6 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       footer.removeEventListener('touchstart', handleTouchStart)
     }
   }, [])
-
-  useEffect(() => {
-    if (typeof window.$ !== 'undefined') {
-      initTabs()
-      
-      // Update active border position when tab changes
-      setTimeout(() => {
-        const tabsBlock = document.querySelector('[data-tabs]')
-        if (!tabsBlock) return
-        
-        const nav = tabsBlock.querySelector('[data-tabs-nav]')
-        if (!nav) return
-        
-        const tabButtons = nav.querySelectorAll('[data-tab-target]')
-        const activeBg = nav.querySelector('.tabs__active-position')
-        
-        if (!activeBg) return
-        
-        const activeIndex = Array.from(tabButtons).findIndex(btn => {
-          const target = btn.getAttribute('data-tab-target')
-          return target === activeTab
-        })
-        
-        if (activeIndex >= 0) {
-          const tabCount = tabButtons.length
-          const offset = activeIndex * (300 / tabCount)
-          activeBg.style.transform = `translateX(${offset}%)`
-        }
-      }, 100)
-    }
-  }, [activeTab])
-
   const handleTaskClick = (modalId) => {
     if (typeof window.openModal === 'function') {
       window.openModal(modalId)
@@ -151,11 +119,11 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
   const handleCheckTask = async (taskId) => {
     if (claimingTaskId === taskId) return // Prevent double-click
-    
+
     setClaimingTaskId(taskId)
     try {
       const response = await claimTask(taskId)
-      
+
       if (response.success) {
         // Fetch updated user data to get new balance
         const userData = await fetchCurrentUser()
@@ -164,14 +132,14 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
           if (onUserDataUpdate) {
             onUserDataUpdate(userData)
           }
-          
+
           // Format balance for display (balanceA is in bigint format)
           if (onBalanceUpdate) {
             const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(2)
             onBalanceUpdate(balanceDisplay)
           }
         }
-        
+
         // Reload tasks to update claimed status
         if (activeTab === 'referral') {
           const tasks = await fetchTasks('referral')
@@ -222,12 +190,12 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     if (task.claimed) {
       return t('tasks.claimed')
     }
-    
+
     if (task.progress) {
       // Backend provided progress string (for referral tasks)
       return task.progress
     }
-    
+
     if (task.type === 'other' && task.currentValue != null) {
       // For other tasks, only show progress in modal, not on Tasks Screen
       if (!forModal) {
@@ -238,7 +206,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       const requirementTickets = task.requirement / 1_000_000
       return `${currentTickets} / ${requirementTickets}`
     }
-    
+
     // For follow tasks or if no progress available, return null to show Check button
     return null
   }
@@ -248,19 +216,19 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     if (task.claimed || !task.currentValue || task.currentValue === 0) {
       return 0
     }
-    
+
     if (task.type === 'other' && task.requirement) {
       // For other tasks, requirement and currentValue are in bigint
       const percentage = (task.currentValue / task.requirement) * 100
       return Math.min(percentage, 100) // Cap at 100%
     }
-    
+
     if (task.type === 'referral' && task.requirement) {
       // For referral tasks, requirement is int, currentValue is long
       const percentage = (task.currentValue / task.requirement) * 100
       return Math.min(percentage, 100) // Cap at 100%
     }
-    
+
     return 0
   }
 
@@ -291,7 +259,18 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
             >
               <span>{t('tasks.tabs.other')}</span>
             </li>
-            <div className="tabs__active-border tabs__active-position">
+            <div
+              className="tabs__active-border tabs__active-position"
+              style={{
+                transform:
+                  activeTab === 'referral'
+                    ? 'translateX(0%)'
+                    : activeTab === 'follow'
+                      ? 'translateX(100%)'
+                      : 'translateX(200%)'
+              }}
+            >
+
               <span className="tabs__active-bg tabs__active-position"></span>
             </div>
           </ul>
@@ -392,7 +371,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         >
                           <span>{t('tasks.invite')}</span>
                         </button>
-                        <button 
+                        <button
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
                           id={`task_id_${task.id}`}
                           onClick={() => handleCheckTask(task.id)}
@@ -502,7 +481,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         >
                           <span>{t('tasks.join')}</span>
                         </button>
-                        <button 
+                        <button
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
                           id={`task_id_${task.id}`}
                           onClick={() => handleCheckTask(task.id)}
@@ -626,7 +605,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         >
                           <span>{t('tasks.open')}</span>
                         </button>
-                        <button 
+                        <button
                           className={`task__button task__button-two ${task.claimed ? 'task__button-claimed' : ''}`}
                           id={`task_id_${task.id}`}
                           onClick={() => handleCheckTask(task.id)}

@@ -100,7 +100,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       setTextError(t('store.error.telegramNotAvailable'))
       return
     }
-    
+
     setIsProcessing(true)
     setTextError('')
 
@@ -118,7 +118,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       // openInvoice accepts invoice URLs from createInvoiceLink
       tg.openInvoice(invoiceUrl, async (status) => {
         setIsProcessing(false)
-        
+
         if (status === 'paid') {
           // Payment successful - Telegram has processed the payment
           // Backend will receive webhook from bot and credit balance
@@ -132,14 +132,14 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                 if (onUserDataUpdate) {
                   onUserDataUpdate(userData)
                 }
-                
+
                 // Format balance for display (balanceA is in bigint format)
                 if (onBalanceUpdate) {
                   const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(2)
                   onBalanceUpdate(balanceDisplay)
                 }
               }
-              
+
               // Calculate tickets for the success message
               const ticketsValue = (starsValue * 0.9).toFixed(1)
               tg.showAlert(`Successfully purchased ${ticketsValue} tickets!`)
@@ -165,7 +165,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       })
     } catch (error) {
       setIsProcessing(false)
-      
+
       // Handle rate limit error specifically
       if (error.response?.status === 429) {
         setTextError(t('store.error.tooManyRequests'))
@@ -261,7 +261,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                     onNavigate('dailyBonus')
                   }
                 }}
-                style={{ 
+                style={{
                   background: 'var(--gradient-primary)',
                   cursor: 'pointer'
                 }}
@@ -269,6 +269,8 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                 {t('store.dailyBonus')}
               </a>
             </span>
+
+            <p className='upgrade__daily-text'>{t('store.dailyBonusText')}</p>
           </div>
         </div>
       </div>

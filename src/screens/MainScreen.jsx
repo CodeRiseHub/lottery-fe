@@ -37,7 +37,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // Default to room 1
     return 1
   }
-  
+
   const [currentBet, setCurrentBet] = useState(1) // Will be updated from state
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
@@ -95,7 +95,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const shuffleArray = (array, seed = null) => {
     const shuffled = [...array]
     const random = seed !== null ? seededRandom(seed) : () => Math.random()
-    
+
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
@@ -115,11 +115,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     }
 
     const items = []
-    
+
     participants.forEach((participant) => {
       // Calculate win chance percentage
       const winChance = totalBet > 0 ? ((participant.b || 0) / totalBet) * 100 : 0
-      
+
       // Get avatar URL
       let avatarUrl = participant.aU
       if (!avatarUrl || avatarUrl === 'null' || avatarUrl === String(participant.uI)) {
@@ -128,7 +128,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         const avatars = [avatar1, avatar2, avatar3]
         avatarUrl = avatars[avatarIndex]
       }
-      
+
       // Create block with avatar and chance below
       items.push(
         `<div class='spin__game-item' style="flex-direction: column; padding: 8px;">
@@ -139,7 +139,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         </div>`
       )
     })
-    
+
     return items.join('')
   }
 
@@ -162,7 +162,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     let cumulative = 0
     let winnerParticipant = null
     const participantRanges = []
-    
+
     // First, build participant ranges for logging
     for (const participant of participants) {
       const start = cumulative
@@ -170,7 +170,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       const end = cumulative
       participantRanges.push({ userId: participant.uI, start, end, bet: participant.b })
     }
-    
+
     // Try to identify winner: first from state, then from stopIndex
     if (winnerFromState && winnerFromState.uI) {
       // Use winner from backend state (authoritative source)
@@ -182,14 +182,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         const start = cumulative
         cumulative += (participant.b || 0)
         const end = cumulative
-        
+
         if (stopIndex >= start && stopIndex < end) {
           winnerParticipant = participant
           break
         }
       }
     }
-    
+
     // CRITICAL: If we can't determine the winner, don't generate tape
     // This prevents showing the wrong winner in the tape
     if (!winnerParticipant) {
@@ -201,9 +201,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     const MIN_CHANCE_THRESHOLD = 0.001 // 0.1%
     const MAX_ITEMS = 500
     const USER_COUNT_THRESHOLD = 50
-    
+
     let filteredParticipants = participants
-    
+
     // If more than 50 users, filter by win chance (> 0.1%)
     if (participants.length > USER_COUNT_THRESHOLD) {
       filteredParticipants = participants.filter(p => {
@@ -212,18 +212,18 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         return p.uI === winnerParticipant?.uI || winChance > MIN_CHANCE_THRESHOLD
       })
     }
-    
+
     // Ensure winner is always included (safety check)
     if (winnerParticipant && !filteredParticipants.find(p => p.uI === winnerParticipant.uI)) {
       filteredParticipants.push(winnerParticipant)
     }
-    
+
     // Recalculate total bet for filtered participants
     const filteredTotalBet = filteredParticipants.reduce((sum, p) => sum + (p.b || 0), 0)
-    
+
     // Calculate total items (max 500)
     const totalItems = Math.min(MAX_ITEMS, Math.max(200, filteredParticipants.length * 10))
-    
+
     // Calculate proportional avatar counts for each participant based on win chance
     // First pass: calculate ideal counts (may be fractional)
     const participantCounts = filteredParticipants.map(participant => {
@@ -237,7 +237,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         isWinner
       }
     })
-    
+
     // Second pass: use largest remainder method to distribute counts fairly
     // Ensure winner gets at least 1 avatar
     const countsWithRemainders = participantCounts.map(({ participant, idealCount, isWinner }) => {
@@ -252,11 +252,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         isWinner
       }
     })
-    
+
     // Calculate total allocated so far
     let totalAllocated = countsWithRemainders.reduce((sum, c) => sum + c.floorCount, 0)
     let remaining = totalItems - totalAllocated
-    
+
     // If we exceed 500 items, remove lowest chance participants (but keep winner)
     if (totalAllocated > MAX_ITEMS) {
       // Sort by win chance (ascending), but winner always first
@@ -265,7 +265,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         if (b.isWinner) return 1
         return a.winChance - b.winChance
       })
-      
+
       // Remove participants with lowest chances until we fit in MAX_ITEMS
       const toKeep = []
       let newTotal = 0
@@ -275,11 +275,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           newTotal += item.floorCount
         }
       }
-      
+
       // Recalculate with only kept participants
       const keptParticipants = toKeep.map(item => item.participant)
       const keptTotalBet = keptParticipants.reduce((sum, p) => sum + (p.b || 0), 0)
-      
+
       // Recalculate counts for kept participants
       const recalculatedCounts = keptParticipants.map(participant => {
         const winChance = keptTotalBet > 0 ? (participant.b || 0) / keptTotalBet : 0
@@ -294,13 +294,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           remainder: idealCount - Math.floor(idealCount)
         }
       })
-      
+
       totalAllocated = recalculatedCounts.reduce((sum, c) => sum + c.floorCount, 0)
       remaining = MAX_ITEMS - totalAllocated
       countsWithRemainders.length = 0
       countsWithRemainders.push(...recalculatedCounts)
     }
-    
+
     // Sort by remainder (descending) to allocate remaining items fairly
     // Winner gets priority in remainder allocation
     const sortedByRemainder = [...countsWithRemainders].sort((a, b) => {
@@ -308,7 +308,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       if (!a.isWinner && b.isWinner) return 1
       return b.remainder - a.remainder
     })
-    
+
     // Allocate remaining items to participants with highest remainders
     const finalCounts = countsWithRemainders.map(item => {
       const indexInSorted = sortedByRemainder.findIndex(s => s.participant.uI === item.participant.uI)
@@ -319,10 +319,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         isWinner: item.isWinner
       }
     })
-    
+
     // Build avatar items array
     const avatarItems = []
-    
+
     finalCounts.forEach(({ participant, count, isWinner }) => {
       // Get avatar URL
       let avatarUrl = participant.aU
@@ -332,7 +332,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         const avatars = [avatar1, avatar2, avatar3]
         avatarUrl = avatars[avatarIndex]
       }
-      
+
       // Add avatar items for this participant
       for (let i = 0; i < count; i++) {
         avatarItems.push({
@@ -342,17 +342,17 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         })
       }
     })
-    
+
     // Shuffle the avatars using seeded random (roomNumber as seed) to ensure all clients see the same order
     // Use roomNumber if available, otherwise fall back to unseeded shuffle (shouldn't happen in production)
     const shuffleSeed = roomNumber !== null && roomNumber !== undefined ? roomNumber : null
     const shuffledAvatars = shuffleArray(avatarItems, shuffleSeed)
-    
+
     // CRITICAL: Ensure winner's avatar is at the middle position
     // Find a winner's avatar and swap it to the middle
     const middleIndex = Math.floor(shuffledAvatars.length / 2)
     const winnerIndex = shuffledAvatars.findIndex(item => item.isWinner)
-    
+
     if (winnerIndex !== -1 && winnerIndex !== middleIndex) {
       // Swap winner's avatar to middle position
       const temp = shuffledAvatars[middleIndex]
@@ -369,10 +369,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         }
       }
     }
-    
+
     // Generate HTML from shuffled avatars
     const items = []
-    
+
     shuffledAvatars.forEach((item, index) => {
       const isMiddle = index === middleIndex
       items.push(
@@ -381,7 +381,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         </div>`
       )
     })
-    
+
     return items.join('')
   }
 
@@ -389,15 +389,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   // Derive user bet from userBets (authoritative server data) instead of local state
   const calculateWinChance = () => {
     if (totalBet === 0 || !currentUserId) return 0
-    
+
     // Find current user's bet from participants list
     const userBet = userBets.find(bet => bet.id === currentUserId)
     if (!userBet || userBet.bet === 0) return 0
-    
+
     // bet is now in tickets (not bigint)
     const userBetDisplay = userBet.bet
     if (userBetDisplay === 0) return 0
-    
+
     return ((userBetDisplay / totalBet) * 100).toFixed(2)
   }
 
@@ -433,10 +433,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         }
       }
     }, 1000) // Check every second
-    
+
     return () => clearInterval(checkAnimationTimeout)
   }, [])
-  
+
   // Reset isJoining when user is detected as already joined (e.g., after reconnection)
   useEffect(() => {
     if (currentUserId && userBets.length > 0) {
@@ -459,7 +459,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         setRoomPhase('RESOLUTION') // Update room phase state
         currentPhaseRef.current = 'RESOLUTION' // Update ref AFTER state (for guards/timers only)
       }, 8000) // 8 seconds (5000ms animation + 3000ms buffer)
-      
+
       return () => {
         clearTimeout(timeout)
       }
@@ -479,13 +479,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // Reset user's total bet when new round starts
         setUserTotalPendingBet(0)
       }, 7000) // 8 seconds (4 seconds backend delay + 4 seconds buffer)
-      
+
       return () => {
         clearTimeout(timeout)
       }
     }
   }, [roomPhase]) // Only depend on roomPhase to ensure timeout is always set
-  
+
   // WebSocket connection and state updates
   useEffect(() => {
     const roomNumber = currentRoom.number
@@ -505,10 +505,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         const newPhase = phaseMap[state.p] || 'WAITING'
         const currentPhase = roomPhase
         const statePhaseStr = newPhase // Use converted phase string for all comparisons
-        
+
         // Track if we're transitioning from RESOLUTION to WAITING (new round starting)
         const isNewRoundStarting = currentPhase === 'RESOLUTION' && newPhase === 'WAITING'
-        
+
         // Validate phase transition (prevent skipping phases)
         // Allow: WAITING -> COUNTDOWN -> SPINNING -> RESOLUTION -> WAITING
         // Also allow: any -> WAITING (reset)
@@ -518,7 +518,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           'SPINNING': ['RESOLUTION', 'WAITING'],
           'RESOLUTION': ['WAITING']
         }
-        
+
         // Handle RESOLUTION phase - update phase even if winner data is missing (it may arrive separately)
         // This ensures phase updates on mobile where messages might arrive out of order
         if (newPhase === 'RESOLUTION') {
@@ -532,16 +532,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // For WAITING, always allow the transition
           // The state machine guard was too aggressive and causing stuck states on mobile
           // Tape clearing is handled by the animation callback, so we don't need to block WAITING
-          
+
           // Reset userTotalPendingBet when transitioning FROM RESOLUTION TO WAITING (new round)
           // Don't reset if we're already in WAITING (user might have just placed a bet)
           const isNewRound = isNewRoundStarting || (roomPhase !== 'WAITING' || buttonPhase !== 'WAITING')
-          
+
           setButtonPhase(newPhase) // Update button phase state FIRST (triggers re-render)
           setButtonUpdateCounter(prev => prev + 1) // Always increment counter to force re-render, even if buttonPhase is already WAITING
           setRoomPhase(newPhase) // Update room phase state
           currentPhaseRef.current = newPhase // Update ref AFTER state (for guards/timers only)
-          
+
           // Reset user's total bet when new round starts (RESOLUTION -> WAITING) or transitioning to WAITING
           if (isNewRound) {
             setUserTotalPendingBet(0)
@@ -576,12 +576,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             setUserTotalPendingBet(0)
           }
         }
-        
+
         // Update room user counts for all rooms
         // Backend sends allRoomsConnectedUsers map with counts for all rooms (1, 2, 3)
         // This ensures all room counters are updated even when user switches rooms
         if (state.aR && typeof state.aR === 'object') {
-          setRooms(prevRooms => 
+          setRooms(prevRooms =>
             prevRooms.map(room => {
               const count = state.aR[room.number] || 0
               return { ...room, users: count }
@@ -597,9 +597,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         } else if (state.rN !== undefined && state.rN !== null) {
           // Fallback: if allRoomsConnectedUsers is not available, update only current room
           const userCount = state.cU || 0
-          setRooms(prevRooms => 
-            prevRooms.map(room => 
-              room.number === state.rN 
+          setRooms(prevRooms =>
+            prevRooms.map(room =>
+              room.number === state.rN
                 ? { ...room, users: userCount }
                 : room
             )
@@ -608,7 +608,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             setCurrentRoom(prev => ({ ...prev, users: userCount }))
           }
         }
-        
+
         // Update bet limits from state (room-specific)
         // minBet and maxBet are now in tickets (not bigint)
         if (state.mB !== undefined && state.mX !== undefined) {
@@ -616,28 +616,28 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           const newMaxBet = state.mX
           setMinBet(newMinBet)
           setMaxBet(newMaxBet)
-          
+
           // Update currentBet to minBet if it's outside the new limits or if room changed
           if (currentBet < newMinBet || currentBet > newMaxBet || currentRoom.number !== state.rN) {
             setCurrentBet(newMinBet)
           }
         }
-        
+
         // Update participants with optimized incremental merge
         // Only update if participants actually changed (prevent unnecessary re-renders)
         if (state.ps && state.ps.length > 0) {
           // Check if participants actually changed before updating
-          const participantsChanged = 
+          const participantsChanged =
             participants.length !== state.ps.length ||
             participants.some((p, i) => {
               const newP = state.ps[i]
               return !newP || p.uI !== newP.uI || p.b !== newP.b || p.aU !== newP.aU
             })
-          
+
           if (participantsChanged) {
             // Update participants state (optimized: only when changed)
             setParticipants(state.ps)
-            
+
             const bets = state.ps.map(p => ({
               id: p.uI,
               avatar: p.aU || defaultAvatar, // Use backend avatar URL, fallback to default
@@ -646,7 +646,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             }))
             setUserBets(bets)
           }
-          
+
           // Derive JOIN/JOINED state from server data (authoritative source)
           // If user is in participants, they are JOINED - reset isJoining
           // This handles reconnect case where user was already joined before app closed
@@ -676,7 +676,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             const now = Date.now()
             const animationCompletedTime = animationCompletedTimeRef.current
             const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
-            
+
             // Only clear if animation completed more than 1 second ago, or never ran
             if (!animationCompletedTime || timeSinceCompletion > 1000) {
               lineContainerRef.current.innerHTML = ''
@@ -695,9 +695,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         }
 
         // Check if current user has joined the round
-        const userHasJoined = currentUserId && state.ps && 
+        const userHasJoined = currentUserId && state.ps &&
           state.ps.some(p => p.uI === currentUserId)
-        
+
         // If user has joined but isJoining is still true (e.g., after reconnection), reset it
         // This ensures button shows "Joined" instead of "Joining..." when user reconnects
         if (userHasJoined && isJoining) {
@@ -711,19 +711,19 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           if (userHasJoined) {
             setIsJoining(false)
           }
-          
+
           // Reset user's total bet when spin starts (round is locked, prepare for next round)
           // This ensures max bet shows 100 when the round ends
           if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
             setUserTotalPendingBet(0)
           }
-          
+
           // Reset user's total bet when spin starts (round is locked, prepare for next round)
           // This ensures max bet shows 100 when the round ends
           if (roomPhase !== 'SPINNING' || buttonPhase !== 'SPINNING') {
             setUserTotalPendingBet(0)
           }
-          
+
           // Only start animation if not already running (prevent interruption)
           // This prevents "quick spin" when state changes rapidly
           if (!animationRunningRef.current && lineContainerRef.current && state.ps && state.ps.length > 0) {
@@ -731,11 +731,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             if (typeof window.$ !== 'undefined') {
               window.$('#lineContainer').scrollLeft(0)
             }
-            
+
             // Set HTML content immediately (synchronously, no requestAnimationFrame)
             // Ensure container exists and is mounted before setting HTML
             const animationStartTime = Date.now()
-            
+
             if (lineContainerRef.current) {
               // Use winner from state if available (backend authoritative), otherwise use local winner state
               const winnerToUse = state.w || winner
@@ -745,12 +745,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 lineContainerRef.current.innerHTML = tapeHTML
               }
             }
-            
+
             // Mark animation as running and record start time
             animationRunningRef.current = true
             animationStartTimeRef.current = animationStartTime
             animationCompletedTimeRef.current = null // Reset completion time when starting new animation
-            
+
             // Start animation immediately - use minimal delay to ensure DOM is ready
             setTimeout(() => {
               startSpinAnimation(state.sI, state.sD || 5000)
@@ -760,35 +760,35 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // Reset all game states when back to WAITING
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in WAITING
-          
+
           // Only reset user's total bet when transitioning TO WAITING from another phase (new round)
           // Don't reset if we're already in WAITING phase (user might have just placed a bet)
           // Use isNewRoundStarting to detect RESOLUTION -> WAITING transition (new round)
           const wasInWaiting = roomPhase === 'WAITING' && buttonPhase === 'WAITING'
           const shouldReset = isNewRoundStarting || !wasInWaiting
-          
+
           if (shouldReset) {
             setUserTotalPendingBet(0)
           }
-          
+
           // State machine guard: Don't process WAITING if animation just completed
           // This prevents race condition between animation completion and WAITING state
           const now = Date.now()
           const animationCompletedTime = animationCompletedTimeRef.current
           const timeSinceCompletion = animationCompletedTime ? now - animationCompletedTime : null
-          
+
           if (animationCompletedTime && timeSinceCompletion < 1000) {
             // Animation just completed (< 1 second ago), skip WAITING processing
             // Tape clearing is handled by animation callback
             return // Skip this state update to prevent race condition
           }
-          
+
           // Reset animation completion time when actually in WAITING phase (new round starting)
           // This ensures roomPhase state is updated before resetting the ref
           if (animationCompletedTimeRef.current) {
             animationCompletedTimeRef.current = null
           }
-          
+
           // If animation wasn't running (single participant refund), allow tape clearing
           if (!animationRunningRef.current && (!state.ps || state.ps.length === 0)) {
             setUserBets([])
@@ -808,13 +808,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           // Reset game started state when resolution phase starts
           setGameStarted(false)
           setIsJoining(false) // Always reset joining state in resolution
-          
+
           // Reset user's total bet when resolution phase starts (round ended, prepare for next round)
           // This ensures max bet shows 100 when the next round starts
           if (roomPhase !== 'RESOLUTION' || buttonPhase !== 'RESOLUTION') {
             setUserTotalPendingBet(0)
           }
-          
+
           // Clear tape synchronously when RESOLUTION arrives if animation is still running
           // This ensures tape is cleared before winner overlay is shown
           // The animation callback will also try to clear, but this ensures it happens immediately
@@ -855,7 +855,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // Connection state callback
         const wasConnected = wsConnected
         setWsConnected(connected)
-        
+
         // On reconnect (was disconnected, now connected), reset only local joining state
         // Server will automatically send current room state when client subscribes
         if (!wasConnected && connected) {
@@ -876,12 +876,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     )
 
     // Cleanup on unmount
-      return () => {
-        gameWebSocket.disconnect()
-        if (countdownIntervalRef.current) {
-          clearInterval(countdownIntervalRef.current)
-        }
+    return () => {
+      gameWebSocket.disconnect()
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current)
       }
+    }
   }, [currentRoom.number])
 
   // Countdown timer
@@ -925,7 +925,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     let bet = parseInt(newBet, 10)
     const userTotalBet = getUserTotalBet()
     const remainingBetCapacity = maxBet - userTotalBet
-    
+
     // Clamp bet to valid range considering user's total bet
     bet = bet <= minBet ? minBet : bet
     // Don't allow bet to exceed remaining capacity
@@ -945,11 +945,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     } else if (action === 'max') {
       const userTotalBet = getUserTotalBet()
       const remainingBetCapacity = maxBet - userTotalBet
-      
+
       // Use actual balance
       const balanceDisplay = formatBalance(userBalance)
       const balanceValue = parseFloat(balanceDisplay) * 1000000 // Convert to bigint equivalent
-      
+
       // Max bet is the minimum of: remaining capacity, available balance, and maxBet
       const max = Math.min(
         balanceValue / 1000000, // Convert back to tickets
@@ -998,7 +998,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (typeof window.$ === 'undefined') {
       return
     }
-    
+
     const container = $container[0]
     const element = $element[0]
     if (!container || !element) {
@@ -1028,16 +1028,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // Use scrollToCenter to center the middle item (exactly like lottery-draft-fe lineAnimation function)
     const $container = window.$('.noScrolQ')
     const $middleElement = window.$('#middleQ')
-    
+
     if ($container.length && $middleElement.length) {
       // Use duration from backend (5000ms) instead of hardcoded value
       const animationDuration = duration || 5000
-      
+
       // Call scrollToCenter with duration and completion callback
       scrollToCenter($container, $middleElement, animationDuration, () => {
         // Animation completed - add blink animation
         $middleElement.addClass('blinkWinX')
-        
+
         // Clear tape after animation completes (not based on arbitrary timeout)
         // This is the SINGLE SOURCE OF TRUTH for tape clearing
         // This ensures tape is cleared exactly when animation finishes
@@ -1049,7 +1049,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               lineContainerRef.current.innerHTML = ''
             }
           }
-          
+
           // Reset animation flag after animation fully completes
           animationRunningRef.current = false
           animationStartTimeRef.current = null
@@ -1069,7 +1069,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown) {
       return
     }
-    
+
     // Check rate limit: prevent clicks faster than 1.5 seconds
     const now = Date.now()
     if (lastBetTimeRef.current !== null && (now - lastBetTimeRef.current) < 1500) {
@@ -1079,14 +1079,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // Calculate user's total bet for the current round
     const userTotalBet = getUserTotalBet()
     const totalBetAfterThis = userTotalBet + currentBet
-    
+
     // Validate single bet amount
     if (currentBet < minBet || currentBet > maxBet) {
       setErrorMessage(t('game.error.betRange', { min: minBet, max: maxBet }))
       setShowErrorModal(true)
       return
     }
-    
+
     // Validate total bet doesn't exceed max bet for the room
     if (totalBetAfterThis > maxBet) {
       setErrorMessage(t('game.error.maxBetExceeded', { max: maxBet, current: userTotalBet, remaining: maxBet - userTotalBet }))
@@ -1097,7 +1097,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // Convert bet from display units to bigint format (database format)
     // Backend expects and works with bigint format throughout
     const betBigint = currentBet * 1000000
-    
+
     // Check balance (balance is in bigint format with 6 decimal places)
     if (userBalance < betBigint) {
       setErrorMessage(t('game.error.insufficientBalance'))
@@ -1108,7 +1108,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     // Update last bet time and set cooldown
     lastBetTimeRef.current = now
     setBetCooldown(true)
-    
+
     // Disable button for 1.5 seconds
     setTimeout(() => {
       setBetCooldown(false)
@@ -1116,7 +1116,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
     // Set joining state temporarily (will be reset after state update)
     setIsJoining(true)
-    
+
     // Immediately update user's total bet for this round (client-side tracking)
     // Backend validation will prevent exploitation, so we can update UI immediately
     setUserTotalPendingBet(prev => prev + currentBet)
@@ -1124,7 +1124,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     try {
       // Send bet amount in bigint format (database format)
       gameWebSocket.joinRound(currentRoom.number, betBigint)
-      
+
       // Update balance immediately (will be confirmed by server)
       const newBalance = userBalance - betBigint
       const formattedNewBalance = formatBalance(newBalance)
@@ -1191,7 +1191,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         setCompletedRounds([])
       }
     }
-    
+
     loadCompletedRounds()
   }, [currentRoom.number, winner]) // Reload when room changes or when winner is set (round ends)
 
@@ -1202,7 +1202,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     if (roomNumber !== undefined && roomNumber !== null && roomNumber !== currentRoom.number) {
       const targetRoom = rooms.find(r => r.number === roomNumber) || { number: roomNumber, users: 0 }
       setCurrentRoom(targetRoom)
-      
+
       // Store selected room in localStorage when prop changes
       try {
         localStorage.setItem('lottery_selected_room', roomNumber.toString())
@@ -1219,13 +1219,13 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     } catch (e) {
       // Ignore localStorage errors (e.g., in private browsing mode)
     }
-    
+
     // Update parent's screenProps to keep roomNumber prop in sync
     // This prevents the useEffect from resetting the room back
     if (onNavigate) {
       onNavigate('main', { roomNumber: room.number })
     }
-    
+
     // Clear all game state when switching rooms to prevent stale data
     setParticipants([])
     setUserBets(new Map())
@@ -1244,7 +1244,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     tapeHtmlRef.current = null
     // Reset user's total bet when switching rooms
     setUserTotalPendingBet(0)
-    
+
     // Update room - WebSocket will handle unsubscribing from old room and subscribing to new room
     setCurrentRoom(room)
     // The useEffect with currentRoom.number dependency will trigger reconnection
@@ -1281,11 +1281,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 {registeredUsers} <span style={{ fontSize: '18px' }}>👤</span>
               </span>
             </div>
-            
+
             {/* Center - countdown ring */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
               width: countdownActive && countdownRemaining !== null ? '36px' : '0',
               minWidth: countdownActive && countdownRemaining !== null ? '36px' : '0',
@@ -1334,7 +1334,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 </div>
               ) : null}
             </div>
-            
+
             {/* Right half - total bet centered */}
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <span className="lottery-stats__value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1356,14 +1356,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               className="spin__game scroll-block noScrolQ"
               id="lineContainer"
               ref={lineContainerRef}
-              style={{ 
+              style={{
                 visibility: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 'hidden' : 'visible',
                 height: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 0 : 'auto',
                 minHeight: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 0 : '110px',
                 overflow: (registeredUsers === 0 && roomPhase === 'WAITING') || winner ? 'hidden' : 'auto'
               }}
             />
-            
+
             {/* "Waiting for users..." message - only show when no users and in WAITING phase */}
             {registeredUsers === 0 && roomPhase === 'WAITING' && (
               <div style={{
@@ -1379,7 +1379,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 {t('game.waitingForUsers')}
               </div>
             )}
-            
+
             {/* Winner display - only show when winner exists */}
             {winner && (() => {
               // Get avatar URL, fallback to placeholder if not available
@@ -1389,7 +1389,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 const avatars = [avatar1, avatar2, avatar3]
                 avatarUrl = avatars[avatarIndex]
               }
-              
+
               return (
                 <div style={{
                   display: 'flex',
@@ -1406,44 +1406,44 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                   <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center' }}>
                     {t('game.winner')}: {winner.sN || `${t('game.user')} ${winner.uI}`}
                   </div>
-                  
+
                   {/* Bet/Win/Chance block divided into left (avatar) and right (text) parts */}
-                  <div style={{ 
-                    display: 'flex', 
+                  <div style={{
+                    display: 'flex',
                     width: '100%',
                     gap: '20px',
                     alignItems: 'flex-start'
                   }}>
                     {/* Left part: Round avatar centered, sized to match text block height */}
-                    <div style={{ 
+                    <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flex: '0 0 auto',
                       minWidth: '100px'
                     }}>
-                      <img 
-                        src={avatarUrl} 
-                        alt="Winner avatar" 
-                        style={{ 
-                          width: '90px', 
+                      <img
+                        src={avatarUrl}
+                        alt="Winner avatar"
+                        style={{
+                          width: '90px',
                           height: '90px',
                           borderRadius: '50%',
                           objectFit: 'cover'
-                        }} 
+                        }}
                       />
                     </div>
-                    
+
                     {/* Right part: Bet/Win/Chance centered in right section */}
-                    <div style={{ 
-                      display: 'flex', 
+                    <div style={{
+                      display: 'flex',
                       flexDirection: 'column',
                       flex: 1,
                       alignItems: 'center',
                       justifyContent: 'center',
                       height: '90px'
                     }}>
-                      <div style={{ 
+                      <div style={{
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -1463,10 +1463,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                             const currentTotalBetTickets = totalBet || 0
                             const backendWinChance = winner.wC
                             const frontendCalculatedChance = currentTotalBetTickets > 0 ? ((winnerBetTickets / currentTotalBetTickets) * 100) : 0
-                            const displayChance = backendWinChance !== null && backendWinChance !== undefined 
-                              ? backendWinChance 
+                            const displayChance = backendWinChance !== null && backendWinChance !== undefined
+                              ? backendWinChance
                               : frontendCalculatedChance
-                            
+
                             return `${t('game.chanceLabel')}: ${displayChance.toFixed(2)}%`
                           })()}
                         </div>
@@ -1480,7 +1480,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
           <div className="spin__bets">
             <p className="spin__bets-title">{t('game.chooseBet')}</p>
-            
+
             <div className="spin__controls-row">
               <button
                 className="spin__control-btn changeBetBT"
@@ -1505,37 +1505,37 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               </button>
             </div>
 
-                  <button
-                    key={buttonPhase} // Force remount on iOS WKWebView when phase changes
-                    className="education__button"
-                    id="startGame"
-                    onClick={handleJoin}
-                    disabled={(() => {
-                      const userTotalBet = getUserTotalBet()
-                      const isMaxBetReached = userTotalBet >= maxBet
-                      return !wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown || isMaxBetReached
-                    })()}
-                    style={(() => {
-                      const userTotalBet = getUserTotalBet()
-                      const isMaxBetReached = userTotalBet >= maxBet
-                      if (buttonPhase === 'RESOLUTION') {
-                        return { pointerEvents: 'none', opacity: 0.6 }
-                      }
-                      // No inline style for max bet - CSS handles it via :disabled selector
-                      return {}
-                    })()}
-                  >
-                    <span className="education__button-text" id="textButton">
-                      {(() => {
-                        const buttonText = !wsConnected ? t('game.connecting') : 
-                         buttonPhase === 'SPINNING' ? t('game.spinning') : 
-                         buttonPhase === 'RESOLUTION' ? t('game.roundEnded') :
-                         (isJoining || betCooldown) ? t('game.placingBet') :
-                         t('game.bet')
-                        return buttonText
-                      })()}
-                    </span>
-                  </button>
+            <button
+              key={buttonPhase} // Force remount on iOS WKWebView when phase changes
+              className="education__button"
+              id="startGame"
+              onClick={handleJoin}
+              disabled={(() => {
+                const userTotalBet = getUserTotalBet()
+                const isMaxBetReached = userTotalBet >= maxBet
+                return !wsConnected || buttonPhase === 'SPINNING' || buttonPhase === 'RESOLUTION' || isJoining || betCooldown || isMaxBetReached
+              })()}
+              style={(() => {
+                const userTotalBet = getUserTotalBet()
+                const isMaxBetReached = userTotalBet >= maxBet
+                if (buttonPhase === 'RESOLUTION') {
+                  return { pointerEvents: 'none', opacity: 0.6 }
+                }
+                // No inline style for max bet - CSS handles it via :disabled selector
+                return {}
+              })()}
+            >
+              <span className="education__button-text" id="textButton">
+                {(() => {
+                  const buttonText = !wsConnected ? t('game.connecting') :
+                    buttonPhase === 'SPINNING' ? t('game.spinning') :
+                      buttonPhase === 'RESOLUTION' ? t('game.roundEnded') :
+                        (isJoining || betCooldown) ? t('game.placingBet') :
+                          t('game.bet')
+                  return buttonText
+                })()}
+              </span>
+            </button>
           </div>
 
           <p className="spin__subtitle">{t('game.completedRounds')}</p>
@@ -1553,15 +1553,15 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                   const avatars = [avatar1, avatar2, avatar3]
                   avatarUrl = avatars[avatarIndex]
                 }
-                
+
                 // Convert bet and payout from bigint to display format
                 // Values are already in bigint format, so pass directly to formatBalance
                 const betDisplay = round.winnerBet || 0
                 const payoutDisplay = round.payout || 0
                 const chanceDisplay = round.winChance ? round.winChance.toFixed(2) : '0.00'
-                
+
                 // Log completed round data for debugging
-                
+
                 return (
                   <div
                     key={round.roundId}
@@ -1572,7 +1572,6 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                       alt="winner"
                       width="56"
                       height="56"
-                      style={{ borderRadius: '50%' }}
                       onError={(e) => {
                         e.target.onerror = null
                         e.target.src = defaultAvatar
