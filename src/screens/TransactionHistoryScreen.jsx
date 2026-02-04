@@ -89,8 +89,7 @@ export default function TransactionHistoryScreen({ onBack }) {
 
   // Format transaction type with taskID or roundID
   const formatType = (transaction) => {
-    let typeText = transaction.type
-    // Map transaction types to localization keys
+    // Backend now sends enum values (TASK_BONUS, WIN, etc.) - map to localization keys
     const typeMap = {
       'TASK_BONUS': 'transactionHistory.type.taskBonus',
       'DAILY_BONUS': 'transactionHistory.type.dailyBonus',
@@ -98,22 +97,21 @@ export default function TransactionHistoryScreen({ onBack }) {
       'BET': 'transactionHistory.type.bet',
       'LOSS': 'transactionHistory.type.bet', // Legacy: Map old LOSS to "Bet"
       'WITHDRAWAL': 'transactionHistory.type.withdrawal',
-      'DEPOSIT': 'transactionHistory.type.deposit'
+      'DEPOSIT': 'transactionHistory.type.deposit',
+      'CANCELLATION_OF_WITHDRAWAL': 'transactionHistory.type.cancellationOfWithdrawal'
     }
     
-    // Handle legacy format (Task bonus, Daily bonus, Win, Bet) and new format (TASK_BONUS, DAILY_BONUS, WIN, BET, LOSS, WITHDRAWAL, DEPOSIT)
-    const normalizedType = transaction.type.toUpperCase().replace(' ', '_')
-    const localizationKey = typeMap[normalizedType] || typeMap[transaction.type] || null
+    // Normalize to uppercase (handle both enum values and legacy strings)
+    const normalizedType = transaction.type.toUpperCase().replace(/[ -]/g, '_')
+    const localizationKey = typeMap[normalizedType] || typeMap[transaction.type]
     
-    if (localizationKey) {
-      typeText = t(localizationKey)
-    }
+    // Get localized text (fallback to original type if no translation found)
+    let typeText = localizationKey ? t(localizationKey) : transaction.type
     
     // Add taskID or roundID if available
-    // Don't add taskId for DAILY_BONUS (it should be null, but check to be safe)
-    if ((normalizedType === 'TASK_BONUS' || transaction.type === 'Task bonus') && transaction.taskId) {
+    if (normalizedType === 'TASK_BONUS' && transaction.taskId) {
       typeText = `${typeText} (${t('transactionHistory.taskId')}: ${transaction.taskId})`
-    } else if ((normalizedType === 'WIN' || normalizedType === 'BET' || normalizedType === 'LOSS' || transaction.type === 'Win' || transaction.type === 'Bet' || transaction.type === 'Loss') && transaction.roundId) {
+    } else if ((normalizedType === 'WIN' || normalizedType === 'BET' || normalizedType === 'LOSS') && transaction.roundId) {
       typeText = `${typeText} (${t('transactionHistory.roundId')}: ${transaction.roundId})`
     }
     // DAILY_BONUS doesn't show taskId (intentionally excluded)
