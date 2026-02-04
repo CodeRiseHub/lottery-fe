@@ -186,7 +186,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                 )}
 
                 <span className="upgrade__button-border" style={isButtonDisabled ? { opacity: 0.6 } : {}}>
-                  {isClaiming ? <p className='upgrade__time'>{formatCountdown(bonusStatus.cooldownSeconds)}</p> :
+                  {!bonusStatus.available ? <p className='upgrade__time'>{formatCountdown(bonusStatus.cooldownSeconds)}</p> :
                     <a
                       href="#"
                       className="upgrade__button"
