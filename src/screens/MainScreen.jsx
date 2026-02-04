@@ -1021,7 +1021,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       return
     }
 
-    const totalSeconds = 5 // Match backend COUNTDOWN_DURATION_SECONDS
+    const totalSeconds = 30 // Match backend COUNTDOWN_DURATION_SECONDS
     const updateInterval = 100 // Update every 100ms
 
     countdownIntervalRef.current = setInterval(() => {

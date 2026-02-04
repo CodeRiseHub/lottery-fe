@@ -17,18 +17,19 @@ import diamondImg from '../assets/purchase/gifts/diamond.png'
 import champagneImg from '../assets/purchase/gifts/champagne.png'
 
 // Gift names will be localized in the component using t() function
+// All prices multiplied by 10 (e.g., 18 → 180)
 const gifts = [
-  { id: 'heart', nameKey: 'giftPayout.gift.heart', image: heartImg, price: 18 },
-  { id: 'bear', nameKey: 'giftPayout.gift.bear', image: bearImg, price: 18 },
-  { id: 'giftbox', nameKey: 'giftPayout.gift.giftbox', image: giftboxImg, price: 28 },
-  { id: 'flower', nameKey: 'giftPayout.gift.flower', image: flowerImg, price: 28 },
-  { id: 'cake', nameKey: 'giftPayout.gift.cake', image: cakeImg, price: 55 },
-  { id: 'bouquet', nameKey: 'giftPayout.gift.bouquet', image: bouquetImg, price: 55 },
-  { id: 'rocket', nameKey: 'giftPayout.gift.rocket', image: rocketImg, price: 55 },
-  { id: 'champagne', nameKey: 'giftPayout.gift.champagne', image: champagneImg, price: 55 },
-  { id: 'cup', nameKey: 'giftPayout.gift.cup', image: cupImg, price: 110 },
-  { id: 'ring', nameKey: 'giftPayout.gift.ring', image: ringImg, price: 110 },
-  { id: 'diamond', nameKey: 'giftPayout.gift.diamond', image: diamondImg, price: 110 },
+  { id: 'heart', nameKey: 'giftPayout.gift.heart', image: heartImg, price: 180 },
+  { id: 'bear', nameKey: 'giftPayout.gift.bear', image: bearImg, price: 180 },
+  { id: 'giftbox', nameKey: 'giftPayout.gift.giftbox', image: giftboxImg, price: 280 },
+  { id: 'flower', nameKey: 'giftPayout.gift.flower', image: flowerImg, price: 280 },
+  { id: 'cake', nameKey: 'giftPayout.gift.cake', image: cakeImg, price: 550 },
+  { id: 'bouquet', nameKey: 'giftPayout.gift.bouquet', image: bouquetImg, price: 550 },
+  { id: 'rocket', nameKey: 'giftPayout.gift.rocket', image: rocketImg, price: 550 },
+  { id: 'champagne', nameKey: 'giftPayout.gift.champagne', image: champagneImg, price: 550 },
+  { id: 'cup', nameKey: 'giftPayout.gift.cup', image: cupImg, price: 1100 },
+  { id: 'ring', nameKey: 'giftPayout.gift.ring', image: ringImg, price: 1100 },
+  { id: 'diamond', nameKey: 'giftPayout.gift.diamond', image: diamondImg, price: 1100 },
 ]
 
 export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
@@ -583,8 +584,8 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
                   </tr>
                 ) : (
                   payoutHistory.map((entry, index) => {
-                    // Convert bigint to tickets (divide by 1,000,000) and format to 4 decimals
-                    const amountInTickets = (entry.amount / 1_000_000).toFixed(2)
+                    // Convert bigint to tickets (divide by 1,000,000) and format as integer
+                    const amountInTickets = Math.floor(entry.amount / 1_000_000)
                     
                     return (
                       <tr key={index} style={{ borderBottom: index < payoutHistory.length - 1 ? '1px solid #3d4f65' : 'none' }}>

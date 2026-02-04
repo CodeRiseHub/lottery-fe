@@ -76,12 +76,12 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   }, [])
 
   useEffect(() => {
-    // Calculate balance (Tickets) based on Stars amount with 1.1 conversion rate
+    // Calculate balance (Tickets) based on Stars amount with 11 conversion rate
     const stars = parseInt(starsAmount, 10) || 0
     
     if (stars > 0) {
-      const tickets = (stars * 1.1).toFixed(1)
-      setBalanceTickets(tickets)
+      const tickets = Math.floor(stars * 11)
+      setBalanceTickets(tickets.toString())
     } else {
       setBalanceTickets('0')
     }
@@ -331,8 +331,8 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                   </tr>
                 ) : (
                   payoutHistory.map((entry, index) => {
-                    // Convert bigint to tickets (divide by 1,000,000) and format to 4 decimals
-                    const amountInTickets = (entry.amount / 1_000_000).toFixed(2)
+                    // Convert bigint to tickets (divide by 1,000,000) and format as integer
+                    const amountInTickets = Math.floor(entry.amount / 1_000_000)
                     
                     return (
                       <tr key={index} style={{ borderBottom: index < payoutHistory.length - 1 ? '1px solid #3d4f65' : 'none' }}>

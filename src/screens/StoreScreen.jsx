@@ -3,12 +3,12 @@ import { createPaymentInvoice, cancelPayment, fetchCurrentUser } from '../api'
 import { t } from '../i18n'
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
-  const [amount, setAmount] = useState('50')
+  const [amount, setAmount] = useState('1')
   const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const minStars = 50
+  const minStars = 1 // Set to 1 for testing purposes
   const maxStars = 100000
 
   useEffect(() => {
@@ -71,9 +71,9 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       setTextError('')
     }
 
-    // Calculate tickets: 1 star = 0.9 tickets
-    let ticketsValue = starsValue * 0.9
-    setTickets(numberFormatRuf(ticketsValue.toFixed(1)))
+    // Calculate tickets: 1 star = 9 tickets
+    let ticketsValue = starsValue * 9
+    setTickets(numberFormatRuf(Math.floor(ticketsValue).toString()))
   }
 
   const handleBuyTickets = async () => {
@@ -141,7 +141,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               }
               
               // Calculate tickets for the success message
-              const ticketsValue = (starsValue * 0.9).toFixed(1)
+              const ticketsValue = Math.floor(starsValue * 9)
               tg.showAlert(`Successfully purchased ${ticketsValue} tickets!`)
             } catch (error) {
               console.error('Error syncing balance after payment:', error)
