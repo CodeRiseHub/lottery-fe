@@ -92,7 +92,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
     const interval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startTime) / 1000)
       const remainingSeconds = Math.max(0, initialSeconds - elapsed)
-      
+
       if (remainingSeconds <= 0) {
         setCountdown(null)
         // Reload status to get updated availability
@@ -126,7 +126,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
 
     try {
       const response = await claimTask(bonusStatus.taskId)
-      
+
       if (response.success) {
         // Update balance immediately
         const userData = await fetchCurrentUser()
@@ -139,10 +139,10 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
             onBalanceUpdate(balanceDisplay)
           }
         }
-        
+
         // Reload status to update cooldown
         await loadBonusStatus()
-        
+
         // Reload recent claims to show the new claim (refresh table after successful claim)
         // This ensures the table is updated immediately after claiming
         try {
@@ -181,43 +181,44 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                   </p>
                 ) : (
                   <p className="upgrade__label" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    {t('dailyBonus.cooldown', { countdown: countdown || formatCountdown(bonusStatus.cooldownSeconds) })}
+                    {t('dailyBonus.cooldown')}
                   </p>
                 )}
 
                 <span className="upgrade__button-border" style={isButtonDisabled ? { opacity: 0.6 } : {}}>
-                  <a
-                    href="#"
-                    className="upgrade__button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      if (!isButtonDisabled) {
-                        handleClaim()
-                      }
-                    }}
-                    style={{ 
-                      background: isButtonDisabled ? 'rgba(90, 126, 213, 0.4)' : 'var(--gradient-secondary)',
-                      opacity: isButtonDisabled ? 0.7 : 1,
-                      pointerEvents: isButtonDisabled ? 'none' : 'auto',
-                      cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      filter: isButtonDisabled ? 'brightness(0.6)' : 'none'
-                    }}
-                  >
-                    {isClaiming ? (
-                      t('dailyBonus.claiming')
-                    ) : bonusStatus.available ? (
-                      <>
-                        {t('dailyBonus.claim')}
-                        <img src={ticketIcon} alt="ticket" width="39" height="28" style={{ display: 'inline-block' }} />
-                      </>
-                    ) : (
-                      t('dailyBonus.claimed')
-                    )}
-                  </a>
+                  {isClaiming ? <p className='upgrade__time'>{formatCountdown(bonusStatus.cooldownSeconds)}</p> :
+                    <a
+                      href="#"
+                      className="upgrade__button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (!isButtonDisabled) {
+                          handleClaim()
+                        }
+                      }}
+                      style={{
+                        background: isButtonDisabled ? 'rgba(90, 126, 213, 0.4)' : 'var(--gradient-secondary)',
+                        opacity: isButtonDisabled ? 0.7 : 1,
+                        pointerEvents: isButtonDisabled ? 'none' : 'auto',
+                        cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        filter: isButtonDisabled ? 'brightness(0.6)' : 'none'
+                      }}
+                    >
+                      {isClaiming ? (
+                        t('dailyBonus.claiming')
+                      ) : bonusStatus.available ? (
+                        <>
+                          {t('dailyBonus.claim')}
+                          <img src={ticketIcon} alt="ticket" width="39" height="28" style={{ display: 'inline-block' }} />
+                        </>
+                      ) : (
+                        t('dailyBonus.claimed')
+                      )}
+                    </a>}
                 </span>
               </>
             )}
@@ -230,16 +231,16 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
 
             {/* Recent Claims Table */}
             <div style={{ marginTop: '30px' }}>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: 'bold',
                 marginBottom: '15px',
                 textAlign: 'center',
                 color: 'var(--text-primary, #fff)'
               }}>
                 {t('dailyBonus.recentClaims.title')}
               </h3>
-              
+
               {loadingClaims ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary, #ccc)' }}>
                   {t('dailyBonus.recentClaims.loading')}
@@ -254,14 +255,14 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                     <div key={`claim-${index}-${claim.claimedAt}`} className="transaction__row">
                       <div className="transaction__main" style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
                         <div style={{ flex: '0 0 40px' }}>
-                          <ParticipantAvatar 
-                            avatarUrl={claim.avatarUrl} 
+                          <ParticipantAvatar
+                            avatarUrl={claim.avatarUrl}
                             userId={index}
                             size={40}
                           />
                         </div>
-                        <p style={{ 
-                          margin: 0, 
+                        <p style={{
+                          margin: 0,
                           flex: '1',
                           textOverflow: 'ellipsis',
                           overflow: 'hidden',
