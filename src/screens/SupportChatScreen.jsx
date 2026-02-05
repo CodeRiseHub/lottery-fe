@@ -69,7 +69,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
       const data = await fetchTicketDetail(ticketId)
       setTicket(data)
       setIsClosed(data.status === 'CLOSED')
-      
+
       // Map messages to display format
       const mappedMessages = data.messages.map(msg => ({
         id: msg.id,
@@ -78,7 +78,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
         text: msg.message,
         createdAt: msg.createdAt
       }))
-      
+
       // Always add the hardcoded "Supporter Please wait! Support will answer soon." as first message
       const supporterWaitMessage = {
         id: 'supporter-wait',
@@ -87,7 +87,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
         text: t('supportChat.waitMessage'),
         createdAt: null
       }
-      
+
       setMessages([supporterWaitMessage, ...mappedMessages])
     } catch (error) {
       console.error('Failed to load ticket detail:', error)
@@ -132,10 +132,10 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
 
     setIsSending(true)
     setError('')
-    
+
     try {
       const messageData = await addTicketMessage(ticketId, newMessage.trim())
-      
+
       // Add new message to list
       const newMsg = {
         id: messageData.id,
@@ -144,7 +144,7 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
         text: messageData.message,
         createdAt: messageData.createdAt
       }
-      
+
       setMessages(prev => {
         // Keep the hardcoded supporter wait message as first, then add new message
         const supporterWaitMessage = prev.find(m => m.id === 'supporter-wait')
@@ -227,74 +227,74 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
             ))
           )}
         </div>
-        <br /><br /><br /><br /><br /><br />
-        <div id="scroll-anchor" ref={scrollAnchorRef}></div>
-      </div>
-      
-      <div className="support-chat__footer">
-        <div className="support-chat__controls">
-          <button
-            className="support-chat__close"
-            id="closeTicket"
-            onClick={handleCloseTicket}
-            disabled={isClosed}
-          >
-            {isClosed ? t('supportChat.isClosed') : t('supportChat.close')}
-            <img
-              src={closeIcon}
-              alt="close"
-              width="21"
-              height="21"
-            />
-          </button>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault()
-              if (onBack) onBack()
-            }}
-            className="support-chat__back"
-          >
-            {t('supportChat.goBack')}
-            <img
-              src={backIcon}
-              alt="back"
-              width="29"
-              height="21"
-            />
-          </a>
-        </div>
-
-        {!isClosed && (
-          <div className="support-chat__input-wrapper" id="inputT">
-            <textarea
-              type="text"
-              className="support-chat__input"
-              placeholder={t('supportChat.placeholder')}
-              id="newMessageText"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              maxLength={MAX_MESSAGE_LENGTH}
-              disabled={isSending}
-            />
-            
+        <div className="support-chat__footer">
+          <div className="support-chat__controls">
             <button
-              className="support-chat__send"
-              id="sendNewMessage"
-              onClick={handleSendMessage}
-              disabled={isSending || newMessage.trim().length < MIN_MESSAGE_LENGTH}
+              className="support-chat__close"
+              id="closeTicket"
+              onClick={handleCloseTicket}
+              disabled={isClosed}
             >
+              {isClosed ? t('supportChat.isClosed') : t('supportChat.close')}
               <img
-                src={arrowUpIcon}
-                alt="send"
-                width="15"
-                height="26"
+                src={closeIcon}
+                alt="close"
+                width="21"
+                height="21"
               />
             </button>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault()
+                if (onBack) onBack()
+              }}
+              className="support-chat__back"
+            >
+              {t('supportChat.goBack')}
+              <img
+                src={backIcon}
+                alt="back"
+                width="29"
+                height="21"
+              />
+            </a>
           </div>
-        )}
+
+          {!isClosed && (
+            <div className="support-chat__input-wrapper" id="inputT">
+              <textarea
+                type="text"
+                className="support-chat__input"
+                placeholder={t('supportChat.placeholder')}
+                id="newMessageText"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                maxLength={MAX_MESSAGE_LENGTH}
+                disabled={isSending}
+              />
+
+              <button
+                className="support-chat__send"
+                id="sendNewMessage"
+                onClick={handleSendMessage}
+                disabled={isSending || newMessage.trim().length < MIN_MESSAGE_LENGTH}
+              >
+                <img
+                  src={arrowUpIcon}
+                  alt="send"
+                  width="15"
+                  height="26"
+                />
+              </button>
+            </div>
+          )}
+        </div>
+        <div id="scroll-anchor" ref={scrollAnchorRef}></div>
       </div>
+
+
     </section>
   )
 }

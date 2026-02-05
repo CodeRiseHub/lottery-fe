@@ -109,6 +109,7 @@ const translations = {
         "game.waitingForUsers": "Waiting for users...",
         "game.winner": "Winner",
         "game.user": "User",
+        "game.ticket": "tickets",
 
         // Tasks Screen
         "tasks.title": "Tasks",
@@ -459,7 +460,7 @@ const translations = {
 
         // Tasks Screen
         "tasks.title": "Задачи",
-        "tasks.tabs.referral": "Реферальная",
+        "tasks.tabs.referral": "Друзья",
         "tasks.tabs.follow": "Подписка",
         "tasks.tabs.other": "Другое",
         "tasks.claimed": "ПОЛУЧЕНО",

@@ -17,6 +17,8 @@ import '../utils/modals'
 
 export default function MainScreen({ onNavigate, onBalanceUpdate, userData, roomNumber }) {
   // Get stored room number from localStorage if roomNumber prop is not provided
+  const countdownEndTimeRef = useRef(null)
+
   const getInitialRoomNumber = () => {
     // First, use roomNumber prop if provided
     if (roomNumber) {
@@ -688,7 +690,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         // Handle countdown - set for all users when phase is COUNTDOWN
         if (statePhaseStr === 'COUNTDOWN' && state.cR !== null && state.cR !== undefined) {
           setCountdownActive(true)
+          countdownEndTimeRef.current = Date.now() + state.cR * 1000
           setCountdownRemaining(state.cR)
+
         } else {
           setCountdownActive(false)
           setCountdownRemaining(null)
@@ -886,32 +890,32 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
   // Countdown timer
   useEffect(() => {
-    if (countdownRemaining === null) {
-      setCountdownProgress(0)
-      return
-    }
+    if (!countdownActive || !countdownEndTimeRef.current) return
 
-    const totalSeconds = 5 // Match backend COUNTDOWN_DURATION_SECONDS
-    const updateInterval = 100 // Update every 100ms
+    const totalSeconds = 5
 
-    countdownIntervalRef.current = setInterval(() => {
-      setCountdownRemaining(prev => {
-        if (prev === null || prev <= 0) {
-          clearInterval(countdownIntervalRef.current)
-          return 0
-        }
-        const newRemaining = prev - 0.1
-        setCountdownProgress(((totalSeconds - newRemaining) / totalSeconds) * 100)
-        return newRemaining
-      })
-    }, updateInterval)
+    const tick = () => {
+      const now = Date.now()
+      const remainingMs = countdownEndTimeRef.current - now
+      const remaining = Math.max(0, remainingMs / 1000)
 
-    return () => {
-      if (countdownIntervalRef.current) {
+      setCountdownRemaining(remaining)
+      setCountdownProgress(
+        ((totalSeconds - remaining) / totalSeconds) * 100
+      )
+
+      if (remaining <= 0) {
         clearInterval(countdownIntervalRef.current)
       }
     }
-  }, [countdownRemaining])
+
+    tick()
+
+    countdownIntervalRef.current = setInterval(tick, 100)
+
+    return () => clearInterval(countdownIntervalRef.current)
+  }, [countdownActive])
+
 
   // Calculate user's total bet for the current round (client-side only)
   // Backend validation ensures user can't exceed max bet, so we track locally for immediate UI feedback
@@ -1543,9 +1547,22 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           <p className="spin__subtitle">{t('game.completedRounds')}</p>
           <div className="spin__bets-list">
             {completedRounds.length === 0 ? (
-              <div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.5)', padding: '20px' }}>
+              <><div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.5)', padding: '20px' }}>
                 {t('game.noCompletedRounds')}
               </div>
+                {/* <div class="spin__bets-item spin__bets-item--success">
+                  <img alt="winner" width="56" height="56" src="CbaECDPGUo8pc+sQrQM4bbEtyQID1JDkgwOAIMDiveWAWttg8sPf+/" />
+
+                  <div class="spin__bets-name">
+                    <p className='spin__name'>No Name</p>
+                    <p className='spin__bet'>Bet: <span>4.00</span></p>
+                  </div>
+                  <div class="spin__bets-info">
+                    <span className='spin__win'>5.60</span>
+                    <span className='spin__chance'>66.67%</span>
+                  </div>
+                </div> */}
+              </>
             ) : (
               completedRounds.map((round) => {
                 // Get avatar URL, fallback to placeholder if not available
@@ -1579,7 +1596,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         e.target.src = defaultAvatar
                       }}
                     />
-                    <div className="spin__bets-info" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {/* <div className="spin__bets-info" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <p className="spin__bets-name">{round.winnerScreenName || `User ${round.winnerUserId}`}</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -1595,6 +1612,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                           <span>{chanceDisplay}%</span>
                         </div>
                       </div>
+                    </div> */}
+                    <div class="spin__bets-name">
+                      <p className='spin__name'>{round.winnerScreenName || `User ${round.winnerUserId}`}</p>
+                      <p className='spin__bet'>{t('game.betLabel')}: <span>{formatBalance(betDisplay)}</span></p>
+                    </div>
+                    <div class="spin__bets-info">
+                      <span className='spin__win'>{formatBalance(payoutDisplay)}</span>
+                      <span className='spin__chance'>{chanceDisplay}%</span>
                     </div>
                   </div>
                 )
@@ -1623,7 +1648,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 {t('game.rules.realMode')}
               </span>
               <span> {t('game.rules.setBet')}</span>
-              <span> {t('game.rules.multipliers')} </span>
+              <span> {t('game.room')} 1: 1-50 {t('game.ticket')}</span>
+              <span> {t('game.room')} 2: 50-100 {t('game.ticket')}</span>
+              <span> {t('game.room')} 3: 100-500 {t('game.ticket')}</span>
             </p>
           </div>
         </div>
