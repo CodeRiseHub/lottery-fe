@@ -1442,12 +1442,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              width: countdownActive && countdownRemaining !== null ? '36px' : '0',
-              minWidth: countdownActive && countdownRemaining !== null ? '36px' : '0',
-              overflow: 'hidden',
-              transition: 'width 0.2s, min-width 0.2s',
-              padding: countdownActive && countdownRemaining !== null ? '2px 0' : '0'
+              width: '36px',
+              minWidth: '36px',
+              padding: '2px 0',
+              opacity: countdownActive && countdownRemaining !== null ? 1 : 0,
+              visibility: countdownActive && countdownRemaining !== null ? 'visible' : 'hidden',
+              transition: 'opacity 0.2s'
             }}>
+
               {countdownActive && countdownRemaining !== null ? (
                 <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
                   <svg width="32" height="32" style={{ transform: 'rotate(-90deg)' }}>
