@@ -125,6 +125,25 @@ export default function GiftPayoutConfirmationScreen({ onBack, onBalanceUpdate, 
   }, [showGiftDropdown])
 
   useEffect(() => {
+    // Pre-populate username from userData
+    const loadUserData = async () => {
+      try {
+        const userData = await fetchCurrentUser()
+        if (userData && userData.username) {
+          // Add "@" prefix if not already present
+          const username = userData.username.startsWith('@') 
+            ? userData.username 
+            : `@${userData.username}`
+          setUsername(username)
+        }
+      } catch (error) {
+        console.error('Failed to load user data:', error)
+      }
+    }
+    loadUserData()
+  }, [])
+
+  useEffect(() => {
     // Fetch payout history on component mount
     const loadHistory = async () => {
       try {

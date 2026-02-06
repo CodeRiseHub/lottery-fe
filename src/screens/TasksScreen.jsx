@@ -4,7 +4,7 @@ import { fetchTasks, claimTask, fetchCurrentUser } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import friendIcon from '../assets/images/friend.png'
 import storeIcon from '../assets/images/tasks/store.png'
-import infoChannelIcon from '../assets/info_channel.png'
+import infoChannelIcon from '../assets/info_channel_tg.png'
 
 export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [activeTab, setActiveTab] = useState('referral')
