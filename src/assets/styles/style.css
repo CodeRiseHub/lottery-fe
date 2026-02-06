@@ -3686,10 +3686,6 @@ section.payout .upgrade__currencies {
     line-height: 17.913px; /* 105.373% */
 }
 
-.spin__win {
-    color: rgba(80, 195, 150, 0.9);
-    border: 1px solid rgba(80, 195, 150, 0.9);
-}
 .spin__win,
 .spin__chance {
     color: rgba(255, 255, 255, 0.9);
@@ -3699,6 +3695,10 @@ section.payout .upgrade__currencies {
     border: 1px solid #23303e;
     border-radius: 10px;
     padding: 4px 8px;
+}
+.spin__win {
+    color: rgba(80, 195, 150, 0.9);
+    border: 1px solid rgba(80, 195, 150, 0.9);
 }
 .spin__bets-amount {
     font-size: 24px;
