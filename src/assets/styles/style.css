@@ -2779,7 +2779,7 @@ section.payout .upgrade__currencies {
     line-height: 89.567%;
 }
 .transaction__head-col {
-    padding-right: 35px;
+    padding-right: 20px;
 }
 
 .transaction__row {
@@ -2805,7 +2805,7 @@ section.payout .upgrade__currencies {
 }
 .transaction__amount {
     width: 50%;
-    text-align: center;
+    padding-left: 50px;
     background: linear-gradient(90deg, #2af598 0%, #009efd 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
