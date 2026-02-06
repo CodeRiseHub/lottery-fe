@@ -17,6 +17,8 @@
     --gradient--cancel: linear-gradient(90deg, #86262b 0%, #562035 100%);
     --gradient-border-cancel: linear-gradient(90deg, #be282b 0%, #741f3a 100%);
     --tg-top-padding: 0px;
+    --pt: calc(var(--tg-safe-area-inset-top, 0px));
+    --pb: max(10px, var(--tg-safe-area-inset-bottom, 0px));
 }
 *,
 *::before,
@@ -39,7 +41,12 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+.is_desktop {
+}
 
+.is_tma {
+    padding-top: var(--pt);
+}
 img,
 picture,
 video,
@@ -2772,7 +2779,7 @@ section.payout .upgrade__currencies {
     line-height: 89.567%;
 }
 .transaction__head-col {
-    padding-right: 35px;
+    padding-right: 20px;
 }
 
 .transaction__row {
@@ -2797,6 +2804,8 @@ section.payout .upgrade__currencies {
     line-height: 111.959%;
 }
 .transaction__amount {
+    width: 50%;
+    padding-left: 50px;
     background: linear-gradient(90deg, #2af598 0%, #009efd 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -2804,6 +2813,8 @@ section.payout .upgrade__currencies {
     color: transparent;
 }
 .transaction__date {
+    width: 50%;
+    text-align: center;
     font-weight: 600;
 }
 .transaction__type {
@@ -3002,7 +3013,7 @@ section.payout .upgrade__currencies {
 
     padding-top: 10px;
     padding-right: 15px;
-    padding-bottom: 10px;
+    padding-bottom: 140px;
 }
 .support-chat__message {
     display: flex;
