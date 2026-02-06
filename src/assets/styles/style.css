@@ -2804,6 +2804,8 @@ section.payout .upgrade__currencies {
     line-height: 111.959%;
 }
 .transaction__amount {
+    width: 50%;
+    text-align: center;
     background: linear-gradient(90deg, #2af598 0%, #009efd 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -2811,6 +2813,8 @@ section.payout .upgrade__currencies {
     color: transparent;
 }
 .transaction__date {
+    width: 50%;
+    text-align: center;
     font-weight: 600;
 }
 .transaction__type {
