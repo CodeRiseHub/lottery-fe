@@ -293,8 +293,6 @@ export default function SupportChatScreen({ ticketId, ticketSubject, onBack }) {
         </div>
         <div id="scroll-anchor" ref={scrollAnchorRef}></div>
       </div>
-
-
     </section>
   )
 }
