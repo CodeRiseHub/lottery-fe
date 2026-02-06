@@ -90,6 +90,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const currentPhaseRef = useRef('WAITING') // Track current phase synchronously for button state
   const onBalanceUpdateRef = useRef(onBalanceUpdate) // Store latest onBalanceUpdate callback
   const tapeHtmlRef = useRef(null) // Track tape HTML for cleanup
+  const scrollIntervalRef = useRef(null) // Track scroll interval for cleanup
 
   // Seeded random number generator (for consistent shuffling across all clients)
   // Uses a simple linear congruential generator (LCG)
@@ -143,7 +144,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       // Create block with avatar and chance below
       items.push(
         `<div class='spin__game-item' style="flex-direction: column; padding: 8px;">
-          <img src="${avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%; margin-bottom: 4px;" />
+          <img src="${avatarUrl}" alt="avatar" width="65" height="65" style="border-radius: 50%; margin-bottom: 4px; border: 3px solid #374B60;" />
           <div style="text-align: center; color: #fff; font-size: 12px; font-family: 'Chakra Petch', sans-serif; line-height: 1.2;">
             ${winChance.toFixed(2)}%
           </div>
@@ -542,6 +543,46 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       }
     }
   }, [roomPhase]) // Only depend on roomPhase to ensure timeout is always set
+
+  // Auto-scroll tape to the last element when more than 4 users are registered
+  // Only enabled during WAITING and COUNTDOWN phases
+  useEffect(() => {
+    // Clear any existing interval
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current)
+      scrollIntervalRef.current = null
+    }
+
+    // Only start auto-scroll if:
+    // 1. More than 4 users are registered
+    // 2. Phase is WAITING or COUNTDOWN
+    if (registeredUsers > 4 && (roomPhase === 'WAITING' || roomPhase === 'COUNTDOWN')) {
+      scrollIntervalRef.current = setInterval(() => {
+        const tape = document.querySelector('#lineContainer')
+        if (tape) {
+          // Smooth scroll to the end
+          const targetScroll = tape.scrollWidth - tape.clientWidth
+          const currentScroll = tape.scrollLeft
+          const distance = targetScroll - currentScroll
+          
+          // Smooth scrolling with easing (faster)
+          if (Math.abs(distance) > 1) {
+            tape.scrollLeft = currentScroll + (distance * 0.25) // 25% of remaining distance per frame
+          } else {
+            tape.scrollLeft = targetScroll // Snap to final position when close
+          }
+        }
+      }, 50) // More frequent updates for smoother animation
+    }
+
+    // Cleanup interval on unmount or when condition changes
+    return () => {
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current)
+        scrollIntervalRef.current = null
+      }
+    }
+  }, [registeredUsers, roomPhase])
 
   // WebSocket connection and state updates
   useEffect(() => {
@@ -1606,7 +1647,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             </div>
           </div>
 
-          <div className="spin__game-container" style={{ position: 'relative' }}>
+          <div className="spin__game-container" id="spin-container" style={{ position: 'relative' }}>
             <img
               className="spin__arrow"
               src={arrowDownIcon}
@@ -1836,7 +1877,10 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 const payoutDisplay = round.payout || 0
                 const chanceDisplay = round.winChance ? round.winChance.toFixed(2) : '0.00'
 
-                // Log completed round data for debugging
+                // Format screen name and determine if it's single word (for CSS class)
+                const screenName = round.winnerScreenName || `User ${round.winnerUserId}`
+                const words = screenName.trim().split(/\s+/)
+                const isSingleWord = words.length === 1
 
                 return (
                   <div
@@ -1871,7 +1915,25 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                       </div>
                     </div> */}
                     <div class="spin__bets-name">
-                      <p className='spin__name'>{round.winnerScreenName || `User ${round.winnerUserId}`}</p>
+                      <p 
+                        className='spin__name' 
+                        style={isSingleWord ? {
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: '100%'
+                        } : {
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          maxWidth: '100%',
+                          wordBreak: 'break-word'
+                        }}
+                      >
+                        {screenName}
+                      </p>
                       <p className='spin__bet'>{t('game.betLabel')}: <span>{formatBalance(betDisplay)}</span></p>
                     </div>
                     <div class="spin__bets-info">
@@ -1906,7 +1968,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               </span>
               <span> {t('game.rules.setBet')}</span>
               <span> {t('game.room')} 1: 1-50 {t('game.ticket')}</span>
-              <span> {t('game.room')} 2: 50-100 {t('game.ticket')}</span>
+              <span> {t('game.room')} 2: 10-100 {t('game.ticket')}</span>
               <span> {t('game.room')} 3: 100-500 {t('game.ticket')}</span>
             </p>
           </div>

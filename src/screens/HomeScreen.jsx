@@ -88,21 +88,7 @@ export default function HomeScreen() {
                 <div className="swiper-slide">
                   <div className="swiper-img">
                     <video autoPlay muted loop playsInline className="hero__image">
-                      <source src="https://free-video-hosting.site/assets_land/images/3m.mp4" type="video/mp4" />
-                    </video>
-                  </div>
-                </div>
-                <div className="swiper-slide">
-                  <div className="swiper-img">
-                    <video autoPlay muted loop playsInline className="hero__image">
-                      <source src="https://free-video-hosting.site/assets_land/images/2m.mp4" type="video/mp4" />
-                    </video>
-                  </div>
-                </div>
-                <div className="swiper-slide">
-                  <div className="swiper-img">
-                    <video autoPlay muted loop playsInline className="hero__image">
-                      <source src="https://free-video-hosting.site/assets_land/images/1m.mp4" type="video/mp4" />
+                      <source src="https://rufus-api.biz/win_spin/miner_index_page.mp4" type="video/mp4" />
                     </video>
                   </div>
                 </div>
@@ -143,7 +129,7 @@ export default function HomeScreen() {
 
         <section className="investment-info container">
           <div className="investment-info__content">
-            <p className="investment-info__text">Minimum deposit - 1 Star</p>
+            <p className="investment-info__text">Minimum deposit - 50 Stars</p>
             <p className="investment-info__text">Minimum withdrawal - 15 Stars</p>
             <p className="investment__text">
               Use Telegram in-app virtual currency.

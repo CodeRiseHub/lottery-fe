@@ -372,14 +372,14 @@ font {
 
 .swiper-img .hero__image {
     width: 100%;
-    max-width: 223px;
+    max-width: 100%;
     height: auto;
     border-radius: 10px;
 }
 
 @media screen and (min-width: 768px) {
     .swiper-img .hero__image {
-        max-width: 277px;
+        max-width: 100%;
     }
 }
 
@@ -3689,6 +3689,7 @@ section.payout .upgrade__currencies {
     font-size: 18px;
     font-weight: 400;
     line-height: 17.913px; /* 105.373% */
+    max-width: 100%;
 }
 .spin__bet {
     color: rgba(255, 255, 255, 0.9);
