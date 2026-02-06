@@ -1546,7 +1546,54 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
               {countdownActive && countdownRemaining !== null ? (
                 <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
-                  {Math.ceil(countdownRemaining)}
+                  {/* SVG Progress Ring */}
+                  <svg
+                    width="32"
+                    height="32"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0
+                    }}
+                  >
+                    {/* Background circle (grey, shows as green ring empties) */}
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      fill="none"
+                      stroke="rgba(255, 255, 255, 0.2)"
+                      strokeWidth="2"
+                    />
+                    {/* Green ring that starts full and empties counterclockwise from 12 o'clock */}
+                    {/* Using path with "A" (arc) command to draw counterclockwise from 12 o'clock */}
+                    <path
+                      d={`M 16 2 A 14 14 0 1 0 16 30 A 14 14 0 1 0 16 2`}
+                      fill="none"
+                      stroke="#6cc5a1"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeDasharray={`${2 * Math.PI * 14}`}
+                      strokeDashoffset={`${2 * Math.PI * 14 * (countdownProgress / 100)}`}
+                      style={{
+                        transition: 'stroke-dashoffset 0.1s linear'
+                      }}
+                    />
+                  </svg>
+                  {/* Countdown number - centered */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    color: '#fff',
+                    zIndex: 1,
+                    fontFamily: "'Chakra Petch', sans-serif"
+                  }}>
+                    {Math.ceil(countdownRemaining)}
+                  </div>
                 </div>
               ) : null}
             </div>
