@@ -1456,42 +1456,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
               {countdownActive && countdownRemaining !== null ? (
                 <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
-                  <svg width="32" height="32" style={{ transform: 'rotate(-90deg)' }}>
-                    {/* Background circle */}
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r="14"
-                      fill="none"
-                      stroke="rgba(255, 255, 255, 0.2)"
-                      strokeWidth="2"
-                    />
-                    {/* Progress circle - counterclockwise animation from top */}
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r="14"
-                      fill="none"
-                      stroke="#6cc5a1"
-                      strokeWidth="2"
-                      strokeDasharray={`${2 * Math.PI * 14}`}
-                      strokeDashoffset={`${2 * Math.PI * 14 * (countdownProgress / 100)}`}
-                      strokeLinecap="round"
-                      style={{ transition: 'stroke-dashoffset 0.1s linear' }}
-                    />
-                  </svg>
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    color: '#6cc5a1',
-                    lineHeight: '1'
-                  }}>
-                    {Math.ceil(countdownRemaining)}
-                  </div>
+                  {Math.ceil(countdownRemaining)}
                 </div>
               ) : null}
             </div>
@@ -1773,8 +1738,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                       <p className='spin__bet'>{t('game.betLabel')}: <span>{formatBalance(betDisplay)}</span></p>
                     </div>
                     <div class="spin__bets-info">
-                      <span className='spin__win'>{formatBalance(payoutDisplay)}</span>
                       <span className='spin__chance'>{chanceDisplay}%</span>
+                      <span className='spin__win'>{formatBalance(payoutDisplay)}</span>
                     </div>
                   </div>
                 )
