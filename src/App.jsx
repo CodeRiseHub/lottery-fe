@@ -26,33 +26,33 @@ import './App.css'
 function App() {
   const [tg, setTg] = useState(null)
   const [isHomeScreen, setIsHomeScreen] = useState(false)
-  
+
   // Check pathname on mount to determine if we should show home screen
   useEffect(() => {
     const pathname = window.location.pathname
     // Show home screen for "/", normal app for "/auth" or any other path
     setIsHomeScreen(pathname === '/' || pathname === '')
   }, [])
-  
+
   // Load stored screen and props from localStorage on initialization
   const getStoredScreenState = () => {
     try {
       const storedScreen = localStorage.getItem('lottery_current_screen')
       const storedProps = localStorage.getItem('lottery_screen_props')
-      
+
       let screen = 'main' // Default to main screen
       let props = {}
-      
+
       // Load stored screen if valid
       if (storedScreen) {
-        const validScreens = ['main', 'gameHistory', 'faq', 'support', 'supportChat', 'referral', 
-                              'transactionHistory', 'store', 'tasks', 'payout', 
-                              'starsPayoutConfirmation', 'giftPayoutConfirmation', 'dailyBonus']
+        const validScreens = ['main', 'gameHistory', 'faq', 'support', 'supportChat', 'referral',
+          'transactionHistory', 'store', 'tasks', 'payout',
+          'starsPayoutConfirmation', 'giftPayoutConfirmation', 'dailyBonus']
         if (validScreens.includes(storedScreen)) {
           screen = storedScreen
         }
       }
-      
+
       // Load stored props if available
       if (storedProps) {
         try {
@@ -61,7 +61,7 @@ function App() {
           // Ignore JSON parse errors
         }
       }
-      
+
       // If no stored screen props but we have a stored room number, use it
       if (!props.roomNumber) {
         const storedRoom = localStorage.getItem('lottery_selected_room')
@@ -72,14 +72,14 @@ function App() {
           }
         }
       }
-      
+
       return { screen, props }
     } catch (e) {
       // Ignore localStorage errors, return defaults
       return { screen: 'main', props: {} }
     }
   }
-  
+
   const storedState = getStoredScreenState()
   const [currentScreen, setCurrentScreen] = useState(storedState.screen)
   const [screenProps, setScreenProps] = useState(storedState.props)
@@ -92,29 +92,29 @@ function App() {
     if (window.Telegram?.WebApp) {
       const webApp = window.Telegram.WebApp
       webApp.ready()
-      
+
       const platform = webApp.platform
       let sizebleS = false
-      
+
       if (platform === 'android' || platform === 'ios') {
         sizebleS = true
         // Don't request fullscreen - let Telegram handle the viewport
         webApp.expand()
         // Removed fullscreen requests to allow normal Telegram mini app view
       }
-      
+
       setTg(webApp)
-      
+
       // Handle safe area insets - matching Secret Miner implementation
       const modal = document.querySelector('.modal--language-menu')
-      
+
       function updateSafeArea() {
         if (!sizebleS) return
-        
-        const safeAreaInsetTop = 
+
+        const safeAreaInsetTop =
           getComputedStyle(document.documentElement).getPropertyValue('--tg-safe-area-inset-top') || '0px'
         const safeAreaInsetTopValue = parseFloat(safeAreaInsetTop) || 0
-        
+
         if (safeAreaInsetTopValue > 0) {
           const nwidth = safeAreaInsetTopValue
           const container = document.querySelector('.bg')
@@ -126,11 +126,11 @@ function App() {
           }
         }
       }
-      
+
       setTimeout(() => {
         updateSafeArea()
       }, 250)
-      
+
       webApp.onEvent('viewportChanged', (event) => {
         if (event.isStateStable) {
           updateSafeArea()
@@ -142,7 +142,7 @@ function App() {
     // Only for "/auth" path - skip for home screen "/"
     const pathname = window.location.pathname
     const isAuthPath = pathname === '/auth' || pathname.startsWith('/auth')
-    
+
     if (isAuthPath) {
       // Always call /current first, then /session if 401, then /current again
       async function initializeAuth() {
@@ -165,16 +165,16 @@ function App() {
           } catch (error) {
             // Step 2: If /current returns 401, user is not authenticated
             // Check if it's a 401 error (authentication required)
-            const is401 = error?.response?.status === 401 || 
-                         error?.message?.includes('401') || 
-                         error?.message?.includes('Authentication') ||
-                         error?.message?.includes('Unauthorized')
-            
+            const is401 = error?.response?.status === 401 ||
+              error?.message?.includes('401') ||
+              error?.message?.includes('Authentication') ||
+              error?.message?.includes('Unauthorized')
+
             if (is401) {
               // Clear any invalid token
               const { clearSessionToken } = await import('./auth/sessionManager')
               clearSessionToken()
-              
+
               // Step 3: Bootstrap new session via /session
               const result = await bootstrapSession()
               if (result) {
@@ -213,12 +213,12 @@ function App() {
   const handleNavigate = (screen, props = {}) => {
     setCurrentScreen(screen)
     setScreenProps(props)
-    
+
     // Store current screen and props in localStorage for persistence across page refreshes
     try {
       localStorage.setItem('lottery_current_screen', screen)
       localStorage.setItem('lottery_screen_props', JSON.stringify(props))
-      
+
       // Also store room number separately if it's in props (for backward compatibility)
       if (props.roomNumber) {
         localStorage.setItem('lottery_selected_room', props.roomNumber.toString())
@@ -232,12 +232,12 @@ function App() {
     const props = roomNumber ? { roomNumber } : {}
     setCurrentScreen('main')
     setScreenProps(props)
-    
+
     // Store current screen and props in localStorage
     try {
       localStorage.setItem('lottery_current_screen', 'main')
       localStorage.setItem('lottery_screen_props', JSON.stringify(props))
-      
+
       // Also store room number separately if provided
       if (roomNumber) {
         localStorage.setItem('lottery_selected_room', roomNumber.toString())
@@ -278,11 +278,11 @@ function App() {
   if (!authInitialized) {
     return (
       <div className="bg">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh' 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
         }}>
           <p>Initializing...</p>
         </div>
@@ -292,10 +292,10 @@ function App() {
 
   return (
     <div className="bg">
-      <Header 
-        onNavigate={handleNavigate} 
-        balance={balance} 
-        onBalanceUpdate={handleBalanceUpdate} 
+      <Header
+        onNavigate={handleNavigate}
+        balance={balance}
+        onBalanceUpdate={handleBalanceUpdate}
         userData={userData}
         onLanguageChange={handleLanguageChange}
       />
@@ -314,16 +314,16 @@ function App() {
         {currentScreen === 'referral' && <ReferralScreen onBack={handleBack} userData={userData} />}
         {currentScreen === 'transactionHistory' && <TransactionHistoryScreen onBack={handleBack} />}
         {currentScreen === 'store' && (
-          <StoreScreen 
-            onBack={handleBack} 
-            onNavigate={handleNavigate} 
+          <StoreScreen
+            onBack={handleBack}
+            onNavigate={handleNavigate}
             onBalanceUpdate={handleBalanceUpdate}
             onUserDataUpdate={setUserData}
           />
         )}
         {currentScreen === 'tasks' && (
-          <TasksScreen 
-            onBack={handleBack} 
+          <TasksScreen
+            onBack={handleBack}
             onNavigate={handleNavigate}
             onBalanceUpdate={handleBalanceUpdate}
             onUserDataUpdate={setUserData}

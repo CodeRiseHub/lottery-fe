@@ -66,7 +66,7 @@ export default function HomeScreen() {
   const handleTelegramLink = (e) => {
     e.preventDefault()
     const botUrl = 'https://t.me/wspin_bot'
-    
+
     // Use Telegram WebApp API to open link in the same window
     if (window.Telegram?.WebApp?.openTelegramLink) {
       window.Telegram.WebApp.openTelegramLink(botUrl)
