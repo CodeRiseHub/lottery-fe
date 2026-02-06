@@ -17,7 +17,7 @@
     --gradient--cancel: linear-gradient(90deg, #86262b 0%, #562035 100%);
     --gradient-border-cancel: linear-gradient(90deg, #be282b 0%, #741f3a 100%);
     --tg-top-padding: 0px;
-    --pt: calc(var(--tg-safe-area-inset-top, 0px) + 44px);
+    --pt: calc(var(--tg-safe-area-inset-top, 0px) + 34px);
     --pb: max(10px, var(--tg-safe-area-inset-bottom, 0px));
 }
 *,
@@ -54,10 +54,6 @@ body {
 
 .is_tma {
     padding-top: var(--pt);
-    height: 100vh;
-    width: 100vw;
-    position: relative;
-    overflow: hidden;
 }
 img,
 picture,
