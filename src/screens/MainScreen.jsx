@@ -18,6 +18,7 @@ import '../utils/modals'
 export default function MainScreen({ onNavigate, onBalanceUpdate, userData, roomNumber }) {
   // Get stored room number from localStorage if roomNumber prop is not provided
   const countdownEndTimeRef = useRef(null)
+  const countdownInitializedRef = useRef(false) // Track if countdown was already initialized for current round
 
   const getInitialRoomNumber = () => {
     // First, use roomNumber prop if provided
@@ -823,14 +824,49 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         }
 
         // Handle countdown - set for all users when phase is COUNTDOWN
+        // Only initialize countdown when transitioning INTO COUNTDOWN (not on every update)
+        // This prevents the countdown from being reset when BET button is clicked
+        // CRITICAL: Use countdownInitializedRef instead of countdownActive state to avoid stale closure issues
         if (statePhaseStr === 'COUNTDOWN' && state.cR !== null && state.cR !== undefined) {
-          setCountdownActive(true)
-          countdownEndTimeRef.current = Date.now() + state.cR * 1000
-          setCountdownRemaining(state.cR)
-
+          const now = Date.now()
+          const newEndTime = now + state.cR * 1000
+          console.log('[COUNTDOWN] WebSocket message received:', {
+            phase: statePhaseStr,
+            remainingSeconds: state.cR,
+            countdownActive,
+            countdownInitialized: countdownInitializedRef.current,
+            currentEndTime: countdownEndTimeRef.current ? new Date(countdownEndTimeRef.current).toISOString() : null,
+            newEndTime: new Date(newEndTime).toISOString(),
+            timeDiff: countdownEndTimeRef.current ? (newEndTime - countdownEndTimeRef.current) : null,
+            timestamp: new Date(now).toISOString()
+          })
+          
+          // Only initialize if we're transitioning INTO COUNTDOWN (not already in it)
+          // Use ref instead of state to avoid stale closure - ref updates synchronously
+          if (!countdownInitializedRef.current) {
+            console.log('[COUNTDOWN] Initializing countdown - transitioning INTO COUNTDOWN')
+            setCountdownActive(true)
+            countdownEndTimeRef.current = newEndTime
+            setCountdownRemaining(state.cR)
+            countdownInitializedRef.current = true
+            console.log('[COUNTDOWN] Countdown initialized:', {
+              endTime: new Date(countdownEndTimeRef.current).toISOString(),
+              remainingSeconds: state.cR
+            })
+          } else {
+            console.log('[COUNTDOWN] Countdown already initialized - skipping reset. End time remains:', 
+              countdownEndTimeRef.current ? new Date(countdownEndTimeRef.current).toISOString() : null)
+          }
+          // If already initialized, don't reset the end time - let the interval continue with original end time
+          // This ensures smooth countdown regardless of WebSocket message frequency
         } else {
+          // Reset countdown when leaving COUNTDOWN phase
+          if (countdownInitializedRef.current) {
+            console.log('[COUNTDOWN] Leaving COUNTDOWN phase - resetting countdown')
+          }
           setCountdownActive(false)
           setCountdownRemaining(null)
+          countdownInitializedRef.current = false
         }
 
         // Check if current user has joined the round
@@ -1020,14 +1056,44 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
 
   // Countdown timer
   useEffect(() => {
-    if (!countdownActive || !countdownEndTimeRef.current) return
+    if (!countdownActive || !countdownEndTimeRef.current) {
+      if (countdownIntervalRef.current) {
+        console.log('[COUNTDOWN] Clearing interval - countdownActive:', countdownActive, 'endTime:', countdownEndTimeRef.current)
+        clearInterval(countdownIntervalRef.current)
+        countdownIntervalRef.current = null
+      }
+      return
+    }
 
     const totalSeconds = 30 // Match backend COUNTDOWN_DURATION_SECONDS
+    const endTime = countdownEndTimeRef.current
+    const startTime = Date.now()
+    
+    console.log('[COUNTDOWN] Setting up interval:', {
+      endTime: new Date(endTime).toISOString(),
+      startTime: new Date(startTime).toISOString(),
+      initialRemaining: (endTime - startTime) / 1000,
+      countdownActive,
+      intervalId: countdownIntervalRef.current
+    })
 
     const tick = () => {
       const now = Date.now()
       const remainingMs = countdownEndTimeRef.current - now
       const remaining = Math.max(0, remainingMs / 1000)
+      
+      // Log every second to track timing
+      const roundedRemaining = Math.ceil(remaining)
+      if (tick.lastLoggedSecond !== roundedRemaining) {
+        console.log('[COUNTDOWN] Tick:', {
+          remaining: remaining.toFixed(2),
+          displayed: roundedRemaining,
+          endTime: new Date(countdownEndTimeRef.current).toISOString(),
+          now: new Date(now).toISOString(),
+          timeSinceStart: ((now - startTime) / 1000).toFixed(2)
+        })
+        tick.lastLoggedSecond = roundedRemaining
+      }
 
       setCountdownRemaining(remaining)
       setCountdownProgress(
@@ -1035,15 +1101,30 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       )
 
       if (remaining <= 0) {
+        console.log('[COUNTDOWN] Countdown finished')
         clearInterval(countdownIntervalRef.current)
+        countdownIntervalRef.current = null
       }
     }
+    tick.lastLoggedSecond = null
 
-    tick()
+    // Clear existing interval if any
+    if (countdownIntervalRef.current) {
+      console.log('[COUNTDOWN] Clearing existing interval before creating new one')
+      clearInterval(countdownIntervalRef.current)
+    }
 
+    tick() // Initial tick
     countdownIntervalRef.current = setInterval(tick, 100)
+    console.log('[COUNTDOWN] Interval created:', countdownIntervalRef.current)
 
-    return () => clearInterval(countdownIntervalRef.current)
+    return () => {
+      console.log('[COUNTDOWN] Cleanup: clearing interval')
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current)
+        countdownIntervalRef.current = null
+      }
+    }
   }, [countdownActive])
 
 
@@ -1264,6 +1345,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     })
 
     try {
+      console.log('[BET] Sending bet request:', {
+        room: currentRoom.number,
+        bet: currentBet,
+        betBigint,
+        countdownActive,
+        countdownEndTime: countdownEndTimeRef.current ? new Date(countdownEndTimeRef.current).toISOString() : null,
+        timestamp: new Date().toISOString()
+      })
       // Send bet amount in bigint format (database format)
       gameWebSocket.joinRound(currentRoom.number, betBigint)
 
@@ -1396,6 +1485,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
     setIsJoining(false)
     setCountdownActive(false)
     setCountdownRemaining(null)
+    countdownInitializedRef.current = false
     setRoomPhase('WAITING')
     setButtonPhase('WAITING')
     setButtonUpdateCounter(0)
