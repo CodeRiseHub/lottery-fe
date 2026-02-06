@@ -1921,13 +1921,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
-                          maxWidth: '100%'
+                          width: '100%',
+                          maxWidth: '100%',
+                          display: 'block'
                         } : {
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
+                          width: '100%',
                           maxWidth: '100%',
                           wordBreak: 'break-word'
                         }}
