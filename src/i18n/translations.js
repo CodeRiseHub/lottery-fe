@@ -58,7 +58,7 @@ const translations = {
         "store.error.failedToCreate": "Failed to create payment. Please try again.",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "You have a daily bonus available",
+        "dailyBonus.title": "Daily bonus",
         "dailyBonus.available": "Daily bonus is available",
         "dailyBonus.cooldown": "Next bonus in",
         "dailyBonus.claim": "CLAIM ",
@@ -183,9 +183,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Withdraw Stars",
         "starsPayout.enterUsername": "Enter the Username:",
-        "starsPayout.youWillReceive": "You will receive Stars:",
+        "starsPayout.youWillReceive": "Amount in Stars:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Your balance (Tickets):",
+        "starsPayout.yourBalance": "Will be debited (Tickets):",
         "starsPayout.confirm": "CONFIRM",
         "starsPayout.submitting": "SUBMITTING...",
         "starsPayout.error.minimum": "Minimum 15 Stars required",
@@ -205,7 +205,7 @@ const translations = {
         "giftPayout.chooseGift": "Choose a gift:",
         "giftPayout.selectGift": "Select a gift",
         "giftPayout.selectNumber": "Select the number:",
-        "giftPayout.yourBalance": "Your balance (Tickets):",
+        "giftPayout.yourBalance": "Will be debited (Tickets):",
         "giftPayout.confirm": "CONFIRM",
         "giftPayout.submitting": "SUBMITTING...",
         "giftPayout.error.giftRequired": "Please select a gift",
@@ -406,7 +406,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "URL счета не получен от сервера",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Для вас доступен ежедневный бонус",
+        "dailyBonus.title": "Ежедневный бонус",
         "dailyBonus.available": "Ежедневный бонус доступен",
         "dailyBonus.cooldown": "Следующий бонус через",
         "dailyBonus.claim": "ПОЛУЧИТЬ ",
@@ -458,6 +458,7 @@ const translations = {
         "game.waitingForUsers": "Ожидание игроков...",
         "game.winner": "Победитель",
         "game.user": "Пользователь",
+        "game.ticket": "билетов",
 
         // Tasks Screen
         "tasks.title": "Задачи",
@@ -531,9 +532,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Вывод Stars",
         "starsPayout.enterUsername": "Введите имя пользователя:",
-        "starsPayout.youWillReceive": "Вы получите Stars:",
+        "starsPayout.youWillReceive": "Сумма в Stars:",
         "starsPayout.minStars": "Мин: 15 Stars",
-        "starsPayout.yourBalance": "Ваш баланс (Билеты):",
+        "starsPayout.yourBalance": "Будет списано (Билетов):",
         "starsPayout.confirm": "ПОДТВЕРДИТЬ",
         "starsPayout.submitting": "ОТПРАВКА...",
         "starsPayout.error.minimum": "Требуется минимум 15 Stars",
@@ -553,7 +554,7 @@ const translations = {
         "giftPayout.chooseGift": "Выберите подарок:",
         "giftPayout.selectGift": "Выберите подарок",
         "giftPayout.selectNumber": "Выберите количество:",
-        "giftPayout.yourBalance": "Ваш баланс (Билеты):",
+        "giftPayout.yourBalance": "Будет списано (Билетов):",
         "giftPayout.confirm": "ПОДТВЕРДИТЬ",
         "giftPayout.submitting": "ОТПРАВКА...",
         "giftPayout.error.giftRequired": "Пожалуйста, выберите подарок",
@@ -740,7 +741,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "Rechnungs-URL wurde nicht vom Server erhalten",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Für Sie ist ein täglicher Bonus verfügbar",
+        "dailyBonus.title": "Täglicher Bonus",
         "dailyBonus.available": "Täglicher Bonus ist verfügbar",
         "dailyBonus.cooldown": "Nächster Bonus in",
         "dailyBonus.claim": "EINLÖSEN ",
@@ -791,6 +792,7 @@ const translations = {
         "game.waitingForUsers": "Warten auf Spieler...",
         "game.winner": "Gewinner",
         "game.user": "Benutzer",
+        "game.ticket": "Tickets",
 
         // Tasks Screen
         "tasks.title": "Aufgaben",
@@ -864,9 +866,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Stars auszahlen",
         "starsPayout.enterUsername": "Geben Sie den Benutzernamen ein:",
-        "starsPayout.youWillReceive": "Sie erhalten Stars:",
+        "starsPayout.youWillReceive": "Betrag in Stars:",
         "starsPayout.minStars": "Mind: 15 Stars",
-        "starsPayout.yourBalance": "Ihr Guthaben (Tickets):",
+        "starsPayout.yourBalance": "Wird abgebucht (Tickets):",
         "starsPayout.confirm": "BESTÄTIGEN",
         "starsPayout.submitting": "WIRD ÜBERMITTELT...",
         "starsPayout.error.minimum": "Mindestens 15 Stars erforderlich",
@@ -886,7 +888,7 @@ const translations = {
         "giftPayout.chooseGift": "Wählen Sie ein Geschenk:",
         "giftPayout.selectGift": "Geschenk auswählen",
         "giftPayout.selectNumber": "Wählen Sie die Anzahl:",
-        "giftPayout.yourBalance": "Ihr Guthaben (Tickets):",
+        "giftPayout.yourBalance": "Wird abgebucht (Tickets):",
         "giftPayout.confirm": "BESTÄTIGEN",
         "giftPayout.submitting": "WIRD ÜBERMITTELT...",
         "giftPayout.error.giftRequired": "Bitte wählen Sie ein Geschenk",
@@ -1093,7 +1095,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "URL della fattura non ricevuto dal server",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Hai un bonus giornaliero disponibile",
+        "dailyBonus.title": "Bonus giornaliero",
         "dailyBonus.available": "Il bonus giornaliero è disponibile",
         "dailyBonus.cooldown": "Prossimo bonus tra",
         "dailyBonus.claim": "OTTieni ",
@@ -1136,6 +1138,7 @@ const translations = {
         "game.waitingForUsers": "In attesa di giocatori...",
         "game.winner": "Vincitore",
         "game.user": "Utente",
+        "game.ticket": "biglietti",
 
         // Tasks Screen
         "tasks.title": "Attività",
@@ -1209,9 +1212,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Preleva Stars",
         "starsPayout.enterUsername": "Inserisci il nome utente:",
-        "starsPayout.youWillReceive": "Riceverai Stars:",
+        "starsPayout.youWillReceive": "Importo in Stars:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Il tuo saldo (Biglietti):",
+        "starsPayout.yourBalance": "Sarà addebitato (Biglietti):",
         "starsPayout.confirm": "CONFERMA",
         "starsPayout.submitting": "INVIO...",
         "starsPayout.error.minimum": "Richiesto minimo 15 Stars",
@@ -1231,7 +1234,7 @@ const translations = {
         "giftPayout.chooseGift": "Scegli un regalo:",
         "giftPayout.selectGift": "Seleziona un regalo",
         "giftPayout.selectNumber": "Seleziona il numero:",
-        "giftPayout.yourBalance": "Il tuo saldo (Biglietti):",
+        "giftPayout.yourBalance": "Sarà addebitato (Biglietti):",
         "giftPayout.confirm": "CONFERMA",
         "giftPayout.submitting": "INVIO...",
         "giftPayout.error.giftRequired": "Si prega di selezionare un regalo",
@@ -1437,7 +1440,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "Factuur-URL niet ontvangen van server",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Je hebt een dagelijkse bonus beschikbaar",
+        "dailyBonus.title": "Dagelijkse bonus",
         "dailyBonus.available": "Dagelijkse bonus is beschikbaar",
         "dailyBonus.cooldown": "Volgende bonus over",
         "dailyBonus.claim": "OPHALEN ",
@@ -1481,6 +1484,7 @@ const translations = {
         "game.waitingForUsers": "Wachten op spelers...",
         "game.winner": "Winnaar",
         "game.user": "Gebruiker",
+        "game.ticket": "tickets",
 
         // Tasks Screen
         "tasks.title": "Taken",
@@ -1554,9 +1558,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Stars opnemen",
         "starsPayout.enterUsername": "Voer de gebruikersnaam in:",
-        "starsPayout.youWillReceive": "U ontvangt Stars:",
+        "starsPayout.youWillReceive": "Bedrag in Stars:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Uw saldo (Tickets):",
+        "starsPayout.yourBalance": "Wordt afgeschreven (Tickets):",
         "starsPayout.confirm": "BEVESTIGEN",
         "starsPayout.submitting": "WORDT VERZONDEN...",
         "starsPayout.error.minimum": "Minimaal 15 Stars vereist",
@@ -1576,7 +1580,7 @@ const translations = {
         "giftPayout.chooseGift": "Kies een cadeau:",
         "giftPayout.selectGift": "Selecteer een cadeau",
         "giftPayout.selectNumber": "Selecteer het aantal:",
-        "giftPayout.yourBalance": "Uw saldo (Tickets):",
+        "giftPayout.yourBalance": "Wordt afgeschreven (Tickets):",
         "giftPayout.confirm": "BEVESTIGEN",
         "giftPayout.submitting": "WORDT VERZONDEN...",
         "giftPayout.error.giftRequired": "Selecteer een cadeau",
@@ -1777,7 +1781,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "URL faktury nie został otrzymany z serwera",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Masz dostępny codzienny bonus",
+        "dailyBonus.title": "Codzienny bonus",
         "dailyBonus.available": "Codzienny bonus jest dostępny",
         "dailyBonus.cooldown": "Następny bonus za",
         "dailyBonus.claim": "ODEBERZ ",
@@ -1821,6 +1825,7 @@ const translations = {
         "game.waitingForUsers": "Oczekiwanie na graczy...",
         "game.winner": "Zwycięzca",
         "game.user": "Użytkownik",
+        "game.ticket": "biletów",
 
         // Tasks Screen
         "tasks.title": "Zadania",
@@ -1894,9 +1899,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Wypłać Stars",
         "starsPayout.enterUsername": "Wprowadź nazwę użytkownika:",
-        "starsPayout.youWillReceive": "Otrzymasz Stars:",
+        "starsPayout.youWillReceive": "Kwota w Stars:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Twoje saldo (Bilety):",
+        "starsPayout.yourBalance": "Zostanie obciążone (Bilety):",
         "starsPayout.confirm": "POTWIERDŹ",
         "starsPayout.submitting": "WYSYŁANIE...",
         "starsPayout.error.minimum": "Wymagane minimum 15 Stars",
@@ -1916,7 +1921,7 @@ const translations = {
         "giftPayout.chooseGift": "Wybierz prezent:",
         "giftPayout.selectGift": "Wybierz prezent",
         "giftPayout.selectNumber": "Wybierz liczbę:",
-        "giftPayout.yourBalance": "Twoje saldo (Bilety):",
+        "giftPayout.yourBalance": "Zostanie obciążone (Bilety):",
         "giftPayout.confirm": "POTWIERDŹ",
         "giftPayout.submitting": "WYSYŁANIE...",
         "giftPayout.error.giftRequired": "Proszę wybrać prezent",
@@ -2087,7 +2092,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "URL de facture non reçue du serveur",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Vous avez un bonus quotidien disponible",
+        "dailyBonus.title": "Bonus quotidien",
         "dailyBonus.available": "Le bonus quotidien est disponible",
         "dailyBonus.cooldown": "Prochain bonus dans",
         "dailyBonus.claim": "RÉCLAMER ",
@@ -2138,6 +2143,7 @@ const translations = {
         "game.waitingForUsers": "En attente de joueurs...",
         "game.winner": "Gagnant",
         "game.user": "Utilisateur",
+        "game.ticket": "billets",
 
         // Tasks Screen
         "tasks.title": "Tâches",
@@ -2211,9 +2217,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Retirer Stars",
         "starsPayout.enterUsername": "Entrez le nom d'utilisateur:",
-        "starsPayout.youWillReceive": "Vous recevrez Stars:",
+        "starsPayout.youWillReceive": "Montant en Stars:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Votre solde (Billets):",
+        "starsPayout.yourBalance": "Sera débité (Billets):",
         "starsPayout.confirm": "CONFIRMER",
         "starsPayout.submitting": "ENVOI...",
         "starsPayout.error.minimum": "Minimum 15 Stars requis",
@@ -2233,7 +2239,7 @@ const translations = {
         "giftPayout.chooseGift": "Choisissez un cadeau:",
         "giftPayout.selectGift": "Sélectionner un cadeau",
         "giftPayout.selectNumber": "Sélectionnez le nombre:",
-        "giftPayout.yourBalance": "Votre solde (Billets):",
+        "giftPayout.yourBalance": "Sera débité (Billets):",
         "giftPayout.confirm": "CONFIRMER",
         "giftPayout.submitting": "ENVOI...",
         "giftPayout.error.giftRequired": "Veuillez sélectionner un cadeau",
@@ -2405,7 +2411,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "URL de factura no recibida del servidor",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Tienes un bono diario disponible",
+        "dailyBonus.title": "Bono diario",
         "dailyBonus.available": "El bonus diario está disponible",
         "dailyBonus.cooldown": "Próximo bono en",
         "dailyBonus.claim": "RECLAMAR ",
@@ -2449,6 +2455,7 @@ const translations = {
         "game.waitingForUsers": "Esperando jugadores...",
         "game.winner": "Ganador",
         "game.user": "Usuario",
+        "game.ticket": "boletos",
 
         // Tasks Screen
         "tasks.title": "Tareas",
@@ -2522,9 +2529,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Retirar Stars",
         "starsPayout.enterUsername": "Ingrese el nombre de usuario:",
-        "starsPayout.youWillReceive": "Recibirá Stars:",
+        "starsPayout.youWillReceive": "Cantidad en Stars:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Su saldo (Boletos):",
+        "starsPayout.yourBalance": "Se debitará (Boletos):",
         "starsPayout.confirm": "CONFIRMAR",
         "starsPayout.submitting": "ENVIANDO...",
         "starsPayout.error.minimum": "Se requiere un mínimo de 15 Stars",
@@ -2544,7 +2551,7 @@ const translations = {
         "giftPayout.chooseGift": "Elija un regalo:",
         "giftPayout.selectGift": "Seleccionar un regalo",
         "giftPayout.selectNumber": "Seleccione el número:",
-        "giftPayout.yourBalance": "Su saldo (Boletos):",
+        "giftPayout.yourBalance": "Se debitará (Boletos):",
         "giftPayout.confirm": "CONFIRMAR",
         "giftPayout.submitting": "ENVIANDO...",
         "giftPayout.error.giftRequired": "Por favor, seleccione un regalo",
@@ -2748,7 +2755,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "URL faktur tidak diterima dari server",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Kamu memiliki bonus harian yang tersedia",
+        "dailyBonus.title": "Bonus harian",
         "dailyBonus.available": "Bonus harian tersedia",
         "dailyBonus.cooldown": "Bonus berikutnya dalam",
         "dailyBonus.claim": "KLAIM ",
@@ -2787,6 +2794,11 @@ const translations = {
         "game.rules.setBet": "Anda dapat meningkatkan ukuran taruhan hingga putaran dimulai. ",
         "game.rules.multipliers":
             "Taruhan minimum dan maksimum bervariasi tergantung pada ruangan.",
+        "game.room": "Ruangan",
+        "game.waitingForUsers": "Menunggu pemain...",
+        "game.winner": "Pemenang",
+        "game.user": "Pengguna",
+        "game.ticket": "tiket",
         "game.error.insufficientBalance": "Saldo tidak mencukupi",
         "game.error.betRange": "Taruhan harus antara {min} dan {max}",
         "game.error.maxBetExceeded":
@@ -2853,9 +2865,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Tarik Stars",
         "starsPayout.enterUsername": "Masukkan nama pengguna:",
-        "starsPayout.youWillReceive": "Anda akan menerima Stars:",
+        "starsPayout.youWillReceive": "Jumlah dalam Stars:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Saldo Anda (Tiket):",
+        "starsPayout.yourBalance": "Akan didebit (Tiket):",
         "starsPayout.confirm": "KONFIRMASI",
         "starsPayout.submitting": "MENGIRIM...",
         "starsPayout.error.minimum": "Minimum 15 Stars diperlukan",
@@ -2875,7 +2887,7 @@ const translations = {
         "giftPayout.chooseGift": "Pilih hadiah:",
         "giftPayout.selectGift": "Pilih hadiah",
         "giftPayout.selectNumber": "Pilih nomor:",
-        "giftPayout.yourBalance": "Saldo Anda (Tiket):",
+        "giftPayout.yourBalance": "Akan didebit (Tiket):",
         "giftPayout.confirm": "KONFIRMASI",
         "giftPayout.submitting": "MENGIRIM...",
         "giftPayout.error.giftRequired": "Silakan pilih hadiah",
@@ -3046,7 +3058,7 @@ const translations = {
         "store.error.invoiceUrlNotReceived": "Fatura URL'si sunucudan alınamadı",
 
         // Daily Bonus Screen
-        "dailyBonus.title": "Günlük bonusunuz mevcut",
+        "dailyBonus.title": "Günlük bonus",
         "dailyBonus.available": "Günlük bonus mevcut",
         "dailyBonus.cooldown": "Sonraki bonus için",
         "dailyBonus.claim": "AL ",
@@ -3096,6 +3108,7 @@ const translations = {
         "game.waitingForUsers": "Oyuncular bekleniyor...",
         "game.winner": "Kazanan",
         "game.user": "Kullanıcı",
+        "game.ticket": "bilet",
 
         // Tasks Screen
         "tasks.title": "Görevler",
@@ -3169,9 +3182,9 @@ const translations = {
         // Stars Payout Confirmation
         "starsPayout.title": "Stars çek",
         "starsPayout.enterUsername": "Kullanıcı adını girin:",
-        "starsPayout.youWillReceive": "Stars alacaksınız:",
+        "starsPayout.youWillReceive": "Stars cinsinden tutar:",
         "starsPayout.minStars": "Min: 15 Stars",
-        "starsPayout.yourBalance": "Bakiyeniz (Bilet):",
+        "starsPayout.yourBalance": "Borçlandırılacak (Bilet):",
         "starsPayout.confirm": "ONAYLA",
         "starsPayout.submitting": "GÖNDERİLİYOR...",
         "starsPayout.error.minimum": "Minimum 15 Stars gerekli",
@@ -3191,7 +3204,7 @@ const translations = {
         "giftPayout.chooseGift": "Bir hediye seçin:",
         "giftPayout.selectGift": "Hediye seçin",
         "giftPayout.selectNumber": "Numarayı seçin:",
-        "giftPayout.yourBalance": "Bakiyeniz (Bilet):",
+        "giftPayout.yourBalance": "Borçlandırılacak (Bilet):",
         "giftPayout.confirm": "ONAYLA",
         "giftPayout.submitting": "GÖNDERİLİYOR...",
         "giftPayout.error.giftRequired": "Lütfen bir hediye seçin",

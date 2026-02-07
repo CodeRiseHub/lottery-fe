@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchGameHistory } from '../api'
-import { t } from '../i18n'
+import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
 import pagLeftIcon from '../assets/images/tasks/pag-left.png'
 import pagRightIcon from '../assets/images/tasks/pag-right.png'
@@ -51,6 +51,33 @@ export default function GameHistoryScreen({ onBack, roomNumber }) {
     }
 
     loadHistory()
+  }, [currentPage])
+
+  // Refetch history when language changes (to update localized "at" word in dates)
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      const loadHistory = async () => {
+        setLoading(true)
+        try {
+          const response = await fetchGameHistory(currentPage)
+          setHistory(response.content || [])
+          setCurrentPage(response.number || 0)
+          setTotalPages(response.totalPages || 0)
+        } catch (error) {
+          console.error('Failed to load game history:', error)
+          setHistory([])
+          setCurrentPage(0)
+          setTotalPages(0)
+        } finally {
+          setLoading(false)
+        }
+      }
+      loadHistory()
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [currentPage])
 
   // Format amount from bigint to display format (divide by 1,000,000 and format to 2 decimals)

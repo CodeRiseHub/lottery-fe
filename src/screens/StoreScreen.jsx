@@ -142,7 +142,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
               // Calculate tickets for the success message
               const ticketsValue = Math.floor(starsValue * 9)
-              tg.showAlert(`Successfully purchased ${ticketsValue} tickets!`)
+              tg.showAlert(t('store.success.purchased', { tickets: ticketsValue }))
             } catch (error) {
               console.error('Error syncing balance after payment:', error)
               // Don't show error to user - payment was successful, balance will sync eventually

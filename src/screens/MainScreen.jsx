@@ -1708,7 +1708,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 }}>
                   {/* Winner name - centered on top */}
                   <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center' }}>
-                    {t('game.winner')}: {winner.sN || `${t('game.user')} ${winner.uI}`}
+                    {winner.sN || `${t('game.user')} ${winner.uI}`}
                   </div>
 
                   {/* Bet/Win/Chance block divided into left (avatar) and right (text) parts */}
