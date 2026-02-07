@@ -1648,12 +1648,14 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           </div>
 
           <div className="spin__game-container" id="spin-container" style={{ position: 'relative' }}>
-            <img
-              className="spin__arrow"
-              src={arrowDownIcon}
-              alt="arrow"
-              width="36"
-            />
+            {roomPhase === 'SPINNING' && (
+              <img
+                className="spin__arrow"
+                src={arrowDownIcon}
+                alt="arrow"
+                width="36"
+              />
+            )}
             {/* Container is always mounted to prevent ref from becoming null during animation */}
             {/* Hide container visually when showing waiting message or winner, but keep it mounted */}
             <div
