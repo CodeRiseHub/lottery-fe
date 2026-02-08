@@ -43,9 +43,8 @@ export default function PayoutScreen({ onBack, onNavigate }) {
   }, [])
 
   const handleSelectCrypto = (option) => {
-    // TODO: navigate to crypto payout flow (e.g. form or confirmation) when implemented
     if (onNavigate) {
-      // onNavigate('cryptoPayoutConfirmation', { selectedOption: option })
+      onNavigate('starsPayoutConfirmation', { selectedOption: option })
     }
   }
 

@@ -1,20 +1,17 @@
 import { useState, useEffect } from 'react'
-import { createPayout, fetchCurrentUser, fetchPayoutHistory } from '../api'
+import { fetchCurrentUser, fetchPayoutHistory } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
-import starImg from '../assets/purchase/star_1.png'
 
-// Allowed stars amounts for payout (must match backend). Conversion: 1 Star = 12 tickets.
-const STARS_OPTIONS = [50, 75, 100, 150, 250, 350, 500, 750, 2500, 10000, 25000, 35000]
-const STARS_TO_TICKETS = 12
+const NETWORK_FEE_USD = '0.01'
+const MIN_WITHDRAW_USD = '0.05'
 
 export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
-  const [username, setUsername] = useState('')
-  const [selectedStars, setSelectedStars] = useState(null)
-  const [balanceTickets, setBalanceTickets] = useState('0')
-  const [usernameError, setUsernameError] = useState('')
-  const [starsError, setStarsError] = useState('')
-  const [showStarsDropdown, setShowStarsDropdown] = useState(false)
+  const [wallet, setWallet] = useState('')
+  const [amountTickets, setAmountTickets] = useState('')
+  const [balanceTickets, setBalanceTickets] = useState(null) // user balance in tickets (bigint scale)
+  const [walletError, setWalletError] = useState('')
+  const [amountError, setAmountError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [payoutHistory, setPayoutHistory] = useState([])
@@ -42,16 +39,11 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   }, [])
 
   useEffect(() => {
-    // Pre-populate username from userData
     const loadUserData = async () => {
       try {
         const userData = await fetchCurrentUser()
-        if (userData && userData.username) {
-          // Add "@" prefix if not already present
-          const username = userData.username.startsWith('@') 
-            ? userData.username 
-            : `@${userData.username}`
-          setUsername(username)
+        if (userData != null && userData.balanceA != null) {
+          setBalanceTickets(userData.balanceA)
         }
       } catch (error) {
         console.error('Failed to load user data:', error)
@@ -61,7 +53,6 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   }, [])
 
   useEffect(() => {
-    // Fetch payout history on component mount
     const loadHistory = async () => {
       try {
         setLoadingHistory(true)
@@ -77,7 +68,6 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     loadHistory()
   }, [])
 
-  // Refetch payout history when language changes (to update localized statuses)
   useEffect(() => {
     const unsubscribe = subscribeToLanguageChange(() => {
       const loadHistory = async () => {
@@ -94,231 +84,132 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
       }
       loadHistory()
     })
-
-    return () => {
-      unsubscribe()
-    }
+    return () => { unsubscribe() }
   }, [])
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const dropdown = document.querySelector('[data-stars-dropdown]')
-      const trigger = document.querySelector('[data-stars-trigger]')
-      if (showStarsDropdown && dropdown && trigger &&
-          !dropdown.contains(event.target) && !trigger.contains(event.target)) {
-        setShowStarsDropdown(false)
-      }
-    }
-    if (showStarsDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('touchstart', handleClickOutside)
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
-    }
-  }, [showStarsDropdown])
-
-  useEffect(() => {
-    if (selectedStars != null) {
-      const tickets = selectedStars * STARS_TO_TICKETS
-      setBalanceTickets(tickets.toString())
-      setStarsError('')
+  const validateWallet = (value) => {
+    if (!value || !String(value).trim()) {
+      setWalletError(t('withdraw.error.walletRequired'))
     } else {
-      setBalanceTickets('0')
-    }
-  }, [selectedStars])
-
-  const validateUsername = (value) => {
-    // Username should start with @ followed by at least 1 English letter
-    const usernamePattern = /^@[a-zA-Z]/
-    if (value && !usernamePattern.test(value)) {
-      setUsernameError(t('starsPayout.error.usernameInvalid'))
-    } else {
-      setUsernameError('')
+      setWalletError('')
     }
   }
 
-  const handleUsernameChange = (e) => {
-    const value = e.target.value
-    setUsername(value)
-    validateUsername(value)
+  const validateAmount = (value) => {
+    setAmountError('')
+    if (value == null || value === '') return
+    const num = parseFloat(value)
+    if (Number.isNaN(num) || num <= 0) {
+      setAmountError(t('withdraw.error.invalidAmount'))
+      return
+    }
+    const ticketsBigint = Math.round(num * 1_000_000)
+    if (balanceTickets != null && ticketsBigint > balanceTickets) {
+      setAmountError(t('withdraw.error.insufficientBalance'))
+    }
   }
 
-  const handleStarsSelect = (stars) => {
-    setSelectedStars(stars)
-    setShowStarsDropdown(false)
+  const handleWalletChange = (e) => {
+    setWallet(e.target.value)
+    if (walletError) validateWallet(e.target.value)
+  }
+
+  const handleAmountChange = (e) => {
+    const v = e.target.value
+    setAmountTickets(v)
+    validateAmount(v)
+  }
+
+  const handleAmountBlur = () => {
+    validateAmount(amountTickets)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    // Reset errors
-    setUsernameError('')
-    setStarsError('')
+    setWalletError('')
+    setAmountError('')
     setSubmitError('')
 
-    // Validate username
-    validateUsername(username)
-    
-    if (selectedStars == null) {
-      setStarsError(t('starsPayout.error.selectAmount'))
+    validateWallet(wallet)
+    if (!wallet || !String(wallet).trim()) {
+      setWalletError(t('withdraw.error.walletRequired'))
       return
     }
 
-    // Check if there are any errors
-    const usernamePattern = /^@[a-zA-Z]/
-    if (!username || !usernamePattern.test(username)) {
-      setUsernameError(t('starsPayout.error.usernameInvalid'))
+    const num = parseFloat(amountTickets)
+    if (Number.isNaN(num) || num <= 0) {
+      setAmountError(t('withdraw.error.invalidAmount'))
+      return
+    }
+    const ticketsBigint = Math.round(num * 1_000_000)
+    if (balanceTickets != null && ticketsBigint > balanceTickets) {
+      setAmountError(t('withdraw.error.insufficientBalance'))
       return
     }
 
     setIsSubmitting(true)
     try {
-      const tickets = selectedStars * STARS_TO_TICKETS
-      await createPayout({
-        username: username.trim(),
-        total: tickets * 1_000_000, // Convert to bigint format
-        starsAmount: selectedStars,
-        type: 'STARS',
-        giftName: null,
-        quantity: 1
-      })
-
-      // Fetch updated user data to get new balance
-      const userData = await fetchCurrentUser()
-      if (userData) {
-        if (onUserDataUpdate) {
-          onUserDataUpdate(userData)
-        }
-        if (onBalanceUpdate) {
-          const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(2)
-          onBalanceUpdate(balanceDisplay)
-        }
+      // TODO: call crypto withdraw API when backend supports it (wallet, amount, selectedOption)
+      // await createCryptoPayout({ wallet: wallet.trim(), total: ticketsBigint, ... })
+      if (onBalanceUpdate && balanceTickets != null) {
+        const after = (balanceTickets - ticketsBigint) / 1_000_000
+        onBalanceUpdate(after.toFixed(2))
       }
-
-      alert(t('starsPayout.success'))
-      if (onBack) {
-        onBack()
-      }
+      alert(t('withdraw.success'))
+      if (onBack) onBack()
     } catch (error) {
-      const errorMessage = error.response?.message || error.message || 'Failed to submit payout request'
-      setSubmitError(errorMessage)
+      const msg = error.response?.message || error.message || 'Failed to submit withdrawal'
+      setSubmitError(msg)
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const youWillReceive = t('withdraw.minAmountUsd', { amount: MIN_WITHDRAW_USD })
+
   return (
-    <section className="payout">
+    <section className="payout payout-withdraw">
       <div className="payout__container container">
-        <h1 className="payout__title title">{t('starsPayout.title')}</h1>
+        <h1 className="payout__title title">{t('withdraw.title')}</h1>
 
         <form action="" method="POST" onSubmit={handleSubmit}>
           <div className="payout__form">
             <div className="payout__field">
-              <p className="payout__label">{t('starsPayout.enterUsername')}</p>
-              <input
-                type="text"
+              <p className="payout__label">{t('withdraw.enterWallet')}</p>
+              <textarea
                 className="payout__input"
-                placeholder="@username"
-                name="username"
-                value={username}
-                onChange={handleUsernameChange}
-                style={{ height: '42px', fontSize: '22px', textAlign: 'center' }}
+                placeholder="..."
+                rows={3}
+                wrap="soft"
+                name="purse"
+                value={wallet}
+                onChange={handleWalletChange}
               />
-              {usernameError && (
-                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{usernameError}</p>
+              {walletError && (
+                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{walletError}</p>
               )}
             </div>
 
-            <div className="payout__field" style={{ position: 'relative' }}>
-              <p className="payout__label">{t('starsPayout.youWillReceive')}</p>
-              <div
+            <div className="payout__field">
+              <p className="payout__label">{t('withdraw.yourBalanceTickets')}</p>
+              <input
+                type="text"
                 className="payout__input"
-                data-stars-trigger
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowStarsDropdown(!showStarsDropdown)
-                }}
-                style={{
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  minHeight: '42px',
-                  padding: '10px'
-                }}
-              >
-                {selectedStars != null ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <img src={starImg} alt="" width="30" height="30" />
-                    <span>{selectedStars}</span>
-                  </div>
-                ) : (
-                  <span style={{ color: '#999', width: '100%', textAlign: 'center' }}>{t('starsPayout.selectAmount')}</span>
-                )}
-              </div>
-              {starsError && (
-                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{starsError}</p>
-              )}
-              {showStarsDropdown && (
-                <div
-                  data-stars-dropdown
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    backgroundColor: '#2a3a4e',
-                    border: '1px solid #3d4f65',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    zIndex: 1000,
-                    marginTop: '5px',
-                    maxHeight: '300px',
-                    overflowY: 'auto',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '10px'
-                  }}
-                >
-                  {STARS_OPTIONS.map((stars) => (
-                    <div
-                      key={stars}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleStarsSelect(stars)
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px',
-                        cursor: 'pointer',
-                        borderRadius: '5px',
-                        border: selectedStars === stars ? '2px solid #28a745' : '1px solid #3d4f65',
-                        backgroundColor: selectedStars === stars ? '#1e2a35' : 'transparent'
-                      }}
-                    >
-                      <img src={starImg} alt="" width="28" height="28" />
-                      <span style={{ fontSize: '14px' }}>{stars}</span>
-                    </div>
-                  ))}
-                </div>
+                name="amount"
+                placeholder={t('withdraw.placeholderAmount')}
+                value={amountTickets}
+                onChange={handleAmountChange}
+                onBlur={handleAmountBlur}
+                style={{ height: '42px', fontSize: '22px', textAlign: 'center' }}
+              />
+              {amountError && (
+                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{amountError}</p>
               )}
             </div>
 
             <div className="payout__field payout__field--result">
-              <p className="payout__label">{t('starsPayout.yourBalance')}</p>
-              <input
-                type="text"
-                className="payout__input"
-                value={balanceTickets}
-                disabled
-                readOnly
-                style={{ opacity: 0.6, cursor: 'not-allowed' }}
-              />
+              <p className="payout__label">{t('withdraw.youWillReceive')}</p>
+              <p className="payout__result" id="calc">{youWillReceive}</p>
             </div>
 
             {submitError && (
@@ -326,140 +217,63 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                 {submitError}
               </p>
             )}
-            <button 
-              type="submit" 
-              className="payout__button"
-              disabled={isSubmitting}
-            >
-              <span>{isSubmitting ? t('starsPayout.submitting') : t('starsPayout.confirm')}</span>
+            <button type="submit" className="payout__button" disabled={isSubmitting}>
+              <span>{isSubmitting ? t('withdraw.submitting') : t('withdraw.confirm')}</span>
             </button>
           </div>
         </form>
 
-        {/* Withdrawal History Table */}
-        <div style={{ marginTop: '30px' }}>
-          <h2 style={{ 
-            color: '#fff', 
-            fontSize: '18px', 
-            marginBottom: '15px',
-            textAlign: 'center'
-          }}>
-            {t('starsPayout.history.title')}
-          </h2>
-          <div style={{
-            backgroundColor: '#2a3a4e',
-            borderRadius: '8px',
-            padding: '15px',
-            overflowX: 'auto'
-          }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ 
-                    color: '#fff', 
-                    textAlign: 'left', 
-                    padding: '10px',
-                    borderBottom: '1px solid #3d4f65',
-                    fontSize: '14px',
-                    fontWeight: 'bold'
-                  }}>{t('starsPayout.history.amount')}</th>
-                  <th style={{ 
-                    color: '#fff', 
-                    textAlign: 'center', 
-                    padding: '10px',
-                    borderBottom: '1px solid #3d4f65',
-                    fontSize: '14px',
-                    fontWeight: 'bold'
-                  }}>{t('starsPayout.history.date')}</th>
-                  <th style={{ 
-                    color: '#fff', 
-                    textAlign: 'center', 
-                    padding: '10px',
-                    borderBottom: '1px solid #3d4f65',
-                    fontSize: '14px',
-                    fontWeight: 'bold'
-                  }}>{t('starsPayout.history.status')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loadingHistory ? (
-                  <tr>
-                    <td colSpan="3" style={{ 
-                      color: '#999', 
-                      textAlign: 'center', 
-                      padding: '20px',
-                      fontSize: '14px'
-                    }}>
-                      {t('starsPayout.history.loading')}
-                    </td>
-                  </tr>
-                ) : payoutHistory.length === 0 ? (
-                  <tr>
-                    <td colSpan="3" style={{ 
-                      color: '#999', 
-                      textAlign: 'center', 
-                      padding: '20px',
-                      fontSize: '14px'
-                    }}>
-                      {t('starsPayout.history.noData')}
-                    </td>
-                  </tr>
-                ) : (
-                  payoutHistory.map((entry, index) => {
-                    // Convert bigint to tickets (divide by 1,000,000) and format as integer
-                    const amountInTickets = Math.floor(entry.amount / 1_000_000)
-                    
-                    return (
-                      <tr key={index} style={{ borderBottom: index < payoutHistory.length - 1 ? '1px solid #3d4f65' : 'none' }}>
-                        <td style={{ 
-                          color: '#fff', 
-                          padding: '10px',
-                          fontSize: '14px'
-                        }}>
-                          {amountInTickets}
-                        </td>
-                        <td style={{ 
-                          color: '#fff', 
-                          textAlign: 'center',
-                          padding: '10px',
-                          fontSize: '14px'
-                        }}>
-                          {entry.date}
-                        </td>
-                        <td style={{ 
-                          color: '#fff', 
-                          textAlign: 'center',
-                          padding: '10px',
-                          fontSize: '14px'
-                        }}>
-                          {t(`payout.status.${entry.status.toLowerCase()}`)}
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
+        <p className="payout__note">{t('withdraw.networkFee', { amount: NETWORK_FEE_USD })}</p>
+        <p className="payout__text">{t('withdraw.networkFeeNote')}</p>
+
+        <div className="payout__history">
+          <p className="payout__history-title">{t('withdraw.historyTitle')}</p>
+
+          <div className="payout__history-row payout__history-row--header">
+            <p className="payout__history-col">{t('withdraw.historyAmount')}</p>
+            <p className="payout__history-col">{t('withdraw.historyDate')}</p>
+            <p className="payout__history-col">{t('withdraw.historyStatus')}</p>
           </div>
+
+          {loadingHistory ? (
+            <div className="payout__history-row">
+              <p className="payout__history-col">&nbsp;</p>
+              <p className="payout__history-col">{t('withdraw.historyLoading')}</p>
+              <p className="payout__history-col">&nbsp;</p>
+            </div>
+          ) : payoutHistory.length === 0 ? (
+            <div className="payout__history-row">
+              <p className="payout__history-col">&nbsp;</p>
+              <p className="payout__history-col">{t('withdraw.historyNoData')}</p>
+              <p className="payout__history-col">&nbsp;</p>
+            </div>
+          ) : (
+            payoutHistory.slice(0, 20).map((entry, index) => {
+              const amountInTickets = Math.floor(entry.amount / 1_000_000)
+              return (
+                <div key={`${entry.date}-${index}`} className="payout__history-row">
+                  <p className="payout__history-col payout__history-col-amount">{amountInTickets}</p>
+                  <p className="payout__history-col">{entry.date}</p>
+                  <p className="payout__history-col payout__history-col-status">
+                    {t(`payout.status.${entry.status.toLowerCase()}`)}
+                  </p>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
-      
+
       <div className="upgrade__footer">
-        <a
-          href="#"
+        <button
+          type="button"
           className="upgrade__back-button"
-          onClick={(e) => {
-            e.preventDefault()
-            if (onBack) {
-              onBack()
-            }
-          }}
+          onClick={() => onBack && onBack()}
         >
-          {t('header.account.back')}
-          <img src={backIcon} alt="back" width="29" height="21" />
-        </a>
+          {t('withdraw.back')}
+          <img src={backIcon} alt="back" width={29} height={21} />
+        </button>
       </div>
     </section>
   )
 }
-
