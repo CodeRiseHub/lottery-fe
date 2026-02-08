@@ -2273,9 +2273,9 @@ section:last-child .container:last-child > *:last-child:not(.footer):not(.header
     line-height: 74.64%;
 }
 
-/* Payment Options (Tickets store): back button uses same fixed position as Payout Confirmation (above nav). Small list padding so last item is visible when scrolled. */
-.payment-options .payment-options__list-wrap {
-    padding-bottom: 24px;
+/* Footer clearance for scrollable list (same as .transaction__container margin-bottom: 100px) */
+.payment-options .upgrade__container {
+    margin-bottom: 100px !important;
 }
 
 /* upgrade pay page  */

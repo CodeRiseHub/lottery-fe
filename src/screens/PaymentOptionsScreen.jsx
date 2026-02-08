@@ -90,17 +90,17 @@ export default function PaymentOptionsScreen({ onBack, usdAmount, ticketsAmount 
             ))}
           </div>
         </div>
+      </div>
 
-        <div className="upgrade__footer">
-          <button
-            type="button"
-            className="upgrade__back-button"
-            onClick={() => onBack && onBack()}
-          >
-            {t('paymentOptions.back')}
-            <img src={backIcon} alt="back" width={29} height={21} />
-          </button>
-        </div>
+      <div className="upgrade__footer">
+        <button
+          type="button"
+          className="upgrade__back-button"
+          onClick={() => onBack && onBack()}
+        >
+          {t('paymentOptions.back')}
+          <img src={backIcon} alt="back" width={29} height={21} />
+        </button>
       </div>
     </section>
   )
