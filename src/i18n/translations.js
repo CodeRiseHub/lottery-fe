@@ -198,6 +198,7 @@ const translations = {
         "payout.status.processing": "Processing",
         "payout.status.completed": "Completed",
         "payout.status.cancelled": "Cancelled",
+        "payout.minUsd": "Min. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Withdraw Stars",
@@ -566,6 +567,7 @@ const translations = {
         "payout.status.processing": "В обработке",
         "payout.status.completed": "Завершено",
         "payout.status.cancelled": "Отменено",
+        "payout.minUsd": "Мин. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Вывод Stars",
@@ -917,6 +919,7 @@ const translations = {
         "payout.status.processing": "In Bearbeitung",
         "payout.status.completed": "Abgeschlossen",
         "payout.status.cancelled": "Abgebrochen",
+        "payout.minUsd": "Mind. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Stars auszahlen",
@@ -1280,6 +1283,7 @@ const translations = {
         "payout.status.processing": "In elaborazione",
         "payout.status.completed": "Completato",
         "payout.status.cancelled": "Annullato",
+        "payout.minUsd": "Min. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Preleva Stars",
@@ -1643,6 +1647,7 @@ const translations = {
         "payout.status.processing": "In elaborazione",
         "payout.status.completed": "Completato",
         "payout.status.cancelled": "Annullato",
+        "payout.minUsd": "Min. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Stars opnemen",
@@ -2001,6 +2006,7 @@ const translations = {
         "payout.status.processing": "W trakcie",
         "payout.status.completed": "Zakończono",
         "payout.status.cancelled": "Anulowano",
+        "payout.minUsd": "Min. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Wypłać Stars",
@@ -2336,6 +2342,7 @@ const translations = {
         "payout.status.processing": "En cours",
         "payout.status.completed": "Terminé",
         "payout.status.cancelled": "Annulé",
+        "payout.minUsd": "Min. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Retirer Stars",
@@ -2665,6 +2672,7 @@ const translations = {
         "payout.status.processing": "En proceso",
         "payout.status.completed": "Completado",
         "payout.status.cancelled": "Cancelado",
+        "payout.minUsd": "Mín. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Retirar Stars",
@@ -3018,6 +3026,7 @@ const translations = {
         "payout.status.processing": "Sedang diproses",
         "payout.status.completed": "Selesai",
         "payout.status.cancelled": "Dibatalkan",
+        "payout.minUsd": "Min. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Tarik Stars",
@@ -3352,6 +3361,7 @@ const translations = {
         "payout.status.processing": "İşleniyor",
         "payout.status.completed": "Tamamlandı",
         "payout.status.cancelled": "İptal edildi",
+        "payout.minUsd": "Min. {amount} USD",
 
         // Stars Payout Confirmation
         "starsPayout.title": "Stars çek",

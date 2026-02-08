@@ -1,7 +1,24 @@
 import { useEffect } from 'react'
 import { t } from '../i18n'
-import starIcon from '../assets/purchase/star_1.png'
-import giftIcon from '../assets/purchase/gift_1.png'
+
+// Crypto payout options (pid, name, minUsd). Matches reference: TRX, BNB, TON, Litecoin.
+const PAYOUT_CRYPTO_OPTIONS = [
+  { pid: 90, name: 'TRX', minUsd: '0.02' },
+  { pid: 130, name: 'BNB', minUsd: '0.02' },
+  { pid: 235, name: 'TON', minUsd: '0.02' },
+  { pid: 30, name: 'Litecoin', minUsd: '0.05' }
+]
+
+const cryptoIconModules = import.meta.glob('../assets/crypto_new/*.png', { eager: true, query: '?url', import: 'default' })
+const cryptoIconMap = {}
+Object.keys(cryptoIconModules).forEach((path) => {
+  const match = path.match(/(\d+)\.png$/)
+  if (match) cryptoIconMap[match[1]] = cryptoIconModules[path]
+})
+function getCryptoIconUrl(pid) {
+  const url = cryptoIconMap[String(pid)]
+  return url != null ? url : `/assets/crypto_new/${pid}.png`
+}
 
 export default function PayoutScreen({ onBack, onNavigate }) {
   useEffect(() => {
@@ -25,6 +42,13 @@ export default function PayoutScreen({ onBack, onNavigate }) {
     }
   }, [])
 
+  const handleSelectCrypto = (option) => {
+    // TODO: navigate to crypto payout flow (e.g. form or confirmation) when implemented
+    if (onNavigate) {
+      // onNavigate('cryptoPayoutConfirmation', { selectedOption: option })
+    }
+  }
+
   return (
     <section className="payout">
       <div className="container">
@@ -32,54 +56,33 @@ export default function PayoutScreen({ onBack, onNavigate }) {
 
         <div className="upgrade__currencies">
           <div className="upgrade__list">
-            <a
-              href="#"
-              className="upgrade__item"
-              onClick={(e) => {
-                e.preventDefault()
-                if (onNavigate) {
-                  onNavigate('starsPayoutConfirmation')
-                }
-              }}
-            >
-              <img
-                src={starIcon}
-                width="61"
-                height="60"
-                className="upgrade__icon"
-                alt="Stars"
-              />
-              <div className="upgrade__info">
-                <p className="upgrade__name">{t('payout.stars')}</p>
-                <p className="upgrade__network">{t('payout.minStars')}</p>
-              </div>
-            </a>
-            <a
-              href="#"
-              className="upgrade__item"
-              onClick={(e) => {
-                e.preventDefault()
-                if (onNavigate) {
-                  onNavigate('giftPayoutConfirmation')
-                }
-              }}
-            >
-              <img
-                src={giftIcon}
-                width="61"
-                height="60"
-                className="upgrade__icon"
-                alt="Gift"
-              />
-              <div className="upgrade__info">
-                <p className="upgrade__name">{t('payout.gift')}</p>
-                <p className="upgrade__network">{t('payout.minStarsGift')}</p>
-              </div>
-            </a>
+            {PAYOUT_CRYPTO_OPTIONS.map((option) => (
+              <button
+                key={option.pid}
+                type="button"
+                className="upgrade__item"
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', width: '100%', padding: 0, font: 'inherit' }}
+                onClick={() => handleSelectCrypto(option)}
+              >
+                <img
+                  src={getCryptoIconUrl(option.pid)}
+                  alt={option.name}
+                  width={61}
+                  height={60}
+                  className="upgrade__icon"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                  }}
+                />
+                <div className="upgrade__info">
+                  <p className="upgrade__name">{option.name}</p>
+                  <p className="upgrade__network">{t('payout.minUsd', { amount: option.minUsd })}</p>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       </div>
     </section>
   )
 }
-
