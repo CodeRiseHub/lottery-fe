@@ -58,11 +58,11 @@ export default function PaymentOptionsScreen({ onBack, usdAmount, ticketsAmount 
   }
 
   return (
-    <section className="upgrade">
+    <section className="upgrade payment-options">
       <div className="upgrade__container container">
         <h1 className="upgrade__title title">{t('store.ticketsStore')}</h1>
 
-        <div className="upgrade__currencies">
+        <div className="upgrade__currencies payment-options__list-wrap">
           <div className="upgrade__list">
             {CRYPTO_OPTIONS.map((option) => (
               <button
