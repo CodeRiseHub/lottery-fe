@@ -38,8 +38,12 @@ const translations = {
         // Store Screen
         "store.title": "Store",
         "store.chooseStars": "Choose the Stars amount:",
+        "store.chooseUsd": "Choose the USD amount:",
         "store.minimum": "Minimum: {min} Stars",
         "store.maximum": "Maximum: {max} Stars",
+        "store.minimumUsd": "Minimum: {min} USD",
+        "store.maximumUsd": "Maximum: {max} USD",
+        "store.ticketsStore": "Tickets store",
         "store.youWillReceive": "You will receive:",
         "store.tickets": "Tickets",
         "store.buyTickets": "BUY TICKETS",
@@ -51,11 +55,14 @@ const translations = {
         "store.error.paymentFailed": "Payment failed. Please try again.",
         "store.error.statusUnknown": "Payment status unknown. Please check your balance.",
         "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Invoice URL not received from backend",
         "store.success.purchased": "Successfully purchased {tickets} tickets!",
         "store.error.tooManyRequests":
             "Too many requests. Please wait a moment before trying again.",
         "store.error.failedToCreate": "Failed to create payment. Please try again.",
+        "paymentOptions.back": "Back",
+        "paymentOptions.network": "Network: {network}",
 
         // Daily Bonus Screen
         "dailyBonus.title": "Daily bonus",
@@ -389,6 +396,13 @@ const translations = {
         // Store Screen
         "store.title": "Магазин",
         "store.chooseStars": "Выберите количество Stars:",
+        "store.chooseUsd": "Выберите сумму в USD:",
+        "store.minimumUsd": "Минимум: {min} USD",
+        "store.maximumUsd": "Максимум: {max} USD",
+        "store.ticketsStore": "Магазин билетов",
+        "store.error.minimumUsd": "Минимум: {min} USD",
+        "paymentOptions.back": "Назад",
+        "paymentOptions.network": "Сеть: {network}",
         "store.minimum": "Минимум: {min} Stars",
         "store.maximum": "Максимум: {max} Stars",
         "store.youWillReceive": "Вы получите:",

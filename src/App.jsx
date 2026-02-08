@@ -15,6 +15,7 @@ import SupportChatScreen from './screens/SupportChatScreen'
 import ReferralScreen from './screens/ReferralScreen'
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen'
 import StoreScreen from './screens/StoreScreen'
+import PaymentOptionsScreen from './screens/PaymentOptionsScreen'
 import TasksScreen from './screens/TasksScreen'
 import PayoutScreen from './screens/PayoutScreen'
 import StarsPayoutConfirmationScreen from './screens/StarsPayoutConfirmationScreen'
@@ -46,7 +47,7 @@ function App() {
       // Load stored screen if valid
       if (storedScreen) {
         const validScreens = ['main', 'gameHistory', 'faq', 'support', 'supportChat', 'referral',
-          'transactionHistory', 'store', 'tasks', 'payout',
+          'transactionHistory', 'store', 'paymentOptions', 'tasks', 'payout',
           'starsPayoutConfirmation', 'giftPayoutConfirmation', 'dailyBonus']
         if (validScreens.includes(storedScreen)) {
           screen = storedScreen
@@ -319,6 +320,13 @@ function App() {
             onNavigate={handleNavigate}
             onBalanceUpdate={handleBalanceUpdate}
             onUserDataUpdate={setUserData}
+          />
+        )}
+        {currentScreen === 'paymentOptions' && (
+          <PaymentOptionsScreen
+            onBack={() => handleNavigate('store')}
+            usdAmount={screenProps.usdAmount}
+            ticketsAmount={screenProps.ticketsAmount}
           />
         )}
         {currentScreen === 'tasks' && (

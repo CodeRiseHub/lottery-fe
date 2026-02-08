@@ -287,15 +287,23 @@ export async function fetchPayoutHistory() {
   return authFetch(`/api/payouts/history?timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
 }
 
+// 1_000_000 in DB = 1 USD (same scale as tickets)
+const USD_TO_BIGINT = 1_000_000;
+
 /**
- * Creates a payment invoice for Telegram Stars payment.
- * @param {number} starsAmount - Amount in Stars
- * @returns {Promise<{invoiceId: string, starsAmount: number, ticketsAmount: number}>}
+ * Creates a payment invoice (crypto: usdAmount in bigint, legacy Stars: starsAmount).
+ * Crypto: pass display USD (e.g. 3.25); sent as bigint (3.25 * 1_000_000). 1 USD = 1000 tickets.
+ * @param {number} starsAmountOrUsd - Display USD (crypto) or Stars amount (legacy)
+ * @param {boolean} [useUsd=true] - If true, value is USD and sent as usdAmount bigint
+ * @returns {Promise<{invoiceId: string, invoiceUrl?: string, starsAmount?: number, usdAmount?: number, ticketsAmount: number}>}
  */
-export async function createPaymentInvoice(starsAmount) {
+export async function createPaymentInvoice(starsAmountOrUsd, useUsd = true) {
+  const body = useUsd
+    ? { usdAmount: Math.round(starsAmountOrUsd * USD_TO_BIGINT) }
+    : { starsAmount: starsAmountOrUsd };
   return authFetch("/api/payments/create", {
     method: "POST",
-    body: JSON.stringify({ starsAmount })
+    body: JSON.stringify(body)
   });
 }
 

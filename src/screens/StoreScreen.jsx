@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
-import { createPaymentInvoice, cancelPayment, fetchCurrentUser } from '../api'
 import { t } from '../i18n'
 
+// 1 USD = 1000 tickets
+const USD_TO_TICKETS = 1000
+const MIN_USD = 0.01
+const MAX_USD = 10000
+
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
-  const [amount, setAmount] = useState('50')
+  const [amount, setAmount] = useState('3.25')
   const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
-
-  const minStars = 1 // Set to 1 for testing purposes
-  const maxStars = 100000
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -47,131 +48,45 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       return
     }
 
-    // Parse as integer (no floating point allowed)
-    let starsValue = parseInt(amount, 10)
-    if (isNaN(starsValue) || starsValue < 0) {
+    const usdValue = parseFloat(amount.replace(',', '.'))
+    if (isNaN(usdValue) || usdValue < 0) {
       setTickets('---')
       setTextError('')
       return
     }
 
-    if (starsValue < minStars) {
-      setTextError(t('store.minimum', { min: minStars }))
+    if (usdValue < MIN_USD) {
+      setTextError(t('store.minimumUsd', { min: MIN_USD }))
       setTickets('---')
       return
-    } else {
-      setTextError('')
     }
-
-    if (starsValue > maxStars) {
-      setTextError(t('store.maximum', { max: maxStars }))
+    if (usdValue > MAX_USD) {
+      setTextError(t('store.maximumUsd', { max: MAX_USD }))
       setTickets('---')
       return
-    } else {
-      setTextError('')
     }
-
-    // Calculate tickets: 1 star = 9 tickets
-    let ticketsValue = starsValue * 9
-    setTickets(numberFormatRuf(Math.floor(ticketsValue).toString()))
-  }
-
-  const handleBuyTickets = async () => {
-    if (!amount || amount === '') return
-
-    // Parse as integer (no floating point allowed)
-    let starsValue = parseInt(amount, 10) || 0
-    if (isNaN(starsValue) || starsValue < 1) {
-      setTextError(t('store.error.minimumStars', { min: minStars }))
-      return
-    }
-
-    if (starsValue < minStars || starsValue > maxStars) {
-      return
-    }
-
-    if (isProcessing) {
-      return
-    }
-
-    // Check if Telegram WebApp is available
-    const tg = window.Telegram?.WebApp
-    if (!tg) {
-      setTextError(t('store.error.telegramNotAvailable'))
-      return
-    }
-
-    setIsProcessing(true)
     setTextError('')
 
-    try {
-      // Step 1: Create payment invoice via backend
-      const invoiceData = await createPaymentInvoice(starsValue)
-      const orderId = invoiceData.invoiceId
-      const invoiceUrl = invoiceData.invoiceUrl
+    // 1 USD = 1000 tickets
+    const ticketsValue = Math.floor(usdValue * USD_TO_TICKETS)
+    setTickets(numberFormatRuf(ticketsValue.toString()))
+  }
 
-      if (!invoiceUrl) {
-        throw new Error(t('store.error.invoiceUrlNotReceived'))
-      }
+  const handleBuyTickets = () => {
+    if (!amount || amount === '') return
 
-      // Step 2: Open Telegram payment UI
-      // openInvoice accepts invoice URLs from createInvoiceLink
-      tg.openInvoice(invoiceUrl, async (status) => {
-        setIsProcessing(false)
+    const usdValue = parseFloat(amount.replace(',', '.'))
+    if (isNaN(usdValue) || usdValue < MIN_USD) {
+      setTextError(t('store.error.minimumUsd', { min: MIN_USD }))
+      return
+    }
+    if (usdValue > MAX_USD) return
+    if (isProcessing) return
 
-        if (status === 'paid') {
-          // Payment successful - Telegram has processed the payment
-          // Backend will receive webhook from bot and credit balance
-          // We need to poll or wait a bit, then sync balance
-          setTimeout(async () => {
-            try {
-              // Fetch updated user data to get new balance
-              const userData = await fetchCurrentUser()
-              if (userData) {
-                // Update userData in App.jsx so Header and other screens have the latest data
-                if (onUserDataUpdate) {
-                  onUserDataUpdate(userData)
-                }
-
-                // Format balance for display (balanceA is in bigint format)
-                if (onBalanceUpdate) {
-                  const balanceDisplay = (userData.balanceA / 1_000_000).toFixed(2)
-                  onBalanceUpdate(balanceDisplay)
-                }
-              }
-
-              // Calculate tickets for the success message
-              const ticketsValue = Math.floor(starsValue * 9)
-              tg.showAlert(t('store.success.purchased', { tickets: ticketsValue }))
-            } catch (error) {
-              console.error('Error syncing balance after payment:', error)
-              // Don't show error to user - payment was successful, balance will sync eventually
-            }
-          }, 1000) // Wait 1 second for backend to process webhook
-        } else if (status === 'cancelled') {
-          // User cancelled payment
-          try {
-            await cancelPayment(orderId)
-          } catch (error) {
-            console.error('Error cancelling payment:', error)
-          }
-        } else if (status === 'failed') {
-          // Payment failed
-          setTextError(t('store.error.paymentFailed'))
-        } else {
-          // Unknown status
-          setTextError(t('store.error.statusUnknown'))
-        }
-      })
-    } catch (error) {
-      setIsProcessing(false)
-
-      // Handle rate limit error specifically
-      if (error.response?.status === 429) {
-        setTextError(t('store.error.tooManyRequests'))
-      } else {
-        setTextError(error.response?.data?.message || error.response?.message || error.message || t('store.error.failedToCreate'))
-      }
+    const ticketsValue = Math.floor(usdValue * USD_TO_TICKETS)
+    // Open Payment Options (Tickets store) with amount so user can pick crypto
+    if (onNavigate) {
+      onNavigate('paymentOptions', { usdAmount: usdValue, ticketsAmount: ticketsValue })
     }
   }
 
@@ -182,36 +97,32 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
 
         <div className="upgrade__store-border">
           <div className="upgrade__store">
-            <p className="upgrade__label">{t('store.chooseStars')}</p>
+            <p className="upgrade__label">{t('store.chooseUsd')}</p>
 
             <input
               className="upgrade__input"
               type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
+              inputMode="decimal"
               value={amount}
               onChange={(e) => {
                 const value = e.target.value
-                // Only allow integers (no decimal point, no negative)
-                // Allow empty string so user can clear the field
-                if (value === '' || /^\d+$/.test(value)) {
+                // Allow digits, one decimal point, and empty
+                if (value === '' || /^\d*\.?\d*$/.test(value)) {
                   setAmount(value)
                 }
               }}
               onBlur={(e) => {
-                // Ensure value is a valid integer on blur
                 const value = e.target.value.trim()
                 if (value === '') {
-                  // If empty, set to minimum value
-                  setAmount(minStars.toString())
+                  setAmount(MIN_USD.toString())
                 } else {
-                  const intValue = parseInt(value, 10)
-                  if (isNaN(intValue) || intValue < minStars) {
-                    setAmount(minStars.toString())
-                  } else if (intValue > maxStars) {
-                    setAmount(maxStars.toString())
+                  const num = parseFloat(value.replace(',', '.'))
+                  if (isNaN(num) || num < MIN_USD) {
+                    setAmount(MIN_USD.toString())
+                  } else if (num > MAX_USD) {
+                    setAmount(MAX_USD.toString())
                   } else {
-                    setAmount(intValue.toString())
+                    setAmount(value)
                   }
                 }
               }}
@@ -240,9 +151,8 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                   e.preventDefault()
                   handleBuyTickets()
                 }}
-                style={{ opacity: isProcessing ? 0.6 : 1, pointerEvents: isProcessing ? 'none' : 'auto' }}
               >
-                {isProcessing ? t('store.processing') : t('store.buyTickets')}
+                {t('store.buyTickets')}
               </a>
             </span>
           </div>
