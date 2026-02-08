@@ -2,13 +2,19 @@ import { useState, useEffect } from 'react'
 import { createPayout, fetchCurrentUser, fetchPayoutHistory } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
+import starImg from '../assets/purchase/star_1.png'
+
+// Allowed stars amounts for payout (must match backend). Conversion: 1 Star = 12 tickets.
+const STARS_OPTIONS = [50, 75, 100, 150, 250, 350, 500, 750, 2500, 10000, 25000, 35000]
+const STARS_TO_TICKETS = 12
 
 export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
   const [username, setUsername] = useState('')
-  const [starsAmount, setStarsAmount] = useState('')
+  const [selectedStars, setSelectedStars] = useState(null)
   const [balanceTickets, setBalanceTickets] = useState('0')
   const [usernameError, setUsernameError] = useState('')
   const [starsError, setStarsError] = useState('')
+  const [showStarsDropdown, setShowStarsDropdown] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [payoutHistory, setPayoutHistory] = useState([])
@@ -94,24 +100,35 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     }
   }, [])
 
+  // Close dropdown when clicking outside
   useEffect(() => {
-    // Calculate balance (Tickets) based on Stars amount with 11 conversion rate
-    const stars = parseInt(starsAmount, 10) || 0
-    
-    if (stars > 0) {
-      const tickets = Math.floor(stars * 11)
+    const handleClickOutside = (event) => {
+      const dropdown = document.querySelector('[data-stars-dropdown]')
+      const trigger = document.querySelector('[data-stars-trigger]')
+      if (showStarsDropdown && dropdown && trigger &&
+          !dropdown.contains(event.target) && !trigger.contains(event.target)) {
+        setShowStarsDropdown(false)
+      }
+    }
+    if (showStarsDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [showStarsDropdown])
+
+  useEffect(() => {
+    if (selectedStars != null) {
+      const tickets = selectedStars * STARS_TO_TICKETS
       setBalanceTickets(tickets.toString())
+      setStarsError('')
     } else {
       setBalanceTickets('0')
     }
-
-    // Validate minimum stars
-    if (starsAmount && stars < 15) {
-      setStarsError(t('starsPayout.error.minimum'))
-    } else {
-      setStarsError('')
-    }
-  }, [starsAmount])
+  }, [selectedStars])
 
   const validateUsername = (value) => {
     // Username should start with @ followed by at least 1 English letter
@@ -129,13 +146,9 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     validateUsername(value)
   }
 
-  const handleStarsChange = (e) => {
-    const value = e.target.value
-    // Only allow integers (no decimal point, no negative)
-    // Allow empty string so user can clear the field
-    if (value === '' || /^\d+$/.test(value)) {
-      setStarsAmount(value)
-    }
+  const handleStarsSelect = (stars) => {
+    setSelectedStars(stars)
+    setShowStarsDropdown(false)
   }
 
   const handleSubmit = async (e) => {
@@ -149,10 +162,8 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     // Validate username
     validateUsername(username)
     
-    // Validate stars (must be integer)
-    const stars = parseInt(starsAmount, 10)
-    if (isNaN(stars) || stars < 15) {
-      setStarsError(t('starsPayout.error.minimum'))
+    if (selectedStars == null) {
+      setStarsError(t('starsPayout.error.selectAmount'))
       return
     }
 
@@ -165,14 +176,14 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
 
     setIsSubmitting(true)
     try {
-      const tickets = parseFloat(balanceTickets) || 0
-      const response = await createPayout({
+      const tickets = selectedStars * STARS_TO_TICKETS
+      await createPayout({
         username: username.trim(),
         total: tickets * 1_000_000, // Convert to bigint format
-        starsAmount: Math.round(stars),
+        starsAmount: selectedStars,
         type: 'STARS',
         giftName: null,
-        quantity: 1 // Always 1 for STARS
+        quantity: 1
       })
 
       // Fetch updated user data to get new balance
@@ -222,34 +233,79 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
               )}
             </div>
 
-            <div className="payout__field">
+            <div className="payout__field" style={{ position: 'relative' }}>
               <p className="payout__label">{t('starsPayout.youWillReceive')}</p>
-              <input
-                type="text"
+              <div
                 className="payout__input"
-                name="stars"
-                placeholder={t('starsPayout.minStars')}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={starsAmount}
-                onChange={handleStarsChange}
-                onBlur={(e) => {
-                  // Ensure value is a valid integer on blur
-                  const value = e.target.value.trim()
-                  if (value === '') {
-                    setStarsAmount('')
-                  } else {
-                    const intValue = parseInt(value, 10)
-                    if (isNaN(intValue) || intValue < 15) {
-                      setStarsAmount('15')
-                    } else {
-                      setStarsAmount(intValue.toString())
-                    }
-                  }
+                data-stars-trigger
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowStarsDropdown(!showStarsDropdown)
                 }}
-              />
+                style={{
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  minHeight: '42px',
+                  padding: '10px'
+                }}
+              >
+                {selectedStars != null ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <img src={starImg} alt="" width="30" height="30" />
+                    <span>{selectedStars}</span>
+                  </div>
+                ) : (
+                  <span style={{ color: '#999', width: '100%', textAlign: 'center' }}>{t('starsPayout.selectAmount')}</span>
+                )}
+              </div>
               {starsError && (
                 <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{starsError}</p>
+              )}
+              {showStarsDropdown && (
+                <div
+                  data-stars-dropdown
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    backgroundColor: '#2a3a4e',
+                    border: '1px solid #3d4f65',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    zIndex: 1000,
+                    marginTop: '5px',
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '10px'
+                  }}
+                >
+                  {STARS_OPTIONS.map((stars) => (
+                    <div
+                      key={stars}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleStarsSelect(stars)
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '10px',
+                        cursor: 'pointer',
+                        borderRadius: '5px',
+                        border: selectedStars === stars ? '2px solid #28a745' : '1px solid #3d4f65',
+                        backgroundColor: selectedStars === stars ? '#1e2a35' : 'transparent'
+                      }}
+                    >
+                      <img src={starImg} alt="" width="28" height="28" />
+                      <span style={{ fontSize: '14px' }}>{stars}</span>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
