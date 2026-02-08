@@ -2275,15 +2275,12 @@ section:last-child .container:last-child > *:last-child:not(.footer):not(.header
 
 /* Footer clearance for scrollable list (same as .transaction__container margin-bottom: 100px) */
 .payment-options .upgrade__container {
-    margin-bottom: 100px !important;
+    margin-bottom: 150px !important;
 }
 
 /* Payment Confirmation: back button same as Payment Options (fixed just above nav) */
-.payment-confirmation .upgrade__footer {
-    bottom: 70px;
-}
 .payment-confirmation .upgrade__container {
-    margin-bottom: 100px !important;
+    margin-bottom: 130px !important;
 }
 
 /* upgrade pay page  */
