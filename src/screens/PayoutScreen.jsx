@@ -73,7 +73,7 @@ export default function PayoutScreen({ onBack, onNavigate }) {
               />
               <div className="upgrade__info">
                 <p className="upgrade__name">{t('payout.gift')}</p>
-                <p className="upgrade__network">{t('payout.minStars')}</p>
+                <p className="upgrade__network">{t('payout.minStarsGift')}</p>
               </div>
             </a>
           </div>
