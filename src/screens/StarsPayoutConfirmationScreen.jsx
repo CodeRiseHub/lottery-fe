@@ -250,11 +250,18 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
           ) : (
             payoutHistory.slice(0, 20).map((entry, index) => {
               const amountInTickets = Math.floor(entry.amount / 1_000_000)
+              const statusNorm = (entry.status || '').toUpperCase()
+              const statusClass =
+                statusNorm === 'CANCELLED'
+                  ? 'payout__history-col-status'
+                  : statusNorm === 'COMPLETED'
+                    ? 'payout__history-col-success'
+                    : 'payout__history-col-processing'
               return (
                 <div key={`${entry.date}-${index}`} className="payout__history-row">
                   <p className="payout__history-col payout__history-col-amount">{amountInTickets}</p>
                   <p className="payout__history-col">{entry.date}</p>
-                  <p className="payout__history-col payout__history-col-status">
+                  <p className={`payout__history-col ${statusClass}`}>
                     {t(`payout.status.${entry.status.toLowerCase()}`)}
                   </p>
                 </div>

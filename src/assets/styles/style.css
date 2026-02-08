@@ -2403,6 +2403,11 @@ section:last-child .container:last-child > *:last-child:not(.footer):not(.header
     margin-bottom: 100px !important; /* Add margin to prevent footer overlap */
 }
 
+/* Withdraw (Payout Confirmation): back button just above nav; same footer clearance as payment confirmation */
+.payout-withdraw .payout__container {
+    margin-bottom: 150px !important;
+}
+
 /* Payout screen - ensure upgrade__currencies has proper spacing but not excessive margin */
 section.payout .upgrade__currencies {
     margin-bottom: 0 !important; /* Remove margin from currencies container on payout screen */
@@ -2584,6 +2589,13 @@ section.payout .upgrade__currencies {
 }
 .payout__history-col-status {
     background: linear-gradient(90deg, #fd1616 0%, #ff8d8d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+.payout__history-col-processing {
+    background: linear-gradient(90deg, #f5a623 0%, #f7d94c 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
