@@ -2278,6 +2278,14 @@ section:last-child .container:last-child > *:last-child:not(.footer):not(.header
     margin-bottom: 100px !important;
 }
 
+/* Payment Confirmation: back button same as Payment Options (fixed just above nav) */
+.payment-confirmation .upgrade__footer {
+    bottom: 70px;
+}
+.payment-confirmation .upgrade__container {
+    margin-bottom: 100px !important;
+}
+
 /* upgrade pay page  */
 
 .upgrade-pay__info {

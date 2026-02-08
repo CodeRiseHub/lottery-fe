@@ -51,10 +51,20 @@ function getCryptoIconUrl(pid) {
   return url != null ? url : `/assets/crypto_new/${pid}.png`
 }
 
-export default function PaymentOptionsScreen({ onBack, usdAmount, ticketsAmount }) {
+export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ticketsAmount }) {
   const handleSelectCrypto = (option) => {
-    // TODO: when API is ready, create payment for this crypto and redirect to provider
-    console.log('Selected crypto:', option, 'usdAmount:', usdAmount, 'ticketsAmount:', ticketsAmount)
+    // Placeholder amount/wallet until API returns invoice per crypto; then pass from API response
+    const amountToSend = usdAmount != null ? String(usdAmount) : '0'
+    const walletAddress = 'UQCZUOMISQQ1sna0384IHWZInOBgxiBffeNnRMksbPPDOheY'
+    if (onNavigate) {
+      onNavigate('paymentConfirmation', {
+        selectedOption: option,
+        amountToSend,
+        walletAddress,
+        usdAmount,
+        ticketsAmount
+      })
+    }
   }
 
   return (
