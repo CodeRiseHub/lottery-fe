@@ -106,7 +106,7 @@ export default function ReferralScreen({ onBack, userData }) {
   const inviteUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent('This bot actually pays!\nNo joke.\nJust a little secret between us 😏👇\n')}`
 
   return (
-    <section>
+    <section className="referral">
       <div className="container">
         <p className="title">{t('referral.title')}</p>
         <div className="tabs" data-tabs>

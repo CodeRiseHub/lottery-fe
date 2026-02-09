@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { t } from '../i18n'
 
-// 1 USD = 1000 tickets; deposit allows max 2 decimal places (x.xx)
+// 1 USD = 1000 tickets; deposit allows max 2 decimal places (x.xx). "2." is treated as 2.
 const USD_TO_TICKETS = 1000
 const MIN_USD = 2
 const MAX_USD = 10000
 const MAX_DECIMAL_PLACES = 2
-const DECIMAL_REGEX = new RegExp(`^\\d+(\\.\\d{1,${MAX_DECIMAL_PLACES}})?$`)
+// More than 2 digits after dot -> invalid (show error). "2." or "2.4" or "2.45" are valid.
+const HAS_MORE_THAN_TWO_DECIMALS = /\.\d{3,}$/
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [amount, setAmount] = useState('2')
@@ -51,7 +52,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     }
 
     const normalized = amount.replace(',', '.')
-    if (!DECIMAL_REGEX.test(normalized)) {
+    if (HAS_MORE_THAN_TWO_DECIMALS.test(normalized)) {
       setTextError(t('store.error.maxTwoDecimals'))
       setTickets('---')
       return
@@ -85,7 +86,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     if (!amount || amount === '') return
 
     const normalized = amount.replace(',', '.')
-    if (!DECIMAL_REGEX.test(normalized)) {
+    if (HAS_MORE_THAN_TWO_DECIMALS.test(normalized)) {
       setTextError(t('store.error.maxTwoDecimals'))
       return
     }
@@ -122,7 +123,7 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               value={amount}
               onChange={(e) => {
                 const value = e.target.value.replace(',', '.')
-                // Allow digits, one decimal point, at most 2 decimal places
+                // Allow digits, one decimal point, at most 2 decimal places (2. and 2.45 ok)
                 if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
                   setAmount(value)
                 }
