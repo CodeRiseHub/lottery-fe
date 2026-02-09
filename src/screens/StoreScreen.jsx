@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { t } from '../i18n'
 
-// 1 USD = 1000 tickets
+// 1 USD = 1000 tickets; deposit allows max 2 decimal places (x.xx)
 const USD_TO_TICKETS = 1000
 const MIN_USD = 2
 const MAX_USD = 10000
+const MAX_DECIMAL_PLACES = 2
+const DECIMAL_REGEX = new RegExp(`^\\d+(\\.\\d{1,${MAX_DECIMAL_PLACES}})?$`)
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
-  const [amount, setAmount] = useState('2.5')
+  const [amount, setAmount] = useState('2')
   const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -48,7 +50,14 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       return
     }
 
-    const usdValue = parseFloat(amount.replace(',', '.'))
+    const normalized = amount.replace(',', '.')
+    if (!DECIMAL_REGEX.test(normalized)) {
+      setTextError(t('store.error.maxTwoDecimals'))
+      setTickets('---')
+      return
+    }
+
+    const usdValue = parseFloat(normalized)
     if (isNaN(usdValue) || usdValue < 0) {
       setTickets('---')
       setTextError('')
@@ -75,7 +84,13 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   const handleBuyTickets = () => {
     if (!amount || amount === '') return
 
-    const usdValue = parseFloat(amount.replace(',', '.'))
+    const normalized = amount.replace(',', '.')
+    if (!DECIMAL_REGEX.test(normalized)) {
+      setTextError(t('store.error.maxTwoDecimals'))
+      return
+    }
+
+    const usdValue = parseFloat(normalized)
     if (isNaN(usdValue) || usdValue < MIN_USD) {
       setTextError(t('store.error.minimumUsd', { min: MIN_USD }))
       return
@@ -83,10 +98,11 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     if (usdValue > MAX_USD) return
     if (isProcessing) return
 
-    const ticketsValue = Math.floor(usdValue * USD_TO_TICKETS)
-    // Open Payment Options (Tickets store) with amount so user can pick crypto
+    // Round to 2 decimal places for API
+    const usdRounded = Math.round(usdValue * 100) / 100
+    const ticketsValue = Math.floor(usdRounded * USD_TO_TICKETS)
     if (onNavigate) {
-      onNavigate('paymentOptions', { usdAmount: usdValue, ticketsAmount: ticketsValue })
+      onNavigate('paymentOptions', { usdAmount: usdRounded, ticketsAmount: ticketsValue })
     }
   }
 
@@ -105,9 +121,9 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               inputMode="decimal"
               value={amount}
               onChange={(e) => {
-                const value = e.target.value
-                // Allow digits, one decimal point, and empty
-                if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                const value = e.target.value.replace(',', '.')
+                // Allow digits, one decimal point, at most 2 decimal places
+                if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
                   setAmount(value)
                 }
               }}
