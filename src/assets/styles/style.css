@@ -1816,14 +1816,22 @@ section:last-child .container:last-child > *:last-child:not(.footer):not(.header
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     margin-bottom: 17px;
     color: #b3c3d3;
     font-weight: 400;
+    min-width: 0;
 }
 
 .earn__list-name {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .earn__list-amount {
+    flex-shrink: 0;
     font-weight: 500;
     background: linear-gradient(90deg, #2af598 0%, #009efd 100%, #3d9555e5 90%);
     -webkit-background-clip: text;

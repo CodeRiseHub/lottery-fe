@@ -79,7 +79,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const [isJoining, setIsJoining] = useState(false) // Track if JOIN request was sent but not yet acknowledged (reset on reconnect)
   const [currentUserId, setCurrentUserId] = useState(null) // Current user ID
   const [minBet, setMinBet] = useState(1) // Room-specific min bet (from backend state)
-  const [maxBet, setMaxBet] = useState(50) // Room-specific max bet (from backend state)
+  const [maxBet, setMaxBet] = useState(100) // Room-specific max bet (from backend state)
   const [betCooldown, setBetCooldown] = useState(false) // Track button cooldown (1.5 seconds)
   const lastBetTimeRef = useRef(null) // Track last bet click time
   const lineContainerRef = useRef(null)
@@ -1972,9 +1972,9 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 {t('game.rules.realMode')}
               </span>
               <span> {t('game.rules.setBet')}</span>
-              <span> {t('game.room')} 1: 1-50 {t('game.ticket')}</span>
-              <span> {t('game.room')} 2: 10-100 {t('game.ticket')}</span>
-              <span> {t('game.room')} 3: 100-500 {t('game.ticket')}</span>
+              <span> {t('game.room')} 1: 1-100 {t('game.ticket')}</span>
+              <span> {t('game.room')} 2: 10-1000 {t('game.ticket')}</span>
+              <span> {t('game.room')} 3: 100-10000 {t('game.ticket')}</span>
             </p>
           </div>
         </div>
