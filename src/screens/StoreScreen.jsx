@@ -3,11 +3,11 @@ import { t } from '../i18n'
 
 // 1 USD = 1000 tickets
 const USD_TO_TICKETS = 1000
-const MIN_USD = 0.01
+const MIN_USD = 2
 const MAX_USD = 10000
 
 export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
-  const [amount, setAmount] = useState('3.25')
+  const [amount, setAmount] = useState('2.5')
   const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)

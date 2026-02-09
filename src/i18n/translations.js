@@ -37,10 +37,10 @@ const translations = {
 
         // Store Screen
         "store.title": "Store",
-        "store.chooseStars": "Choose the Stars amount:",
+        "store.chooseStars": "Choose the amount (USD):",
         "store.chooseUsd": "Choose the USD amount:",
-        "store.minimum": "Minimum: {min} Stars",
-        "store.maximum": "Maximum: {max} Stars",
+        "store.minimum": "Minimum: {min} USD",
+        "store.maximum": "Maximum: {max} USD",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
         "store.ticketsStore": "Tickets store",
@@ -54,7 +54,7 @@ const translations = {
         "store.error.telegramNotAvailable": "Telegram WebApp is not available",
         "store.error.paymentFailed": "Payment failed. Please try again.",
         "store.error.statusUnknown": "Payment status unknown. Please check your balance.",
-        "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Invoice URL not received from backend",
         "store.success.purchased": "Successfully purchased {tickets} tickets!",
@@ -72,7 +72,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPY WALLET",
         "paymentConfirmation.copied": "COPIED!",
         "paymentConfirmation.ticketsCredited": "*Tickets will be credited automatically as soon as the funds reach the recipient's address.",
-        "paymentConfirmation.note": "Please note, you can send any amount, either more or less than the specified one, and tickets will still be credited. However, keep in mind that the minimum deposit is $3 - amounts below this will not be processed!",
+        "paymentConfirmation.note": "Please note, you can send any amount, either more or less than the specified one, and tickets will still be credited. However, keep in mind that the minimum deposit is $2 - amounts below this will not be processed!",
         "paymentConfirmation.back": "Back",
 
         // Daily Bonus Screen
@@ -191,10 +191,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Payout",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Gift",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "Processing",
         "payout.status.completed": "Completed",
         "payout.status.cancelled": "Cancelled",
@@ -223,20 +223,20 @@ const translations = {
         "withdraw.success": "Withdrawal request submitted successfully!",
         "withdraw.back": "Back",
 
-        // Stars Payout Confirmation (legacy, kept for reference)
-        "starsPayout.title": "Withdraw Stars",
+        // Legacy payout confirmation (crypto-only; keys kept for compatibility)
+        "starsPayout.title": "Withdraw",
         "starsPayout.enterUsername": "Enter the Username:",
-        "starsPayout.youWillReceive": "Amount in Stars:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.youWillReceive": "Amount (USD):",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.selectAmount": "Select amount",
         "starsPayout.yourBalance": "Will be debited (Tickets):",
         "starsPayout.confirm": "CONFIRM",
         "starsPayout.submitting": "SUBMITTING...",
-        "starsPayout.error.minimum": "Minimum 15 Stars required",
-        "starsPayout.error.selectAmount": "Please select a Stars amount",
+        "starsPayout.error.minimum": "Minimum amount required",
+        "starsPayout.error.selectAmount": "Please select an amount",
         "starsPayout.error.usernameInvalid":
             "Username must start with @ followed by at least one English letter",
-        "starsPayout.success": "Stars payout request submitted successfully!",
+        "starsPayout.success": "Withdrawal request submitted successfully!",
         "starsPayout.history.title": "Your last 20 withdrawals",
         "starsPayout.history.amount": "AMOUNT",
         "starsPayout.history.date": "DATE",
@@ -349,11 +349,11 @@ const translations = {
         "faq.question2": "How to start?",
         "faq.answer2":
             "Enter one of the rooms and place a bet. As soon as at least two players place a bet, a countdown will begin, after which a spin will take place and a winner will be determined.",
-        "faq.question3": "How do I exchange tickets for Stars?",
+        "faq.question3": "How do I exchange tickets for USD?",
         "faq.answer3":
             "Go to the Payout section, select one of the available payout options, fill in the required information and click Confirm.",
         "faq.question4": "How long do payouts take?",
-        "faq.answer4": "Requests are usually processed within one day.",
+        "faq.answer4": "Requests are processed immediately via the payment gateway.",
         "faq.question5": "Referral rewards?",
         "faq.answer5":
             'Our 3-tier referral system rewards you for your referrals\' wins and losses. More details can be found in the "Earn" section.',
@@ -430,7 +430,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Магазин",
-        "store.chooseStars": "Выберите количество Stars:",
+        "store.chooseStars": "Выберите сумму (USD):",
         "store.chooseUsd": "Выберите сумму в USD:",
         "store.minimumUsd": "Минимум: {min} USD",
         "store.maximumUsd": "Максимум: {max} USD",
@@ -445,10 +445,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "СКОПИРОВАТЬ",
         "paymentConfirmation.copied": "СКОПИРОВАНО!",
         "paymentConfirmation.ticketsCredited": "*Билеты будут зачислены автоматически после поступления средств на адрес получателя.",
-        "paymentConfirmation.note": "Вы можете отправить любую сумму, больше или меньше указанной — билеты всё равно будут зачислены. Учтите: минимальный платёж — $3, суммы меньше не обрабатываются!",
+        "paymentConfirmation.note": "Вы можете отправить любую сумму, больше или меньше указанной — билеты всё равно будут зачислены. Учтите: минимальный платёж — $2, суммы меньше не обрабатываются!",
         "paymentConfirmation.back": "Назад",
-        "store.minimum": "Минимум: {min} Stars",
-        "store.maximum": "Максимум: {max} Stars",
+        "store.minimum": "Минимум: {min} USD",
+        "store.maximum": "Максимум: {max} USD",
         "store.youWillReceive": "Вы получите:",
         "store.tickets": "Билеты",
         "store.buyTickets": "КУПИТЬ БИЛЕТЫ",
@@ -463,7 +463,7 @@ const translations = {
         "store.error.tooManyRequests":
             "Слишком много запросов. Пожалуйста, подождите немного перед повторной попыткой.",
         "store.error.failedToCreate": "Не удалось создать платеж. Пожалуйста, попробуйте снова.",
-        "store.error.minimumStars": "Минимум: {min} Stars",
+        "store.error.minimumStars": "Минимум: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL счета не получен от сервера",
 
         // Daily Bonus Screen
@@ -583,10 +583,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Вывод",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Подарок",
-        "payout.minStars": "Мин. 50 Stars",
-        "payout.minStarsGift": "Мин. 15 Stars",
+        "payout.minStars": "Мин. 0.02 USD",
+        "payout.minStarsGift": "Мин. 0.02 USD",
         "payout.status.processing": "В обработке",
         "payout.status.completed": "Завершено",
         "payout.status.cancelled": "Отменено",
@@ -615,18 +615,18 @@ const translations = {
         "withdraw.success": "Запрос на вывод успешно отправлен!",
         "withdraw.back": "Назад",
 
-        // Stars Payout Confirmation
-        "starsPayout.title": "Вывод Stars",
+        // Legacy payout confirmation
+        "starsPayout.title": "Вывод",
         "starsPayout.enterUsername": "Введите имя пользователя:",
-        "starsPayout.youWillReceive": "Сумма в Stars:",
-        "starsPayout.minStars": "Мин: 50 Stars",
+        "starsPayout.youWillReceive": "Сумма (USD):",
+        "starsPayout.minStars": "Мин: 0.02 USD",
         "starsPayout.yourBalance": "Будет списано (Билетов):",
         "starsPayout.confirm": "ПОДТВЕРДИТЬ",
         "starsPayout.submitting": "ОТПРАВКА...",
-        "starsPayout.error.minimum": "Требуется минимум 15 Stars",
+        "starsPayout.error.minimum": "Требуется минимальная сумма",
         "starsPayout.error.usernameInvalid":
             "Имя пользователя должно начинаться с @ и содержать хотя бы одну английскую букву",
-        "starsPayout.success": "Запрос на вывод Stars успешно отправлен!",
+        "starsPayout.success": "Запрос на вывод успешно отправлен!",
         "starsPayout.history.title": "Ваши последние 20 выводов",
         "starsPayout.history.amount": "СУММА",
         "starsPayout.history.date": "ДАТА",
@@ -743,11 +743,11 @@ const translations = {
         "faq.question2": "Как начать?",
         "faq.answer2":
             "Войдите в одну из комнат и сделайте ставку. Как только хотя бы два игрока сделают ставку, начнется обратный отсчет, после чего произойдет вращение и будет определен победитель.",
-        "faq.question3": "Как обменять билеты на Stars?",
+        "faq.question3": "Как обменять билеты на USD?",
         "faq.answer3":
             "Перейдите в раздел Вывод средств, выберите один из доступных вариантов вывода, заполните необходимую информацию и нажмите Подтвердить.",
         "faq.question4": "Сколько времени занимает вывод средств?",
-        "faq.answer4": "Запросы обычно обрабатываются в течение одного дня.",
+        "faq.answer4": "Запросы обрабатываются мгновенно через платёжный шлюз.",
         "faq.question5": "Реферальные награды?",
         "faq.answer5":
             'Наша 3-уровневая реферальная система награждает вас за выигрыши и проигрыши ваших рефералов. Более подробную информацию можно найти в разделе "Заработок".',
@@ -805,7 +805,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Shop",
-        "store.chooseStars": "Wählen Sie die Anzahl der Stars:",
+        "store.chooseStars": "Wählen Sie den Betrag (USD):",
         "store.chooseUsd": "Wählen Sie den USD-Betrag:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
@@ -820,10 +820,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPIEREN",
         "paymentConfirmation.copied": "KOPIERT!",
         "paymentConfirmation.ticketsCredited": "*Tickets werden automatisch gutgeschrieben, sobald die Mittel die Empfängeradresse erreichen.",
-        "paymentConfirmation.note": "Sie können jeden Betrag senden, mehr oder weniger als angegeben – die Tickets werden trotzdem gutgeschrieben. Beachten Sie: Mindesteinzahlung ist 3 $ – geringere Beträge werden nicht bearbeitet!",
+        "paymentConfirmation.note": "Sie können jeden Betrag senden, mehr oder weniger als angegeben – die Tickets werden trotzdem gutgeschrieben. Beachten Sie: Mindesteinzahlung ist 2 $ – geringere Beträge werden nicht bearbeitet!",
         "paymentConfirmation.back": "Zurück",
-        "store.minimum": "Minimum: {min} Stars",
-        "store.maximum": "Maximum: {max} Stars",
+        "store.minimum": "Minimum: {min} USD",
+        "store.maximum": "Maximum: {max} USD",
         "store.youWillReceive": "Sie erhalten:",
         "store.tickets": "Tickets",
         "store.buyTickets": "TICKETS KAUFEN",
@@ -839,7 +839,7 @@ const translations = {
             "Zu viele Anfragen. Bitte warten Sie einen Moment, bevor Sie es erneut versuchen.",
         "store.error.failedToCreate":
             "Zahlung konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
-        "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Rechnungs-URL wurde nicht vom Server erhalten",
 
         // Daily Bonus Screen
@@ -958,10 +958,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Auszahlung",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Geschenk",
-        "payout.minStars": "Mind. 50 Stars",
-        "payout.minStarsGift": "Mind. 15 Stars",
+        "payout.minStars": "Mind. 0.02 USD",
+        "payout.minStarsGift": "Mind. 0.02 USD",
         "payout.status.processing": "In Bearbeitung",
         "payout.status.completed": "Abgeschlossen",
         "payout.status.cancelled": "Abgebrochen",
@@ -990,18 +990,18 @@ const translations = {
         "withdraw.success": "Auszahlungsantrag erfolgreich eingereicht!",
         "withdraw.back": "Zurück",
 
-        // Stars Payout Confirmation
-        "starsPayout.title": "Stars auszahlen",
+        // Legacy payout confirmation
+        "starsPayout.title": "Auszahlen",
         "starsPayout.enterUsername": "Geben Sie den Benutzernamen ein:",
-        "starsPayout.youWillReceive": "Betrag in Stars:",
-        "starsPayout.minStars": "Mind: 50 Stars",
+        "starsPayout.youWillReceive": "Betrag (USD):",
+        "starsPayout.minStars": "Mind: 0.02 USD",
         "starsPayout.yourBalance": "Wird abgebucht (Tickets):",
         "starsPayout.confirm": "BESTÄTIGEN",
         "starsPayout.submitting": "WIRD ÜBERMITTELT...",
-        "starsPayout.error.minimum": "Mindestens 15 Stars erforderlich",
+        "starsPayout.error.minimum": "Mindestbetrag erforderlich",
         "starsPayout.error.usernameInvalid":
             "Benutzername muss mit @ beginnen und mindestens einen englischen Buchstaben enthalten",
-        "starsPayout.success": "Stars-Auszahlungsanfrage erfolgreich übermittelt!",
+        "starsPayout.success": "Auszahlungsanfrage erfolgreich übermittelt!",
         "starsPayout.history.title": "Ihre letzten 20 Auszahlungen",
         "starsPayout.history.amount": "BETRAG",
         "starsPayout.history.date": "DATUM",
@@ -1118,11 +1118,11 @@ const translations = {
         "faq.question2": "Wie starte ich?",
         "faq.answer2":
             "Betreten Sie einen der Räume und platzieren Sie eine Wette. Sobald mindestens zwei Spieler eine Wette platziert haben, beginnt ein Countdown, nach dem ein Spin stattfindet und ein Gewinner ermittelt wird.",
-        "faq.question3": "Wie tausche ich Tickets gegen Stars?",
+        "faq.question3": "Wie tausche ich Tickets gegen USD?",
         "faq.answer3":
             "Gehen Sie zum Abschnitt Auszahlung, wählen Sie eine der verfügbaren Auszahlungsoptionen, füllen Sie die erforderlichen Informationen aus und klicken Sie auf Bestätigen.",
         "faq.question4": "Wie lange dauern Auszahlungen?",
-        "faq.answer4": "Anfragen werden normalerweise innerhalb eines Tages bearbeitet.",
+        "faq.answer4": "Anfragen werden sofort über das Zahlungsgateway bearbeitet.",
         "faq.question5": "Empfehlungsbelohnungen?",
         "faq.answer5":
             'Unser 3-stufiges Empfehlungssystem belohnt Sie für die Gewinne und Verluste Ihrer Empfehlungen. Weitere Details finden Sie im Abschnitt "Verdienen".',
@@ -1200,7 +1200,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Negozio",
-        "store.chooseStars": "Scegli la quantità di Stars:",
+        "store.chooseStars": "Scegli l'importo (USD):",
         "store.chooseUsd": "Scegli l'importo in USD:",
         "store.minimumUsd": "Minimo: {min} USD",
         "store.maximumUsd": "Massimo: {max} USD",
@@ -1215,10 +1215,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPIA",
         "paymentConfirmation.copied": "COPIATO!",
         "paymentConfirmation.ticketsCredited": "*I biglietti saranno accreditati automaticamente non appena i fondi raggiungeranno l'indirizzo del destinatario.",
-        "paymentConfirmation.note": "Puoi inviare qualsiasi importo, superiore o inferiore a quello indicato, e i biglietti saranno comunque accreditati. Tieni presente che il deposito minimo è 3 $ – gli importi inferiori non verranno elaborati!",
+        "paymentConfirmation.note": "Puoi inviare qualsiasi importo, superiore o inferiore a quello indicato, e i biglietti saranno comunque accreditati. Tieni presente che il deposito minimo è 2 $ – gli importi inferiori non verranno elaborati!",
         "paymentConfirmation.back": "Indietro",
-        "store.minimum": "Minimo: {min} Stars",
-        "store.maximum": "Massimo: {max} Stars",
+        "store.minimum": "Minimo: {min} USD",
+        "store.maximum": "Massimo: {max} USD",
         "store.youWillReceive": "Riceverai:",
         "store.tickets": "Biglietti",
         "store.buyTickets": "ACQUISTA BIGLIETTI",
@@ -1234,7 +1234,7 @@ const translations = {
         "store.error.tooManyRequests":
             "Troppe richieste. Si prega di attendere un momento prima di riprovare.",
         "store.error.failedToCreate": "Impossibile creare il pagamento. Si prega di riprovare.",
-        "store.error.minimumStars": "Minimo: {min} Stars",
+        "store.error.minimumStars": "Minimo: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL della fattura non ricevuto dal server",
 
         // Daily Bonus Screen
@@ -1345,10 +1345,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Prelievo",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Regalo",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "In elaborazione",
         "payout.status.completed": "Completato",
         "payout.status.cancelled": "Annullato",
@@ -1377,18 +1377,18 @@ const translations = {
         "withdraw.success": "Richiesta di prelievo inviata con successo!",
         "withdraw.back": "Indietro",
 
-        // Stars Payout Confirmation
-        "starsPayout.title": "Preleva Stars",
+        // Legacy payout confirmation
+        "starsPayout.title": "Preleva",
         "starsPayout.enterUsername": "Inserisci il nome utente:",
-        "starsPayout.youWillReceive": "Importo in Stars:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.youWillReceive": "Importo (USD):",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.yourBalance": "Sarà addebitato (Biglietti):",
         "starsPayout.confirm": "CONFERMA",
         "starsPayout.submitting": "INVIO...",
-        "starsPayout.error.minimum": "Richiesto minimo 15 Stars",
+        "starsPayout.error.minimum": "Importo minimo richiesto",
         "starsPayout.error.usernameInvalid":
             "Il nome utente deve iniziare con @ seguito da almeno una lettera inglese",
-        "starsPayout.success": "Richiesta di prelievo Stars inviata con successo!",
+        "starsPayout.success": "Richiesta di prelievo inviata con successo!",
         "starsPayout.history.title": "Le tue ultime 20 prelievi",
         "starsPayout.history.amount": "IMPORTO",
         "starsPayout.history.date": "DATA",
@@ -1505,11 +1505,11 @@ const translations = {
         "faq.question2": "Come iniziare?",
         "faq.answer2":
             "Entra in una delle stanze e piazza una scommessa. Non appena almeno due giocatori piazzano una scommessa, inizierà un conto alla rovescia, dopo il quale avverrà un giro e verrà determinato un vincitore.",
-        "faq.question3": "Come scambio i biglietti per le Stars?",
+        "faq.question3": "Come scambio i biglietti per USD?",
         "faq.answer3":
             "Vai alla sezione Prelievo, seleziona una delle opzioni di prelievo disponibili, compila le informazioni richieste e clicca su Conferma.",
         "faq.question4": "Quanto tempo richiedono i prelievi?",
-        "faq.answer4": "Le richieste vengono solitamente elaborate entro un giorno.",
+        "faq.answer4": "Le richieste vengono elaborate immediatamente tramite il gateway di pagamento.",
         "faq.question5": "Ricompense referral?",
         "faq.answer5":
             'Il nostro sistema di referral a 3 livelli ti ricompensa per le vincite e le perdite dei tuoi referral. Maggiori dettagli possono essere trovati nella sezione "Guadagna".',
@@ -1587,7 +1587,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Winkel",
-        "store.chooseStars": "Kies het aantal Stars:",
+        "store.chooseStars": "Kies het bedrag (USD):",
         "store.chooseUsd": "Kies het USD-bedrag:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
@@ -1602,10 +1602,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPIËREN",
         "paymentConfirmation.copied": "GEKOPIEERD!",
         "paymentConfirmation.ticketsCredited": "*Tickets worden automatisch bijgeschreven zodra het geld het adres van de ontvanger bereikt.",
-        "paymentConfirmation.note": "U kunt elk bedrag sturen, meer of minder dan aangegeven – de tickets worden alsnog bijgeschreven. Houd er rekening mee dat de minimumstorting $3 is – lagere bedragen worden niet verwerkt!",
+        "paymentConfirmation.note": "U kunt elk bedrag sturen, meer of minder dan aangegeven – de tickets worden alsnog bijgeschreven. Houd er rekening mee dat de minimumstorting $2 is – lagere bedragen worden niet verwerkt!",
         "paymentConfirmation.back": "Terug",
-        "store.minimum": "Minimum: {min} Stars",
-        "store.maximum": "Maximum: {max} Stars",
+        "store.minimum": "Minimum: {min} USD",
+        "store.maximum": "Maximum: {max} USD",
         "store.youWillReceive": "U ontvangt:",
         "store.tickets": "Tickets",
         "store.buyTickets": "TICKETS KOPEN",
@@ -1620,7 +1620,7 @@ const translations = {
         "store.error.tooManyRequests":
             "Te veel verzoeken. Wacht even voordat u het opnieuw probeert.",
         "store.error.failedToCreate": "Betaling kon niet worden gemaakt. Probeer het opnieuw.",
-        "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Factuur-URL niet ontvangen van server",
 
         // Daily Bonus Screen
@@ -1732,10 +1732,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Uitbetaling",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Cadeau",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "In elaborazione",
         "payout.status.completed": "Completato",
         "payout.status.cancelled": "Annullato",
@@ -1764,18 +1764,18 @@ const translations = {
         "withdraw.success": "Opnameverzoek succesvol ingediend!",
         "withdraw.back": "Terug",
 
-        // Stars Payout Confirmation
-        "starsPayout.title": "Stars opnemen",
+        // Legacy payout confirmation
+        "starsPayout.title": "Opnemen",
         "starsPayout.enterUsername": "Voer de gebruikersnaam in:",
-        "starsPayout.youWillReceive": "Bedrag in Stars:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.youWillReceive": "Bedrag (USD):",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.yourBalance": "Wordt afgeschreven (Tickets):",
         "starsPayout.confirm": "BEVESTIGEN",
         "starsPayout.submitting": "WORDT VERZONDEN...",
-        "starsPayout.error.minimum": "Minimaal 15 Stars vereist",
+        "starsPayout.error.minimum": "Minimumbedrag vereist",
         "starsPayout.error.usernameInvalid":
             "Gebruikersnaam moet beginnen met @ gevolgd door ten minste één Engelse letter",
-        "starsPayout.success": "Stars-opnameverzoek succesvol verzonden!",
+        "starsPayout.success": "Opnameverzoek succesvol verzonden!",
         "starsPayout.history.title": "Uw laatste 20 opnames",
         "starsPayout.history.amount": "BEDRAG",
         "starsPayout.history.date": "DATUM",
@@ -1888,11 +1888,11 @@ const translations = {
         "faq.question2": "Hoe begin ik?",
         "faq.answer2":
             "Ga een van de kamers binnen en plaats een weddenschap. Zodra ten minste twee spelers een weddenschap plaatsen, begint een aftelling, waarna een draai plaatsvindt en een winnaar wordt bepaald.",
-        "faq.question3": "Hoe wissel ik tickets in voor Stars?",
+        "faq.question3": "Hoe wissel ik tickets in voor USD?",
         "faq.answer3":
             "Ga naar het sectie Uitbetaling, selecteer een van de beschikbare uitbetalingsopties, vul de vereiste informatie in en klik op Bevestigen.",
         "faq.question4": "Hoe lang duren uitbetalingen?",
-        "faq.answer4": "Verzoeken worden meestal binnen een dag verwerkt.",
+        "faq.answer4": "Verzoeken worden direct verwerkt via de betaalgateway.",
         "faq.question5": "Referral beloningen?",
         "faq.answer5":
             'Ons 3-niveau referralsysteem beloont u voor de winsten en verliezen van uw referrals. Meer details zijn te vinden in de sectie "Verdienen".',
@@ -1970,7 +1970,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Sklep",
-        "store.chooseStars": "Wybierz ilość Stars:",
+        "store.chooseStars": "Wybierz kwotę (USD):",
         "store.chooseUsd": "Wybierz kwotę w USD:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maksimum: {max} USD",
@@ -1985,10 +1985,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPIUJ",
         "paymentConfirmation.copied": "SKOPIOWANO!",
         "paymentConfirmation.ticketsCredited": "*Bilety zostaną naliczone automatycznie po otrzymaniu środków na adres odbiorcy.",
-        "paymentConfirmation.note": "Możesz wysłać dowolną kwotę, większą lub mniejszą niż podana – bilety i tak zostaną naliczone. Pamiętaj: minimalna wpłata to 3 $ – niższe kwoty nie będą przetwarzane!",
+        "paymentConfirmation.note": "Możesz wysłać dowolną kwotę, większą lub mniejszą niż podana – bilety i tak zostaną naliczone. Pamiętaj: minimalna wpłata to 2 $ – niższe kwoty nie będą przetwarzane!",
         "paymentConfirmation.back": "Wstecz",
-        "store.minimum": "Minimum: {min} Stars",
-        "store.maximum": "Maksimum: {max} Stars",
+        "store.minimum": "Minimum: {min} USD",
+        "store.maximum": "Maksimum: {max} USD",
         "store.youWillReceive": "Otrzymasz:",
         "store.tickets": "Bilety",
         "store.buyTickets": "KUP BILETY",
@@ -2002,7 +2002,7 @@ const translations = {
         "store.success.purchased": "Pomyślnie zakupiono {tickets} biletów!",
         "store.error.tooManyRequests": "Zbyt wiele żądań. Poczekaj chwilę przed ponowną próbą.",
         "store.error.failedToCreate": "Nie udało się utworzyć płatności. Spróbuj ponownie.",
-        "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL faktury nie został otrzymany z serwera",
 
         // Daily Bonus Screen
@@ -2114,10 +2114,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Wypłata",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Prezent",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "W trakcie",
         "payout.status.completed": "Zakończono",
         "payout.status.cancelled": "Anulowano",
@@ -2146,18 +2146,18 @@ const translations = {
         "withdraw.success": "Wniosek o wypłatę złożony pomyślnie!",
         "withdraw.back": "Wstecz",
 
-        // Stars Payout Confirmation
-        "starsPayout.title": "Wypłać Stars",
+        // Legacy payout confirmation
+        "starsPayout.title": "Wypłać",
         "starsPayout.enterUsername": "Wprowadź nazwę użytkownika:",
-        "starsPayout.youWillReceive": "Kwota w Stars:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.youWillReceive": "Kwota (USD):",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.yourBalance": "Zostanie obciążone (Bilety):",
         "starsPayout.confirm": "POTWIERDŹ",
         "starsPayout.submitting": "WYSYŁANIE...",
-        "starsPayout.error.minimum": "Wymagane minimum 15 Stars",
+        "starsPayout.error.minimum": "Wymagana minimalna kwota",
         "starsPayout.error.usernameInvalid":
             "Nazwa użytkownika musi zaczynać się od @ i zawierać co najmniej jedną angielską literę",
-        "starsPayout.success": "Żądanie wypłaty Stars zostało pomyślnie wysłane!",
+        "starsPayout.success": "Żądanie wypłaty zostało pomyślnie wysłane!",
         "starsPayout.history.title": "Twoje ostatnie 20 wypłat",
         "starsPayout.history.amount": "KWOTA",
         "starsPayout.history.date": "DATA",
@@ -2259,11 +2259,11 @@ const translations = {
         "faq.question2": "Jak zacząć?",
         "faq.answer2":
             "Wejdź do jednego z pokoi i postaw zakład. Gdy co najmniej dwóch graczy postawi zakład, rozpocznie się odliczanie, po którym nastąpi obrót i zostanie wyłoniony zwycięzca.",
-        "faq.question3": "Jak wymienić bilety na Stars?",
+        "faq.question3": "Jak wymienić bilety na USD?",
         "faq.answer3":
             "Przejdź do sekcji Wypłata, wybierz jedną z dostępnych opcji wypłaty, wypełnij wymagane informacje i kliknij Potwierdź.",
         "faq.question4": "Ile czasu zajmują wypłaty?",
-        "faq.answer4": "Żądania są zwykle przetwarzane w ciągu jednego dnia.",
+        "faq.answer4": "Żądania są przetwarzane natychmiast przez bramkę płatności.",
         "faq.question5": "Nagrody referral?",
         "faq.answer5":
             'Nasz 3-poziomowy system polecający nagradza Cię za wygrane i przegrane Twoich poleconych. Więcej szczegółów można znaleźć w sekcji "Zarabiaj".',
@@ -2321,7 +2321,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Boutique",
-        "store.chooseStars": "Choisissez le montant de Stars:",
+        "store.chooseStars": "Choisissez le montant (USD):",
         "store.chooseUsd": "Choisissez le montant en USD:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
@@ -2336,10 +2336,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPIER",
         "paymentConfirmation.copied": "COPIÉ !",
         "paymentConfirmation.ticketsCredited": "*Les tickets seront crédités automatiquement dès que les fonds atteindront l'adresse du destinataire.",
-        "paymentConfirmation.note": "Vous pouvez envoyer n'importe quel montant, supérieur ou inférieur à celui indiqué, les tickets seront quand même crédités. Attention : le dépôt minimum est de 3 $ – les montants inférieurs ne seront pas traités !",
+        "paymentConfirmation.note": "Vous pouvez envoyer n'importe quel montant, supérieur ou inférieur à celui indiqué, les tickets seront quand même crédités. Attention : le dépôt minimum est de 2 $ – les montants inférieurs ne seront pas traités !",
         "paymentConfirmation.back": "Retour",
-        "store.minimum": "Minimum: {min} Stars",
-        "store.maximum": "Maximum: {max} Stars",
+        "store.minimum": "Minimum: {min} USD",
+        "store.maximum": "Maximum: {max} USD",
         "store.youWillReceive": "Vous recevrez:",
         "store.tickets": "Billets",
         "store.buyTickets": "ACHETER DES BILLETS",
@@ -2354,7 +2354,7 @@ const translations = {
         "store.error.tooManyRequests":
             "Trop de demandes. Veuillez attendre un moment avant de réessayer.",
         "store.error.failedToCreate": "Impossible de créer le paiement. Veuillez réessayer.",
-        "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL de facture non reçue du serveur",
 
         // Daily Bonus Screen
@@ -2473,10 +2473,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Retrait",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Cadeau",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "En cours",
         "payout.status.completed": "Terminé",
         "payout.status.cancelled": "Annulé",
@@ -2505,18 +2505,18 @@ const translations = {
         "withdraw.success": "Demande de retrait envoyée avec succès !",
         "withdraw.back": "Retour",
 
-        // Stars Payout Confirmation
-        "starsPayout.title": "Retirer Stars",
+        // Legacy payout confirmation
+        "starsPayout.title": "Retirer",
         "starsPayout.enterUsername": "Entrez le nom d'utilisateur:",
-        "starsPayout.youWillReceive": "Montant en Stars:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.youWillReceive": "Montant (USD):",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.yourBalance": "Sera débité (Billets):",
         "starsPayout.confirm": "CONFIRMER",
         "starsPayout.submitting": "ENVOI...",
-        "starsPayout.error.minimum": "Minimum 15 Stars requis",
+        "starsPayout.error.minimum": "Montant minimum requis",
         "starsPayout.error.usernameInvalid":
             "Le nom d'utilisateur doit commencer par @ suivi d'au moins une lettre anglaise",
-        "starsPayout.success": "Demande de retrait Stars envoyée avec succès!",
+        "starsPayout.success": "Demande de retrait envoyée avec succès!",
         "starsPayout.history.title": "Vos 20 derniers retraits",
         "starsPayout.history.amount": "MONTANT",
         "starsPayout.history.date": "DATE",
@@ -2619,11 +2619,11 @@ const translations = {
         "faq.question2": "Comment commencer?",
         "faq.answer2":
             "Entrez dans l'une des salles et placez un pari. Dès qu'au moins deux joueurs placent un pari, un compte à rebours commencera, après quoi un tour aura lieu et un gagnant sera déterminé.",
-        "faq.question3": "Comment échanger des tickets contre des Stars?",
+        "faq.question3": "Comment échanger des tickets contre des USD?",
         "faq.answer3":
             "Allez dans la section Paiement, sélectionnez l'une des options de paiement disponibles, remplissez les informations requises et cliquez sur Confirmer.",
         "faq.question4": "Combien de temps prennent les paiements?",
-        "faq.answer4": "Les demandes sont généralement traitées dans un délai d'un jour.",
+        "faq.answer4": "Les demandes sont traitées immédiatement via la passerelle de paiement.",
         "faq.question5": "Récompenses de parrainage?",
         "faq.answer5":
             'Notre système de parrainage à 3 niveaux vous récompense pour les gains et les pertes de vos filleuls. Plus de détails peuvent être trouvés dans la section "Gagner".',
@@ -2681,7 +2681,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Tienda",
-        "store.chooseStars": "Elija la cantidad de Stars:",
+        "store.chooseStars": "Elija la cantidad (USD):",
         "store.chooseUsd": "Elija el importe en USD:",
         "store.minimumUsd": "Mínimo: {min} USD",
         "store.maximumUsd": "Máximo: {max} USD",
@@ -2696,10 +2696,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPIAR",
         "paymentConfirmation.copied": "¡COPIADO!",
         "paymentConfirmation.ticketsCredited": "*Los tickets se acreditarán automáticamente cuando los fondos lleguen a la dirección del destinatario.",
-        "paymentConfirmation.note": "Puede enviar cualquier cantidad, mayor o menor que la indicada, y los tickets se acreditarán igualmente. Tenga en cuenta que el depósito mínimo es 3 $: ¡las cantidades inferiores no se procesarán!",
+        "paymentConfirmation.note": "Puede enviar cualquier cantidad, mayor o menor que la indicada, y los tickets se acreditarán igualmente. Tenga en cuenta que el depósito mínimo es 2 $: ¡las cantidades inferiores no se procesarán!",
         "paymentConfirmation.back": "Atrás",
-        "store.minimum": "Mínimo: {min} Stars",
-        "store.maximum": "Máximo: {max} Stars",
+        "store.minimum": "Mínimo: {min} USD",
+        "store.maximum": "Máximo: {max} USD",
         "store.youWillReceive": "Recibirá:",
         "store.tickets": "Boletos",
         "store.buyTickets": "COMPRAR BOLETOS",
@@ -2714,7 +2714,7 @@ const translations = {
         "store.error.tooManyRequests":
             "Demasiadas solicitudes. Por favor, espere un momento antes de intentar de nuevo.",
         "store.error.failedToCreate": "No se pudo crear el pago. Por favor, inténtelo de nuevo.",
-        "store.error.minimumStars": "Mínimo: {min} Stars",
+        "store.error.minimumStars": "Mínimo: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL de factura no recibida del servidor",
 
         // Daily Bonus Screen
@@ -2826,10 +2826,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Retiro",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Regalo",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "En proceso",
         "payout.status.completed": "Completado",
         "payout.status.cancelled": "Cancelado",
@@ -2858,18 +2858,18 @@ const translations = {
         "withdraw.success": "¡Solicitud de retiro enviada correctamente!",
         "withdraw.back": "Atrás",
 
-        // Stars Payout Confirmation
-        "starsPayout.title": "Retirar Stars",
+        // Legacy payout confirmation
+        "starsPayout.title": "Retirar",
         "starsPayout.enterUsername": "Ingrese el nombre de usuario:",
-        "starsPayout.youWillReceive": "Cantidad en Stars:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.youWillReceive": "Cantidad (USD):",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.yourBalance": "Se debitará (Boletos):",
         "starsPayout.confirm": "CONFIRMAR",
         "starsPayout.submitting": "ENVIANDO...",
-        "starsPayout.error.minimum": "Se requiere un mínimo de 15 Stars",
+        "starsPayout.error.minimum": "Se requiere un importe mínimo",
         "starsPayout.error.usernameInvalid":
             "El nombre de usuario debe comenzar con @ seguido de al menos una letra inglesa",
-        "starsPayout.success": "¡Solicitud de retiro de Stars enviada exitosamente!",
+        "starsPayout.success": "¡Solicitud de retiro enviada exitosamente!",
         "starsPayout.history.title": "Sus últimos 20 retiros",
         "starsPayout.history.amount": "MONTO",
         "starsPayout.history.date": "FECHA",
@@ -2984,11 +2984,11 @@ const translations = {
         "faq.question2": "¿Cómo empezar?",
         "faq.answer2":
             "Entra en una de las salas y realiza una apuesta. Tan pronto como al menos dos jugadores realicen una apuesta, comenzará una cuenta atrás, después de lo cual tendrá lugar un giro y se determinará un ganador.",
-        "faq.question3": "¿Cómo cambio tickets por Stars?",
+        "faq.question3": "¿Cómo cambio tickets por USD?",
         "faq.answer3":
             "Ve a la sección de Retiro, selecciona una de las opciones de retiro disponibles, completa la información requerida y haz clic en Confirmar.",
         "faq.question4": "¿Cuánto tardan los retiros?",
-        "faq.answer4": "Las solicitudes generalmente se procesan en un día.",
+        "faq.answer4": "Las solicitudes se procesan inmediatamente a través de la pasarela de pago.",
         "faq.question5": "¿Recompensas de referidos?",
         "faq.answer5":
             'Nuestro sistema de referidos de 3 niveles te recompensa por las ganancias y pérdidas de tus referidos. Más detalles se pueden encontrar en la sección "Ganar".',
@@ -3066,7 +3066,7 @@ const translations = {
 
         // Store Screen
         "store.title": "Toko",
-        "store.chooseStars": "Pilih jumlah Stars:",
+        "store.chooseStars": "Pilih jumlah (USD):",
         "store.chooseUsd": "Pilih jumlah USD:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maksimum: {max} USD",
@@ -3081,10 +3081,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "SALIN",
         "paymentConfirmation.copied": "TERSALIN!",
         "paymentConfirmation.ticketsCredited": "*Tiket akan dikreditkan secara otomatis setelah dana sampai ke alamat penerima.",
-        "paymentConfirmation.note": "Anda dapat mengirim jumlah berapa pun, lebih atau kurang dari yang ditentukan, dan tiket tetap akan dikreditkan. Perlu diingat: setoran minimum adalah $3 – jumlah di bawah ini tidak akan diproses!",
+        "paymentConfirmation.note": "Anda dapat mengirim jumlah berapa pun, lebih atau kurang dari yang ditentukan, dan tiket tetap akan dikreditkan. Perlu diingat: setoran minimum adalah $2 – jumlah di bawah ini tidak akan diproses!",
         "paymentConfirmation.back": "Kembali",
-        "store.minimum": "Minimum: {min} Stars",
-        "store.maximum": "Maksimum: {max} Stars",
+        "store.minimum": "Minimum: {min} USD",
+        "store.maximum": "Maksimum: {max} USD",
         "store.youWillReceive": "Anda akan menerima:",
         "store.tickets": "Tiket",
         "store.buyTickets": "BELI TIKET",
@@ -3099,7 +3099,7 @@ const translations = {
         "store.error.tooManyRequests":
             "Terlalu banyak permintaan. Silakan tunggu sebentar sebelum mencoba lagi.",
         "store.error.failedToCreate": "Gagal membuat pembayaran. Silakan coba lagi.",
-        "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL faktur tidak diterima dari server",
 
         // Daily Bonus Screen
@@ -3203,10 +3203,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Penarikan",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Hadiah",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "Sedang diproses",
         "payout.status.completed": "Selesai",
         "payout.status.cancelled": "Dibatalkan",
@@ -3239,7 +3239,7 @@ const translations = {
         "starsPayout.title": "Tarik Stars",
         "starsPayout.enterUsername": "Masukkan nama pengguna:",
         "starsPayout.youWillReceive": "Jumlah dalam Stars:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.yourBalance": "Akan didebit (Tiket):",
         "starsPayout.confirm": "KONFIRMASI",
         "starsPayout.submitting": "MENGIRIM...",
@@ -3349,11 +3349,11 @@ const translations = {
         "faq.question2": "Bagaimana cara memulai?",
         "faq.answer2":
             "Masuk ke salah satu ruangan dan pasang taruhan. Begitu setidaknya dua pemain memasang taruhan, hitungan mundur akan dimulai, setelah itu putaran akan berlangsung dan pemenang akan ditentukan.",
-        "faq.question3": "Bagaimana cara menukar tiket dengan Stars?",
+        "faq.question3": "Bagaimana cara menukar tiket dengan USD?",
         "faq.answer3":
             "Buka bagian Penarikan, pilih salah satu opsi penarikan yang tersedia, isi informasi yang diperlukan dan klik Konfirmasi.",
         "faq.question4": "Berapa lama waktu yang dibutuhkan untuk penarikan?",
-        "faq.answer4": "Permintaan biasanya diproses dalam satu hari.",
+        "faq.answer4": "Permintaan diproses segera melalui gateway pembayaran.",
         "faq.question5": "Hadiah referral?",
         "faq.answer5":
             'Sistem referral 3 tingkat kami memberi Anda hadiah untuk kemenangan dan kekalahan dari referral Anda. Detail lebih lanjut dapat ditemukan di bagian "Dapatkan".',
@@ -3426,10 +3426,10 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPYALA",
         "paymentConfirmation.copied": "KOPYALANDI!",
         "paymentConfirmation.ticketsCredited": "*Fonlar alıcı adresine ulaştığında biletler otomatik olarak tanınacaktır.",
-        "paymentConfirmation.note": "Belirtilenden fazla veya az herhangi bir tutar gönderebilirsiniz, biletler yine de tanınacaktır. Unutmayın: minimum yatırım 3 $'dır – bu tutarın altındaki miktarlar işlenmeyecektir!",
+        "paymentConfirmation.note": "Belirtilenden fazla veya az herhangi bir tutar gönderebilirsiniz, biletler yine de tanınacaktır. Unutmayın: minimum yatırım 2 $'dır – bu tutarın altındaki miktarlar işlenmeyecektir!",
         "paymentConfirmation.back": "Geri",
-        "store.minimum": "Minimum: {min} Stars",
-        "store.maximum": "Maksimum: {max} Stars",
+        "store.minimum": "Minimum: {min} USD",
+        "store.maximum": "Maksimum: {max} USD",
         "store.youWillReceive": "Alacaksınız:",
         "store.tickets": "Bilet",
         "store.buyTickets": "BİLET SATIN AL",
@@ -3443,7 +3443,7 @@ const translations = {
         "store.error.tooManyRequests":
             "Projemizin her katılımcısı için günlük oyun bonusu mevcuttur.",
         "store.error.failedToCreate": "Ödeme oluşturulamadı. Lütfen tekrar deneyin.",
-        "store.error.minimumStars": "Minimum: {min} Stars",
+        "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Fatura URL'si sunucudan alınamadı",
 
         // Daily Bonus Screen
@@ -3561,10 +3561,10 @@ const translations = {
 
         // Payout Screen
         "payout.title": "Çekim",
-        "payout.stars": "Stars",
+        "payout.stars": "USD",
         "payout.gift": "Hediye",
-        "payout.minStars": "Min. 50 Stars",
-        "payout.minStarsGift": "Min. 15 Stars",
+        "payout.minStars": "Min. 0.02 USD",
+        "payout.minStarsGift": "Min. 0.02 USD",
         "payout.status.processing": "İşleniyor",
         "payout.status.completed": "Tamamlandı",
         "payout.status.cancelled": "İptal edildi",
@@ -3597,7 +3597,7 @@ const translations = {
         "starsPayout.title": "Stars çek",
         "starsPayout.enterUsername": "Kullanıcı adını girin:",
         "starsPayout.youWillReceive": "Stars cinsinden tutar:",
-        "starsPayout.minStars": "Min: 50 Stars",
+        "starsPayout.minStars": "Min: 0.02 USD",
         "starsPayout.yourBalance": "Borçlandırılacak (Bilet):",
         "starsPayout.confirm": "ONAYLA",
         "starsPayout.submitting": "GÖNDERİLİYOR...",
@@ -3720,11 +3720,11 @@ const translations = {
         "faq.question2": "Nasıl başlarım?",
         "faq.answer2":
             "Odalardan birine girin ve bahis yapın. En az iki oyuncu bahis yaptığında, geri sayım başlar, ardından bir çark dönüşü gerçekleşir ve bir kazanan belirlenir.",
-        "faq.question3": "Stars biletlerini nasıl takas edebilirim?",
+        "faq.question3": "Biletleri USD'ye nasıl takas edebilirim?",
         "faq.answer3":
             "Çekim bölümüne gidin, mevcut çekim seçeneklerinden birini seçin, gerekli bilgileri doldurun ve Onayla'ya tıklayın.",
         "faq.question4": "Çekimler ne kadar sürer?",
-        "faq.answer4": "İstekler genellikle bir gün içinde işlenir.",
+        "faq.answer4": "İstekler ödeme ağ geçidi üzerinden anında işlenir.",
         "faq.question5": "Referans ödülleri?",
         "faq.answer5":
             '3 seviyeli referans sistemimiz, referanslarınızın kazançları ve kayıpları için sizi ödüllendirir. Daha fazla ayrıntı "Kazan" bölümünde bulunabilir.',

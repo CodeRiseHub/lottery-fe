@@ -4,7 +4,8 @@ import { fetchTasks, claimTask, fetchCurrentUser } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import friendIcon from '../assets/images/friend.png'
 import storeIcon from '../assets/images/tasks/store.png'
-import infoChannelIcon from '../assets/info_channel_tg.png'
+import newswinIcon from '../assets/newswin.png'
+import payoutwinIcon from '../assets/payoutwin.png'
 
 export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
   const [activeTab, setActiveTab] = useState('referral')
@@ -303,7 +304,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         </div>
                         <div className="invite__info">
                           <p className="invite__title invite__title-one">{task.title}</p>
-                          <p className="invite__reward">{task.localizedRewardText || `+${formatRewardAmount(task.rewardAmount)} ${task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}`}</p>
+                          <p className="invite__reward">{task.localizedRewardText || `+${formatRewardAmount(task.rewardAmount)} ${(task.rewardType === 'Tickets' || task.rewardType === 'Stars') ? t('tasks.tickets') : task.rewardType}`}</p>
                         </div>
                         <div className="invite__progress" id={`progSList_${task.id}`}>
                           {task.progress}
@@ -361,7 +362,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         ) : null
                       })()}
 
-                      <p className="task__reward">{t('tasks.reward')}: {task.localizedRewardText ? task.localizedRewardText.replace('+', '') : `${formatRewardAmount(task.rewardAmount)} ${task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}`}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {task.localizedRewardText ? task.localizedRewardText.replace('+', '') : `${formatRewardAmount(task.rewardAmount)} ${(task.rewardType === 'Tickets' || task.rewardType === 'Stars') ? t('tasks.tickets') : task.rewardType}`}</p>
 
                       <div className="task__actions">
                         <button
@@ -405,7 +406,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                       <div className="invite__card">
                         <div className="invite__icon-wrapper">
                           <img
-                            src={infoChannelIcon}
+                            src={task.requirement === 1 ? newswinIcon : payoutwinIcon}
                             alt="friend"
                             width="47"
                             height="47"
@@ -414,7 +415,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         </div>
                         <div className="invite__info">
                           <p className="invite__title invite__title-two">{task.title}</p>
-                          <p className="invite__reward">{task.localizedRewardText || `+${formatRewardAmount(task.rewardAmount)} ${task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}`}</p>
+                          <p className="invite__reward">{task.localizedRewardText || `+${formatRewardAmount(task.rewardAmount)} ${(task.rewardType === 'Tickets' || task.rewardType === 'Stars') ? t('tasks.tickets') : task.rewardType}`}</p>
                         </div>
                         {(() => {
                           const progressText = buildProgressString(task)
@@ -454,7 +455,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                       <div className="task__header">
                         <div className="invite__icon-wrapper">
                           <img
-                            src={infoChannelIcon}
+                            src={task.requirement === 1 ? newswinIcon : payoutwinIcon}
                             alt="friend"
                             width="47"
                             height="47"
@@ -464,7 +465,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         <p className="invite__title invite__title-two">{task.title}</p>
                       </div>
                       <p className="task__description">{task.description || task.title}</p>
-                      <p className="task__reward">{t('tasks.reward')}: {task.localizedRewardText ? task.localizedRewardText.replace('+', '') : `${formatRewardAmount(task.rewardAmount)} ${task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}`}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {task.localizedRewardText ? task.localizedRewardText.replace('+', '') : `${formatRewardAmount(task.rewardAmount)} ${(task.rewardType === 'Tickets' || task.rewardType === 'Stars') ? t('tasks.tickets') : task.rewardType}`}</p>
                       <div className="task__actions">
                         <button
                           className="task__button task__button-one"
@@ -534,7 +535,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                         </div>
                         <div className="invite__info">
                           <p className="invite__title invite__title-one">{task.title}</p>
-                          <p className="invite__reward">{task.localizedRewardText || `+${formatRewardAmount(task.rewardAmount)} ${task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}`}</p>
+                          <p className="invite__reward">{task.localizedRewardText || `+${formatRewardAmount(task.rewardAmount)} ${(task.rewardType === 'Tickets' || task.rewardType === 'Stars') ? t('tasks.tickets') : task.rewardType}`}</p>
                         </div>
                         {(() => {
                           const progressText = buildProgressString(task)
@@ -597,7 +598,7 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
                           </div>
                         ) : null
                       })()}
-                      <p className="task__reward">{t('tasks.reward')}: {task.localizedRewardText ? task.localizedRewardText.replace('+', '') : `${formatRewardAmount(task.rewardAmount)} ${task.rewardType === 'Tickets' ? t('tasks.tickets') : task.rewardType}`}</p>
+                      <p className="task__reward">{t('tasks.reward')}: {task.localizedRewardText ? task.localizedRewardText.replace('+', '') : `${formatRewardAmount(task.rewardAmount)} ${(task.rewardType === 'Tickets' || task.rewardType === 'Stars') ? t('tasks.tickets') : task.rewardType}`}</p>
 
                       <div className="task__actions">
                         <button
