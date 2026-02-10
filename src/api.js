@@ -325,6 +325,20 @@ export async function fetchDepositMethods() {
 }
 
 /**
+ * Requests a crypto deposit address from the API (no payment record is created).
+ * Call when user selects a payment method on Payment Options screen.
+ * @param {number} pid - Deposit method PID from deposit-methods
+ * @param {number} usdAmountBigint - USD in bigint (1_000_000 = 1 USD)
+ * @returns {Promise<{ address: string, amountCoins: string, name: string, network: string, psId: number }>}
+ */
+export async function requestDepositAddress(pid, usdAmountBigint) {
+  return authFetch("/api/payments/deposit-address", {
+    method: "POST",
+    body: JSON.stringify({ pid, usdAmount: usdAmountBigint })
+  });
+}
+
+/**
  * Cancels a payment.
  * @param {string} orderId - Order ID to cancel
  * @returns {Promise<void>}

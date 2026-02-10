@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
-import { fetchDepositMethods } from '../api'
+import { fetchDepositMethods, fetchMinimumDeposit, requestDepositAddress } from '../api'
+
+const USD_TO_BIGINT = 1_000_000
+const FALLBACK_MIN_USD = 2
 
 // Crypto icons: bundle from src/assets/crypto_new via Vite glob; fallback to public path
 const cryptoIconModules = import.meta.glob('../assets/crypto_new/*.png', { eager: true, query: '?url', import: 'default' })
@@ -18,6 +21,21 @@ function getCryptoIconUrl(pid) {
 export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ticketsAmount }) {
   const [methods, setMethods] = useState([])
   const [loading, setLoading] = useState(true)
+  const [minUsd, setMinUsd] = useState(FALLBACK_MIN_USD)
+  const [fetchingAddress, setFetchingAddress] = useState(false)
+  const [fetchError, setFetchError] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchMinimumDeposit()
+      .then((data) => {
+        if (cancelled) return
+        const min = data?.minimumDeposit != null ? Number(data.minimumDeposit) : FALLBACK_MIN_USD
+        setMinUsd(min >= 0 ? min : FALLBACK_MIN_USD)
+      })
+      .catch(() => { if (!cancelled) setMinUsd(FALLBACK_MIN_USD) })
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -35,7 +53,7 @@ export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ti
     return () => { cancelled = true }
   }, [])
 
-  const handleSelectCrypto = (option) => {
+  const handleSelectCrypto = async (option) => {
     const usd = usdAmount != null ? Number(usdAmount) : 0
     const minForNetwork = option.minDepositSum != null ? Number(option.minDepositSum) : 0
     if (minForNetwork > 0 && usd < minForNetwork) {
@@ -48,16 +66,28 @@ export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ti
       }
       return
     }
-    const amountToSend = usdAmount != null ? String(usdAmount) : '0'
-    const walletAddress = 'UQCZUOMISQQ1sna0384IHWZInOBgxiBffeNnRMksbPPDOheY'
-    if (onNavigate) {
-      onNavigate('paymentConfirmation', {
-        selectedOption: option,
-        amountToSend,
-        walletAddress,
-        usdAmount,
-        ticketsAmount
-      })
+    const usdAmountBigint = Math.round((usdAmount != null ? Number(usdAmount) : 0) * USD_TO_BIGINT)
+    if (usdAmountBigint < minUsd * USD_TO_BIGINT) {
+      setFetchError(t('store.error.minimumUsd', { min: minUsd }))
+      return
+    }
+    setFetchError(null)
+    setFetchingAddress(true)
+    try {
+      const result = await requestDepositAddress(option.pid, usdAmountBigint)
+      if (onNavigate && result) {
+        onNavigate('paymentConfirmation', {
+          selectedOption: { name: result.name, network: result.network },
+          amountToSend: result.amountCoins ?? '',
+          walletAddress: result.address ?? '',
+          usdAmount,
+          ticketsAmount
+        })
+      }
+    } catch (e) {
+      setFetchError(e?.message || t('store.error.paymentFailed'))
+    } finally {
+      setFetchingAddress(false)
     }
   }
 
@@ -66,8 +96,15 @@ export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ti
       <div className="upgrade__container container">
         <h1 className="upgrade__title title">{t('store.ticketsStore')}</h1>
 
+        {fetchError && (
+          <p className="upgrade__label" style={{ textAlign: 'center', color: 'var(--color-error, #e53e3e)', marginBottom: '0.5rem' }}>
+            {fetchError}
+          </p>
+        )}
         <div className="upgrade__currencies payment-options__list-wrap">
           {loading ? (
+            <p className="upgrade__label" style={{ textAlign: 'center' }}>{t('common.loading') || 'Loading...'}</p>
+          ) : fetchingAddress ? (
             <p className="upgrade__label" style={{ textAlign: 'center' }}>{t('common.loading') || 'Loading...'}</p>
           ) : (
             <div className="upgrade__list">
