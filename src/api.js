@@ -287,19 +287,15 @@ export async function fetchPayoutHistory() {
   return authFetch(`/api/payouts/history?timezone=${encodeURIComponent(timezone)}`, { method: "GET" });
 }
 
-// 1_000_000 in DB = 1 USD (same scale as tickets)
-const USD_TO_BIGINT = 1_000_000;
-
 /**
- * Creates a payment invoice (crypto: usdAmount in bigint, legacy Stars: starsAmount).
- * Crypto: pass display USD (e.g. 3.25); sent as bigint (3.25 * 1_000_000). 1 USD = 1000 tickets.
- * @param {number} starsAmountOrUsd - Display USD (crypto) or Stars amount (legacy)
- * @param {boolean} [useUsd=true] - If true, value is USD and sent as usdAmount bigint
+ * Creates a payment invoice (crypto: usdAmount as decimal, e.g. 3.25).
+ * @param {number} starsAmountOrUsd - USD amount (crypto), e.g. 3.25
+ * @param {boolean} [useUsd=true] - If true, value is USD and sent as usdAmount (number)
  * @returns {Promise<{invoiceId: string, invoiceUrl?: string, starsAmount?: number, usdAmount?: number, ticketsAmount: number}>}
  */
 export async function createPaymentInvoice(starsAmountOrUsd, useUsd = true) {
   const body = useUsd
-    ? { usdAmount: Math.round(starsAmountOrUsd * USD_TO_BIGINT) }
+    ? { usdAmount: starsAmountOrUsd }
     : { starsAmount: starsAmountOrUsd };
   return authFetch("/api/payments/create", {
     method: "POST",
@@ -328,13 +324,13 @@ export async function fetchDepositMethods() {
  * Requests a crypto deposit address from the API (no payment record is created).
  * Call when user selects a payment method on Payment Options screen.
  * @param {number} pid - Deposit method PID from deposit-methods
- * @param {number} usdAmountBigint - USD in bigint (1_000_000 = 1 USD)
+ * @param {number} usdAmount - USD as decimal, e.g. 3.25
  * @returns {Promise<{ address: string, amountCoins: string, name: string, network: string, psId: number }>}
  */
-export async function requestDepositAddress(pid, usdAmountBigint) {
+export async function requestDepositAddress(pid, usdAmount) {
   return authFetch("/api/payments/deposit-address", {
     method: "POST",
-    body: JSON.stringify({ pid, usdAmount: usdAmountBigint })
+    body: JSON.stringify({ pid, usdAmount })
   });
 }
 

@@ -3,7 +3,6 @@ import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
 import { fetchDepositMethods, fetchMinimumDeposit, requestDepositAddress } from '../api'
 
-const USD_TO_BIGINT = 1_000_000
 const FALLBACK_MIN_USD = 2
 
 // Crypto icons: bundle from src/assets/crypto_new via Vite glob; fallback to public path
@@ -66,15 +65,14 @@ export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ti
       }
       return
     }
-    const usdAmountBigint = Math.round((usdAmount != null ? Number(usdAmount) : 0) * USD_TO_BIGINT)
-    if (usdAmountBigint < minUsd * USD_TO_BIGINT) {
+    if (usd < minUsd) {
       setFetchError(t('store.error.minimumUsd', { min: minUsd }))
       return
     }
     setFetchError(null)
     setFetchingAddress(true)
     try {
-      const result = await requestDepositAddress(option.pid, usdAmountBigint)
+      const result = await requestDepositAddress(option.pid, usd)
       if (onNavigate && result) {
         onNavigate('paymentConfirmation', {
           selectedOption: { name: result.name, network: result.network },
