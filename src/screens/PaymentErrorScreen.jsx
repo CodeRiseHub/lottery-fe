@@ -28,10 +28,10 @@ export default function PaymentErrorScreen({ onBack, minDepositForNetwork, usdAm
               cursor: 'pointer',
               fontSize: 'inherit',
               fontFamily: 'inherit',
-              padding: 0
+              padding: '0.25rem 0'
             }}
           >
-            [{t('paymentError.changePaymentMethod')}]
+            {t('paymentError.changePaymentMethod')}
           </button>
         </center>
       </div>
