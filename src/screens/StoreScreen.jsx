@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { t } from '../i18n'
+import { fetchMinimumDeposit } from '../api'
 
 // 1 USD = 1000 tickets; deposit allows max 2 decimal places (x.xx). "2." is treated as 2.
 const USD_TO_TICKETS = 1000
-const MIN_USD = 2
+const FALLBACK_MIN_USD = 2
 const MAX_USD = 10000
 const MAX_DECIMAL_PLACES = 2
 // More than 2 digits after dot -> invalid (show error). "2." or "2.4" or "2.45" are valid.
@@ -14,6 +15,28 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [minUsd, setMinUsd] = useState(FALLBACK_MIN_USD)
+  const [depositMethodsLoading, setDepositMethodsLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchMinimumDeposit()
+      .then((data) => {
+        if (cancelled) return
+        const min = data?.minimumDeposit != null ? Number(data.minimumDeposit) : FALLBACK_MIN_USD
+        setMinUsd(min >= 0 ? min : FALLBACK_MIN_USD)
+        if (min > 0 && (amount === '' || parseFloat(amount) < min)) {
+          setAmount(String(min))
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setMinUsd(FALLBACK_MIN_USD)
+      })
+      .finally(() => {
+        if (!cancelled) setDepositMethodsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -65,8 +88,8 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
       return
     }
 
-    if (usdValue < MIN_USD) {
-      setTextError(t('store.minimumUsd', { min: MIN_USD }))
+    if (usdValue < minUsd) {
+      setTextError(t('store.minimumUsd', { min: minUsd }))
       setTickets('---')
       return
     }
@@ -92,8 +115,8 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
     }
 
     const usdValue = parseFloat(normalized)
-    if (isNaN(usdValue) || usdValue < MIN_USD) {
-      setTextError(t('store.error.minimumUsd', { min: MIN_USD }))
+    if (isNaN(usdValue) || usdValue < minUsd) {
+      setTextError(t('store.error.minimumUsd', { min: minUsd }))
       return
     }
     if (usdValue > MAX_USD) return
@@ -131,11 +154,11 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
               onBlur={(e) => {
                 const value = e.target.value.trim()
                 if (value === '') {
-                  setAmount(MIN_USD.toString())
+                  setAmount(minUsd.toString())
                 } else {
                   const num = parseFloat(value.replace(',', '.'))
-                  if (isNaN(num) || num < MIN_USD) {
-                    setAmount(MIN_USD.toString())
+                  if (isNaN(num) || num < minUsd) {
+                    setAmount(minUsd.toString())
                   } else if (num > MAX_USD) {
                     setAmount(MAX_USD.toString())
                   } else {

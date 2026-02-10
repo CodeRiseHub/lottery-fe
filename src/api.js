@@ -308,6 +308,23 @@ export async function createPaymentInvoice(starsAmountOrUsd, useUsd = true) {
 }
 
 /**
+ * Fetches minimum deposit from DB only (no external sync). Use on Store screen for validation.
+ * @returns {Promise<{ minimumDeposit: number }>}
+ */
+export async function fetchMinimumDeposit() {
+  return authFetch("/api/payments/minimum-deposit", { method: "GET" });
+}
+
+/**
+ * Fetches crypto deposit methods (syncs from external API, saves to DB, returns methods + minimum deposit).
+ * Call when Payment Options screen opens.
+ * @returns {Promise<{ minimumDeposit: number, activeMethods: Array<{ pid: number, name: string, network: string, example?: string, minDepositSum: number }> }>}
+ */
+export async function fetchDepositMethods() {
+  return authFetch("/api/payments/deposit-methods", { method: "GET" });
+}
+
+/**
  * Cancels a payment.
  * @param {string} orderId - Order ID to cancel
  * @returns {Promise<void>}

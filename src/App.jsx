@@ -16,6 +16,7 @@ import ReferralScreen from './screens/ReferralScreen'
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen'
 import StoreScreen from './screens/StoreScreen'
 import PaymentOptionsScreen from './screens/PaymentOptionsScreen'
+import PaymentErrorScreen from './screens/PaymentErrorScreen'
 import PaymentConfirmationScreen from './screens/PaymentConfirmationScreen'
 import TasksScreen from './screens/TasksScreen'
 import PayoutScreen from './screens/PayoutScreen'
@@ -47,7 +48,7 @@ function App() {
       // Load stored screen if valid
       if (storedScreen) {
         const validScreens = ['main', 'gameHistory', 'faq', 'support', 'supportChat', 'referral',
-          'transactionHistory', 'store', 'paymentOptions', 'paymentConfirmation', 'tasks', 'payout',
+          'transactionHistory', 'store', 'paymentOptions', 'paymentError', 'paymentConfirmation', 'tasks', 'payout',
           'starsPayoutConfirmation', 'dailyBonus']
         if (validScreens.includes(storedScreen)) {
           screen = storedScreen
@@ -326,6 +327,17 @@ function App() {
           <PaymentOptionsScreen
             onBack={() => handleNavigate('store')}
             onNavigate={handleNavigate}
+            usdAmount={screenProps.usdAmount}
+            ticketsAmount={screenProps.ticketsAmount}
+          />
+        )}
+        {currentScreen === 'paymentError' && (
+          <PaymentErrorScreen
+            onBack={() => handleNavigate('paymentOptions', {
+              usdAmount: screenProps.usdAmount,
+              ticketsAmount: screenProps.ticketsAmount
+            })}
+            minDepositForNetwork={screenProps.minDepositForNetwork}
             usdAmount={screenProps.usdAmount}
             ticketsAmount={screenProps.ticketsAmount}
           />
