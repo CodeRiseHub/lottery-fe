@@ -23,7 +23,7 @@ export default function PaymentErrorScreen({ onBack, minDepositForNetwork, usdAm
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--color-primary, #7c3aed)',
+              color: '#2aa3ff',
               textDecoration: 'underline',
               cursor: 'pointer',
               fontSize: 'inherit',

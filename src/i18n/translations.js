@@ -411,6 +411,7 @@ const translations = {
         "common.copyAmount": "СКОПИРОВАТЬ СУММУ",
         "common.copyWallet": "СКОПИРОВАТЬ КОШЕЛЕК",
         "common.enterAmount": "Введите сумму",
+        "common.loading": "Загрузка...",
 
         // Navigation
         "nav.store": "Магазин",
@@ -789,6 +790,7 @@ const translations = {
         "common.copyAmount": "BETRAG KOPIEREN",
         "common.copyWallet": "WALLET KOPIEREN",
         "common.enterAmount": "Betrag eingeben",
+        "common.loading": "Laden...",
 
         // Navigation
         "nav.store": "Shop",
@@ -1187,6 +1189,7 @@ const translations = {
         "common.copyAmount": "COPIA IMPORTO",
         "common.copyWallet": "COPIA WALLET",
         "common.enterAmount": "Inserisci importo",
+        "common.loading": "Caricamento...",
 
         // Navigation
         "nav.store": "Negozio",
@@ -1577,6 +1580,7 @@ const translations = {
         "common.copyAmount": "BEDRAG KOPIËREN",
         "common.copyWallet": "PORTEMONNEE KOPIËREN",
         "common.enterAmount": "Voer bedrag in",
+        "common.loading": "Laden...",
 
         // Navigation
         "nav.store": "Winkel",
@@ -1963,6 +1967,7 @@ const translations = {
         "common.copyAmount": "SKOPIUJ KWOTĘ",
         "common.copyWallet": "SKOPIUJ PORTFEL",
         "common.enterAmount": "Wprowadź kwotę",
+        "common.loading": "Ładowanie...",
 
         // Navigation
         "nav.store": "Sklep",
@@ -2317,6 +2322,7 @@ const translations = {
         "common.copyAmount": "COPIER LE MONTANT",
         "common.copyWallet": "COPIER LE PORTEFEUILLE",
         "common.enterAmount": "Entrez le montant",
+        "common.loading": "Chargement...",
 
         // Navigation
         "nav.store": "Boutique",
@@ -2680,6 +2686,7 @@ const translations = {
         "common.copyAmount": "COPIAR MONTO",
         "common.copyWallet": "COPIAR BILLETERA",
         "common.enterAmount": "Ingresa el monto",
+        "common.loading": "Cargando...",
 
         // Navigation
         "nav.store": "Tienda",
@@ -3068,6 +3075,7 @@ const translations = {
         "common.copyAmount": "SALIN JUMLAH",
         "common.copyWallet": "SALIN DOMpet",
         "common.enterAmount": "Masukkan jumlah",
+        "common.loading": "Memuat...",
 
         // Navigation
         "nav.store": "Toko",
@@ -3416,6 +3424,7 @@ const translations = {
         "common.copyAmount": "TUTARI KOPYALA",
         "common.copyWallet": "CÜZDANI KOPYALA",
         "common.enterAmount": "Tutarı girin",
+        "common.loading": "Yükleniyor...",
 
         // Navigation
         "nav.store": "Mağaza",
