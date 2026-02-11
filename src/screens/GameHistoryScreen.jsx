@@ -107,7 +107,7 @@ export default function GameHistoryScreen({ onBack, roomNumber }) {
       <div className="transaction__container container">
         <div className="transaction__title-wrap" style={{ textAlign: 'center' }}>
           <h1 className="transaction__title title">{t('winHistory.title')}</h1>
-          <p className="transaction__title-period" style={{ marginTop: '4px', fontSize: '0.85em', opacity: 0.9 }}>{t('winHistory.period')}</p>
+          <p className="transaction__title-period" style={{ marginTop: '4px', opacity: 0.9, marginBottom: '20px' }}>{t('winHistory.period')}</p>
         </div>
         
         <a href="#" onClick={(e) => { e.preventDefault(); onBack(roomNumber); }} className="spin__back">

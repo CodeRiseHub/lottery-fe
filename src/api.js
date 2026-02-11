@@ -325,7 +325,7 @@ export async function fetchDepositMethods() {
  * Call when user selects a payment method on Payment Options screen.
  * @param {number} pid - Deposit method PID from deposit-methods
  * @param {number} usdAmount - USD as decimal, e.g. 3.25
- * @returns {Promise<{ address: string, amountCoins: string, name: string, network: string, psId: number }>}
+ * @returns {Promise<{ address: string, amountCoins: string, name: string, network: string, psId: number, minAmount?: number }>}
  */
 export async function requestDepositAddress(pid, usdAmount) {
   return authFetch("/api/payments/deposit-address", {

@@ -138,7 +138,7 @@ export default function TransactionHistoryScreen({ onBack }) {
       <div className="transaction__container container">
         <div className="transaction__title-wrap" style={{ textAlign: 'center' }}>
           <h1 className="transaction__title title">{t('transactionHistory.title')}</h1>
-          <p className="transaction__title-period" style={{ marginTop: '4px', fontSize: '0.85em', opacity: 0.9 }}>{t('transactionHistory.period')}</p>
+          <p className="transaction__title-period" style={{ marginTop: '4px', opacity: 0.9, marginBottom: '20px' }}>{t('transactionHistory.period')}</p>
         </div>
 
         <div className="transaction__table">

@@ -80,7 +80,7 @@ export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ti
           walletAddress: result.address ?? '',
           usdAmount,
           ticketsAmount,
-          minDeposit: minUsd
+          minDeposit: result.minAmount != null ? result.minAmount : minUsd
         })
       }
     } catch (e) {
