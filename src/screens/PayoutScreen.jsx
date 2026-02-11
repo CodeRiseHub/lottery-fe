@@ -1,13 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { t } from '../i18n'
-
-// Crypto payout options (pid, name, minUsd). Matches reference: TRX, BNB, TON, Litecoin.
-const PAYOUT_CRYPTO_OPTIONS = [
-  { pid: 90, name: 'TRX', minUsd: '0.02' },
-  { pid: 130, name: 'BNB', minUsd: '0.02' },
-  { pid: 235, name: 'TON', minUsd: '0.02' },
-  { pid: 30, name: 'Litecoin', minUsd: '0.05' }
-]
+import { fetchWithdrawalMethods } from '../api'
 
 const cryptoIconModules = import.meta.glob('../assets/crypto_new/*.png', { eager: true, query: '?url', import: 'default' })
 const cryptoIconMap = {}
@@ -21,6 +14,32 @@ function getCryptoIconUrl(pid) {
 }
 
 export default function PayoutScreen({ onBack, onNavigate }) {
+  const [methods, setMethods] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchWithdrawalMethods()
+      .then((data) => {
+        if (cancelled) return
+        const list = Array.isArray(data?.methods) ? data.methods : []
+        setMethods(list.map((m) => ({
+          pid: m.pid,
+          name: m.name,
+          minUsd: m.minWithdrawal != null ? String(m.minWithdrawal) : '0.10',
+          wayId: m.wayId,
+          network: m.network
+        })))
+      })
+      .catch(() => {
+        if (!cancelled) setMethods([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
+
   useEffect(() => {
     const footer = document.querySelector('.footer')
     if (!footer) return
@@ -55,7 +74,12 @@ export default function PayoutScreen({ onBack, onNavigate }) {
 
         <div className="upgrade__currencies">
           <div className="upgrade__list">
-            {PAYOUT_CRYPTO_OPTIONS.map((option) => (
+            {loading ? (
+              <p className="upgrade__label" style={{ textAlign: 'center', padding: '1rem' }}>{t('common.loading')}</p>
+            ) : methods.length === 0 ? (
+              <p className="upgrade__label" style={{ textAlign: 'center', padding: '1rem' }}>{t('payout.noMethods')}</p>
+            ) : (
+            methods.map((option) => (
               <button
                 key={option.pid}
                 type="button"
@@ -78,7 +102,8 @@ export default function PayoutScreen({ onBack, onNavigate }) {
                   <p className="upgrade__network">{t('payout.minUsd', { amount: option.minUsd })}</p>
                 </div>
               </button>
-            ))}
+            ))
+            )}
           </div>
         </div>
       </div>

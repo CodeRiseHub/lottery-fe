@@ -321,6 +321,15 @@ export async function fetchDepositMethods() {
 }
 
 /**
+ * Fetches crypto withdrawal methods from DB (synced every 30 min by backend cron).
+ * Call when Payout screen opens.
+ * @returns {Promise<{ methods: Array<{ pid: number, name: string, network: string, wayId: number, minWithdrawal: number }> }>}
+ */
+export async function fetchWithdrawalMethods() {
+  return authFetch("/api/payments/withdrawal-methods", { method: "GET" });
+}
+
+/**
  * Requests a crypto deposit address from the API (no payment record is created).
  * Call when user selects a payment method on Payment Options screen.
  * @param {number} pid - Deposit method PID from deposit-methods

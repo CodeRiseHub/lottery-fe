@@ -208,6 +208,7 @@ const translations = {
         "payout.status.completed": "Completed",
         "payout.status.cancelled": "Cancelled",
         "payout.minUsd": "Min. {amount} USD",
+        "payout.noMethods": "No payout methods available",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Withdraw",
