@@ -8,13 +8,18 @@ const MAX_TICKETS = 5_000_000
 const WALLET_MAX_LENGTH = 100
 const TICKETS_TO_USD = 1000
 
+const CRYPTO_DECIMALS = 10
+
 function formatCryptoReceive(ticketsNum, rateUsd, totalFeeUsd) {
   if (rateUsd == null || rateUsd <= 0 || totalFeeUsd == null) return null
   const ticketsToUsd = ticketsNum / TICKETS_TO_USD
   const ticketsToUsdMinusFee = ticketsToUsd - Number(totalFeeUsd)
   if (ticketsToUsdMinusFee <= 0) return '0'
   const cryptoAmount = ticketsToUsdMinusFee / Number(rateUsd)
-  const s = cryptoAmount.toFixed(10)
+  // Truncate to 10 decimal places (no rounding) so displayed amount is never more than actual
+  const factor = 10 ** CRYPTO_DECIMALS
+  const truncated = Math.floor(cryptoAmount * factor) / factor
+  const s = truncated.toFixed(CRYPTO_DECIMALS)
   const trimmed = s.replace(/\.?0+$/, '') || '0'
   return trimmed
 }
@@ -219,10 +224,12 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   const youWillReceiveDisplay =
     cryptoReceive != null ? cryptoReceive : (amountTickets === '' ? t('withdraw.placeholderReceive') : '0.0000')
 
+  const titleDisplay = selectedOption?.name ?? t('withdraw.title')
+
   return (
     <section className="payout payout-withdraw">
       <div className="payout__container container">
-        <h1 className="payout__title title">{t('withdraw.title')}</h1>
+        <h1 className="payout__title title">{titleDisplay}</h1>
 
         <form action="" method="POST" onSubmit={handleSubmit}>
           <div className="payout__form">
@@ -262,7 +269,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
             </div>
 
             <div className="payout__field payout__field--result">
-              <p className="payout__label">{t('withdraw.youWillReceive')}</p>
+              <p className="payout__label">{t('withdraw.youWillReceive', { crypto: selectedOption?.name ?? '' })}</p>
               <p className="payout__result" id="calc">
                 {youWillReceiveDisplay}
               </p>
