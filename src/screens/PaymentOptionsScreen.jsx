@@ -79,7 +79,8 @@ export default function PaymentOptionsScreen({ onBack, onNavigate, usdAmount, ti
           amountToSend: result.amountCoins ?? '',
           walletAddress: result.address ?? '',
           usdAmount,
-          ticketsAmount
+          ticketsAmount,
+          minDeposit: minUsd
         })
       }
     } catch (e) {

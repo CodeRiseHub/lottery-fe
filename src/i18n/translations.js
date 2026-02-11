@@ -79,7 +79,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPY WALLET",
         "paymentConfirmation.copied": "COPIED!",
         "paymentConfirmation.ticketsCredited": "*Tickets will be credited automatically as soon as the funds reach the recipient's address.",
-        "paymentConfirmation.note": "Please note, you can send any amount, either more or less than the specified one, and tickets will still be credited. However, keep in mind that the minimum deposit is $2 - amounts below this will not be processed!",
+        "paymentConfirmation.note": "Please note, you can send any amount, either more or less than the specified one, and tickets will still be credited. However, keep in mind that the minimum deposit is {amount} - amounts below this will not be processed!",
         "paymentConfirmation.back": "Back",
 
         // Daily Bonus Screen
@@ -158,7 +158,8 @@ const translations = {
         "tasks.success.claimed": "Task claimed successfully",
 
         // Transaction History
-        "transactionHistory.title": "Transaction history (30 days)",
+        "transactionHistory.title": "Transaction history",
+        "transactionHistory.period": "30 days",
         "transactionHistory.amount": "Amount",
         "transactionHistory.date": "Date",
         "transactionHistory.type": "Type: {type}",
@@ -188,7 +189,8 @@ const translations = {
         "giftPayout.gift.diamond": "Diamond",
 
         // Win History
-        "winHistory.title": "Win history (30 days)",
+        "winHistory.title": "Win history",
+        "winHistory.period": "30 days",
         "winHistory.amount": "AMOUNT",
         "winHistory.date": "DATE",
         "winHistory.loading": "Loading...",
@@ -459,7 +461,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "СКОПИРОВАТЬ",
         "paymentConfirmation.copied": "СКОПИРОВАНО!",
         "paymentConfirmation.ticketsCredited": "*Билеты будут зачислены автоматически после поступления средств на адрес получателя.",
-        "paymentConfirmation.note": "Вы можете отправить любую сумму, больше или меньше указанной — билеты всё равно будут зачислены. Учтите: минимальный платёж — $2, суммы меньше не обрабатываются!",
+        "paymentConfirmation.note": "Вы можете отправить любую сумму, больше или меньше указанной — билеты всё равно будут зачислены. Учтите: минимальный платёж — {amount}, суммы меньше не обрабатываются!",
         "paymentConfirmation.back": "Назад",
         "store.minimum": "Минимум: {min} USD",
         "store.maximum": "Максимум: {max} USD",
@@ -557,7 +559,8 @@ const translations = {
         "tasks.success.claimed": "Задача успешно получена",
 
         // Transaction History
-        "transactionHistory.title": "История транзакций (30 дней)",
+        "transactionHistory.title": "История транзакций",
+        "transactionHistory.period": "30 дней",
         "transactionHistory.amount": "Сумма",
         "transactionHistory.date": "Дата",
         "transactionHistory.type": "Тип: {type}",
@@ -587,7 +590,8 @@ const translations = {
         "giftPayout.gift.diamond": "Алмаз",
 
         // Win History
-        "winHistory.title": "История выигрышей (30 дней)",
+        "winHistory.title": "История выигрышей",
+        "winHistory.period": "30 дней",
         "winHistory.amount": "СУММА",
         "winHistory.date": "ДАТА",
         "winHistory.loading": "Загрузка...",
@@ -841,7 +845,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPIEREN",
         "paymentConfirmation.copied": "KOPIERT!",
         "paymentConfirmation.ticketsCredited": "*Tickets werden automatisch gutgeschrieben, sobald die Mittel die Empfängeradresse erreichen.",
-        "paymentConfirmation.note": "Sie können jeden Betrag senden, mehr oder weniger als angegeben – die Tickets werden trotzdem gutgeschrieben. Beachten Sie: Mindesteinzahlung ist 2 $ – geringere Beträge werden nicht bearbeitet!",
+        "paymentConfirmation.note": "Sie können jeden Betrag senden, mehr oder weniger als angegeben – die Tickets werden trotzdem gutgeschrieben. Beachten Sie: Mindesteinzahlung ist {amount} – geringere Beträge werden nicht bearbeitet!",
         "paymentConfirmation.back": "Zurück",
         "store.minimum": "Minimum: {min} USD",
         "store.maximum": "Maximum: {max} USD",
@@ -939,7 +943,8 @@ const translations = {
         "tasks.success.claimed": "Aufgabe erfolgreich eingelöst",
 
         // Transaction History
-        "transactionHistory.title": "Transaktionsverlauf (30 Tage)",
+        "transactionHistory.title": "Transaktionsverlauf",
+        "transactionHistory.period": "30 Tage",
         "transactionHistory.amount": "Betrag",
         "transactionHistory.date": "Datum",
         "transactionHistory.type": "Typ: {type}",
@@ -969,7 +974,8 @@ const translations = {
         "giftPayout.gift.diamond": "Diamant",
 
         // Win History
-        "winHistory.title": "Gewinnverlauf (30 Tage)",
+        "winHistory.title": "Gewinnverlauf",
+        "winHistory.period": "30 Tage",
         "winHistory.amount": "BETRAG",
         "winHistory.date": "DATUM",
         "winHistory.loading": "Wird geladen...",
@@ -1243,7 +1249,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPIA",
         "paymentConfirmation.copied": "COPIATO!",
         "paymentConfirmation.ticketsCredited": "*I biglietti saranno accreditati automaticamente non appena i fondi raggiungeranno l'indirizzo del destinatario.",
-        "paymentConfirmation.note": "Puoi inviare qualsiasi importo, superiore o inferiore a quello indicato, e i biglietti saranno comunque accreditati. Tieni presente che il deposito minimo è 2 $ – gli importi inferiori non verranno elaborati!",
+        "paymentConfirmation.note": "Puoi inviare qualsiasi importo, superiore o inferiore a quello indicato, e i biglietti saranno comunque accreditati. Tieni presente che il deposito minimo è {amount} – gli importi inferiori non verranno elaborati!",
         "paymentConfirmation.back": "Indietro",
         "store.minimum": "Minimo: {min} USD",
         "store.maximum": "Massimo: {max} USD",
@@ -1333,7 +1339,8 @@ const translations = {
         "tasks.success.claimed": "Attività ottenuta con successo",
 
         // Transaction History
-        "transactionHistory.title": "Cronologia transazioni (30 giorni)",
+        "transactionHistory.title": "Cronologia transazioni",
+        "transactionHistory.period": "30 giorni",
         "transactionHistory.amount": "Importo",
         "transactionHistory.date": "Data",
         "transactionHistory.type": "Tipo: {type}",
@@ -1363,7 +1370,8 @@ const translations = {
         "giftPayout.gift.diamond": "Diamante",
 
         // Win History
-        "winHistory.title": "Cronologia vincite (30 giorni)",
+        "winHistory.title": "Cronologia vincite",
+        "winHistory.period": "30 giorni",
         "winHistory.amount": "IMPORTO",
         "winHistory.date": "DATA",
         "winHistory.loading": "Caricamento...",
@@ -1637,7 +1645,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPIËREN",
         "paymentConfirmation.copied": "GEKOPIEERD!",
         "paymentConfirmation.ticketsCredited": "*Tickets worden automatisch bijgeschreven zodra het geld het adres van de ontvanger bereikt.",
-        "paymentConfirmation.note": "U kunt elk bedrag sturen, meer of minder dan aangegeven – de tickets worden alsnog bijgeschreven. Houd er rekening mee dat de minimumstorting $2 is – lagere bedragen worden niet verwerkt!",
+        "paymentConfirmation.note": "U kunt elk bedrag sturen, meer of minder dan aangegeven – de tickets worden alsnog bijgeschreven. Houd er rekening mee dat de minimumstorting {amount} is – lagere bedragen worden niet verwerkt!",
         "paymentConfirmation.back": "Terug",
         "store.minimum": "Minimum: {min} USD",
         "store.maximum": "Maximum: {max} USD",
@@ -1727,7 +1735,8 @@ const translations = {
         "tasks.success.claimed": "Taak succesvol opgehaald",
 
         // Transaction History
-        "transactionHistory.title": "Transactiegeschiedenis (30 dagen)",
+        "transactionHistory.title": "Transactiegeschiedenis",
+        "transactionHistory.period": "30 dagen",
         "transactionHistory.amount": "Bedrag",
         "transactionHistory.date": "Datum",
         "transactionHistory.type": "Type: {type}",
@@ -1757,7 +1766,8 @@ const translations = {
         "giftPayout.gift.diamond": "Diamant",
 
         // Win History
-        "winHistory.title": "Wingeschiedenis (30 dagen)",
+        "winHistory.title": "Wingeschiedenis",
+        "winHistory.period": "30 dagen",
         "winHistory.amount": "BEDRAG",
         "winHistory.date": "DATUM",
         "winHistory.loading": "Laden...",
@@ -2027,7 +2037,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPIUJ",
         "paymentConfirmation.copied": "SKOPIOWANO!",
         "paymentConfirmation.ticketsCredited": "*Bilety zostaną naliczone automatycznie po otrzymaniu środków na adres odbiorcy.",
-        "paymentConfirmation.note": "Możesz wysłać dowolną kwotę, większą lub mniejszą niż podana – bilety i tak zostaną naliczone. Pamiętaj: minimalna wpłata to 2 $ – niższe kwoty nie będą przetwarzane!",
+        "paymentConfirmation.note": "Możesz wysłać dowolną kwotę, większą lub mniejszą niż podana – bilety i tak zostaną naliczone. Pamiętaj: minimalna wpłata to {amount} – niższe kwoty nie będą przetwarzane!",
         "paymentConfirmation.back": "Wstecz",
         "store.minimum": "Minimum: {min} USD",
         "store.maximum": "Maksimum: {max} USD",
@@ -2116,7 +2126,8 @@ const translations = {
         "tasks.success.claimed": "Zadanie pomyślnie odebrane",
 
         // Transaction History
-        "transactionHistory.title": "Historia transakcji (30 dni)",
+        "transactionHistory.title": "Historia transakcji",
+        "transactionHistory.period": "30 dni",
         "transactionHistory.amount": "Kwota",
         "transactionHistory.date": "Data",
         "transactionHistory.type": "Typ: {type}",
@@ -2146,7 +2157,8 @@ const translations = {
         "giftPayout.gift.diamond": "Diament",
 
         // Win History
-        "winHistory.title": "Historia wygranych (30 dni)",
+        "winHistory.title": "Historia wygranych",
+        "winHistory.period": "30 dni",
         "winHistory.amount": "KWOTA",
         "winHistory.date": "DATA",
         "winHistory.loading": "Ładowanie...",
@@ -2385,7 +2397,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPIER",
         "paymentConfirmation.copied": "COPIÉ !",
         "paymentConfirmation.ticketsCredited": "*Les tickets seront crédités automatiquement dès que les fonds atteindront l'adresse du destinataire.",
-        "paymentConfirmation.note": "Vous pouvez envoyer n'importe quel montant, supérieur ou inférieur à celui indiqué, les tickets seront quand même crédités. Attention : le dépôt minimum est de 2 $ – les montants inférieurs ne seront pas traités !",
+        "paymentConfirmation.note": "Vous pouvez envoyer n'importe quel montant, supérieur ou inférieur à celui indiqué, les tickets seront quand même crédités. Attention : le dépôt minimum est de {amount} – les montants inférieurs ne seront pas traités !",
         "paymentConfirmation.back": "Retour",
         "store.minimum": "Minimum: {min} USD",
         "store.maximum": "Maximum: {max} USD",
@@ -2482,7 +2494,8 @@ const translations = {
         "tasks.success.claimed": "Tâche réclamée avec succès",
 
         // Transaction History
-        "transactionHistory.title": "Historique des transactions (30 jours)",
+        "transactionHistory.title": "Historique des transactions",
+        "transactionHistory.period": "30 jours",
         "transactionHistory.amount": "Montant",
         "transactionHistory.date": "Date",
         "transactionHistory.type": "Type: {type}",
@@ -2512,7 +2525,8 @@ const translations = {
         "giftPayout.gift.diamond": "Diamant",
 
         // Win History
-        "winHistory.title": "Historique des gains (30 jours)",
+        "winHistory.title": "Historique des gains",
+        "winHistory.period": "30 jours",
         "winHistory.amount": "MONTANT",
         "winHistory.date": "DATE",
         "winHistory.loading": "Chargement...",
@@ -2752,7 +2766,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "COPIAR",
         "paymentConfirmation.copied": "¡COPIADO!",
         "paymentConfirmation.ticketsCredited": "*Los tickets se acreditarán automáticamente cuando los fondos lleguen a la dirección del destinatario.",
-        "paymentConfirmation.note": "Puede enviar cualquier cantidad, mayor o menor que la indicada, y los tickets se acreditarán igualmente. Tenga en cuenta que el depósito mínimo es 2 $: ¡las cantidades inferiores no se procesarán!",
+        "paymentConfirmation.note": "Puede enviar cualquier cantidad, mayor o menor que la indicada, y los tickets se acreditarán igualmente. Tenga en cuenta que el depósito mínimo es {amount}: ¡las cantidades inferiores no se procesarán!",
         "paymentConfirmation.back": "Atrás",
         "store.minimum": "Mínimo: {min} USD",
         "store.maximum": "Máximo: {max} USD",
@@ -2842,7 +2856,8 @@ const translations = {
         "tasks.success.claimed": "Tarea reclamada exitosamente",
 
         // Transaction History
-        "transactionHistory.title": "Historial de transacciones (30 días)",
+        "transactionHistory.title": "Historial de transacciones",
+        "transactionHistory.period": "30 días",
         "transactionHistory.amount": "Monto",
         "transactionHistory.date": "Fecha",
         "transactionHistory.type": "Tipo: {type}",
@@ -2872,7 +2887,8 @@ const translations = {
         "giftPayout.gift.diamond": "Diamante",
 
         // Win History
-        "winHistory.title": "Historial de ganancias (30 días)",
+        "winHistory.title": "Historial de ganancias",
+        "winHistory.period": "30 días",
         "winHistory.amount": "MONTO",
         "winHistory.date": "FECHA",
         "winHistory.loading": "Cargando...",
@@ -3144,7 +3160,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "SALIN",
         "paymentConfirmation.copied": "TERSALIN!",
         "paymentConfirmation.ticketsCredited": "*Tiket akan dikreditkan secara otomatis setelah dana sampai ke alamat penerima.",
-        "paymentConfirmation.note": "Anda dapat mengirim jumlah berapa pun, lebih atau kurang dari yang ditentukan, dan tiket tetap akan dikreditkan. Perlu diingat: setoran minimum adalah $2 – jumlah di bawah ini tidak akan diproses!",
+        "paymentConfirmation.note": "Anda dapat mengirim jumlah berapa pun, lebih atau kurang dari yang ditentukan, dan tiket tetap akan dikreditkan. Perlu diingat: setoran minimum adalah {amount} – jumlah di bawah ini tidak akan diproses!",
         "paymentConfirmation.back": "Kembali",
         "store.minimum": "Minimum: {min} USD",
         "store.maximum": "Maksimum: {max} USD",
@@ -3226,7 +3242,8 @@ const translations = {
         "tasks.success.claimed": "Tugas berhasil diklaim",
 
         // Transaction History
-        "transactionHistory.title": "Riwayat transaksi (30 hari)",
+        "transactionHistory.title": "Riwayat transaksi",
+        "transactionHistory.period": "30 hari",
         "transactionHistory.amount": "Jumlah",
         "transactionHistory.date": "Tanggal",
         "transactionHistory.type": "Jenis: {type}",
@@ -3256,7 +3273,8 @@ const translations = {
         "giftPayout.gift.diamond": "Berlian",
 
         // Win History
-        "winHistory.title": "Riwayat kemenangan (30 hari)",
+        "winHistory.title": "Riwayat kemenangan",
+        "winHistory.period": "30 hari",
         "winHistory.amount": "JUMLAH",
         "winHistory.date": "TANGGAL",
         "winHistory.loading": "Memuat...",
@@ -3496,7 +3514,7 @@ const translations = {
         "paymentConfirmation.copyWallet": "KOPYALA",
         "paymentConfirmation.copied": "KOPYALANDI!",
         "paymentConfirmation.ticketsCredited": "*Fonlar alıcı adresine ulaştığında biletler otomatik olarak tanınacaktır.",
-        "paymentConfirmation.note": "Belirtilenden fazla veya az herhangi bir tutar gönderebilirsiniz, biletler yine de tanınacaktır. Unutmayın: minimum yatırım 2 $'dır – bu tutarın altındaki miktarlar işlenmeyecektir!",
+        "paymentConfirmation.note": "Belirtilenden fazla veya az herhangi bir tutar gönderebilirsiniz, biletler yine de tanınacaktır. Unutmayın: minimum yatırım {amount}'dır – bu tutarın altındaki miktarlar işlenmeyecektir!",
         "paymentConfirmation.back": "Geri",
         "store.minimum": "Minimum: {min} USD",
         "store.maximum": "Maksimum: {max} USD",
@@ -3591,7 +3609,8 @@ const translations = {
         "tasks.success.claimed": "Görev başarıyla alındı",
 
         // Transaction History
-        "transactionHistory.title": "İşlem geçmişi (30 gün)",
+        "transactionHistory.title": "İşlem geçmişi",
+        "transactionHistory.period": "30 gün",
         "transactionHistory.amount": "Miktar",
         "transactionHistory.date": "Tarih",
         "transactionHistory.type": "Tür: {type}",
@@ -3621,7 +3640,8 @@ const translations = {
         "giftPayout.gift.diamond": "Elmas",
 
         // Win History
-        "winHistory.title": "Kazanç geçmişi (30 gün)",
+        "winHistory.title": "Kazanç geçmişi",
+        "winHistory.period": "30 gün",
         "winHistory.amount": "TUTAR",
         "winHistory.date": "TARİH",
         "winHistory.loading": "Yükleniyor...",

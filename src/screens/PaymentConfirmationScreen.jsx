@@ -4,11 +4,14 @@ import backIcon from '../assets/images/back.png'
 
 const COPIED_DURATION_MS = 1000
 
+const FALLBACK_MIN_DEPOSIT = 2
+
 export default function PaymentConfirmationScreen({
   onBack,
   selectedOption,
   amountToSend,
-  walletAddress
+  walletAddress,
+  minDeposit
 }) {
   const [copyAmountState, setCopyAmountState] = useState('idle') // 'idle' | 'copied'
   const [copyWalletState, setCopyWalletState] = useState('idle')
@@ -83,7 +86,11 @@ export default function PaymentConfirmationScreen({
           <span>{t('paymentConfirmation.ticketsCredited')}</span>
         </p>
 
-        <p className="upgrade-pay__note">{t('paymentConfirmation.note')}</p>
+        <p className="upgrade-pay__note">
+          {t('paymentConfirmation.note', {
+            amount: minDeposit != null ? `$${Number(minDeposit).toFixed(2)}` : `$${FALLBACK_MIN_DEPOSIT.toFixed(2)}`
+          })}
+        </p>
       </div>
 
       <div className="upgrade__footer">

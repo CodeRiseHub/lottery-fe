@@ -351,6 +351,7 @@ function App() {
             selectedOption={screenProps.selectedOption}
             amountToSend={screenProps.amountToSend}
             walletAddress={screenProps.walletAddress}
+            minDeposit={screenProps.minDeposit}
           />
         )}
         {currentScreen === 'tasks' && (
