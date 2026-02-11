@@ -1,15 +1,29 @@
 import { useState, useEffect } from 'react'
-import { fetchPayoutHistory } from '../api'
+import { fetchPayoutHistory, fetchWithdrawalMethodDetails } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
-const NETWORK_FEE_USD = '0.01'
-const MIN_WITHDRAW_USD = '0.05'
+const MIN_TICKETS = 100
+const MAX_TICKETS = 5_000_000
+const WALLET_MAX_LENGTH = 100
+const TICKETS_TO_USD = 1000
 
-export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate, userData }) {
+function formatCryptoReceive(ticketsNum, rateUsd, totalFeeUsd) {
+  if (rateUsd == null || rateUsd <= 0 || totalFeeUsd == null) return null
+  const ticketsToUsd = ticketsNum / TICKETS_TO_USD
+  const ticketsToUsdMinusFee = ticketsToUsd - Number(totalFeeUsd)
+  if (ticketsToUsdMinusFee <= 0) return '0'
+  const cryptoAmount = ticketsToUsdMinusFee / Number(rateUsd)
+  const s = cryptoAmount.toFixed(10)
+  const trimmed = s.replace(/\.?0+$/, '') || '0'
+  return trimmed
+}
+
+export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate, userData, selectedOption }) {
   const [wallet, setWallet] = useState('')
   const [amountTickets, setAmountTickets] = useState('')
-  // Use balance from parent (userData.balanceA) to avoid /current on every open; still validated on submit
+  const [methodDetails, setMethodDetails] = useState(null)
+  const [loadingMethod, setLoadingMethod] = useState(false)
   const balanceTickets = userData?.balanceA != null ? userData.balanceA : null
   const [walletError, setWalletError] = useState('')
   const [amountError, setAmountError] = useState('')
@@ -18,21 +32,34 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   const [payoutHistory, setPayoutHistory] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(true)
 
+  const wayId = selectedOption?.wayId
+
+  useEffect(() => {
+    if (wayId == null) return
+    let cancelled = false
+    setLoadingMethod(true)
+    fetchWithdrawalMethodDetails(wayId)
+      .then((data) => {
+        if (cancelled) return
+        setMethodDetails(data || null)
+        if (data) setAmountTickets('100')
+      })
+      .catch(() => {
+        if (!cancelled) setMethodDetails(null)
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMethod(false)
+      })
+    return () => { cancelled = true }
+  }, [wayId])
+
   useEffect(() => {
     const footer = document.querySelector('.footer')
     if (!footer) return
-
-    const handleTouchMove = (event) => {
-      event.preventDefault()
-    }
-
-    const handleTouchStart = (event) => {
-      event.stopPropagation()
-    }
-
+    const handleTouchMove = (event) => event.preventDefault()
+    const handleTouchStart = (event) => event.stopPropagation()
     footer.addEventListener('touchmove', handleTouchMove, { passive: false })
     footer.addEventListener('touchstart', handleTouchStart, { passive: false })
-
     return () => {
       footer.removeEventListener('touchmove', handleTouchMove)
       footer.removeEventListener('touchstart', handleTouchStart)
@@ -75,11 +102,16 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   }, [])
 
   const validateWallet = (value) => {
-    if (!value || !String(value).trim()) {
+    const s = value != null ? String(value).trim() : ''
+    if (!s) {
       setWalletError(t('withdraw.error.walletRequired'))
-    } else {
-      setWalletError('')
+      return
     }
+    if (s.length > WALLET_MAX_LENGTH) {
+      setWalletError(t('withdraw.error.walletMaxLength', { max: WALLET_MAX_LENGTH }))
+      return
+    }
+    setWalletError('')
   }
 
   const validateAmount = (value) => {
@@ -88,6 +120,14 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     const num = parseFloat(value)
     if (Number.isNaN(num) || num <= 0) {
       setAmountError(t('withdraw.error.invalidAmount'))
+      return
+    }
+    if (num < MIN_TICKETS) {
+      setAmountError(t('withdraw.error.minTickets', { min: MIN_TICKETS }))
+      return
+    }
+    if (num > MAX_TICKETS) {
+      setAmountError(t('withdraw.error.maxTickets', { max: MAX_TICKETS }))
       return
     }
     const ticketsBigint = Math.round(num * 1_000_000)
@@ -99,6 +139,10 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   const handleWalletChange = (e) => {
     setWallet(e.target.value)
     if (walletError) validateWallet(e.target.value)
+  }
+
+  const handleWalletBlur = () => {
+    validateWallet(wallet)
   }
 
   const handleAmountChange = (e) => {
@@ -117,15 +161,27 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     setAmountError('')
     setSubmitError('')
 
-    validateWallet(wallet)
-    if (!wallet || !String(wallet).trim()) {
+    const walletTrimmed = wallet != null ? String(wallet).trim() : ''
+    if (!walletTrimmed) {
       setWalletError(t('withdraw.error.walletRequired'))
+      return
+    }
+    if (walletTrimmed.length > WALLET_MAX_LENGTH) {
+      setWalletError(t('withdraw.error.walletMaxLength', { max: WALLET_MAX_LENGTH }))
       return
     }
 
     const num = parseFloat(amountTickets)
     if (Number.isNaN(num) || num <= 0) {
       setAmountError(t('withdraw.error.invalidAmount'))
+      return
+    }
+    if (num < MIN_TICKETS) {
+      setAmountError(t('withdraw.error.minTickets', { min: MIN_TICKETS }))
+      return
+    }
+    if (num > MAX_TICKETS) {
+      setAmountError(t('withdraw.error.maxTickets', { max: MAX_TICKETS }))
       return
     }
     const ticketsBigint = Math.round(num * 1_000_000)
@@ -136,8 +192,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
 
     setIsSubmitting(true)
     try {
-      // TODO: call crypto withdraw API when backend supports it (wallet, amount, selectedOption)
-      // await createCryptoPayout({ wallet: wallet.trim(), total: ticketsBigint, ... })
+      // TODO: call crypto withdraw API when backend supports it (wallet, amount, wayId)
       if (onBalanceUpdate && balanceTickets != null) {
         const after = (balanceTickets - ticketsBigint) / 1_000_000
         onBalanceUpdate(after.toFixed(2))
@@ -152,7 +207,17 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     }
   }
 
-  const youWillReceive = t('withdraw.minAmountUsd', { amount: MIN_WITHDRAW_USD })
+  const ticketsNum = amountTickets === '' ? NaN : parseFloat(amountTickets)
+  const hasValidTickets = !Number.isNaN(ticketsNum) && ticketsNum > 0
+  const cryptoReceive =
+    methodDetails && hasValidTickets
+      ? formatCryptoReceive(ticketsNum, methodDetails.rateUsd, methodDetails.totalFeeUsd)
+      : null
+  const networkFeeAmount =
+    methodDetails?.totalFeeUsd != null ? String(methodDetails.totalFeeUsd) : (loadingMethod ? '...' : '0.01')
+
+  const youWillReceiveDisplay =
+    cryptoReceive != null ? cryptoReceive : (amountTickets === '' ? t('withdraw.placeholderReceive') : '0.0000')
 
   return (
     <section className="payout payout-withdraw">
@@ -171,6 +236,8 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                 name="purse"
                 value={wallet}
                 onChange={handleWalletChange}
+                onBlur={handleWalletBlur}
+                maxLength={WALLET_MAX_LENGTH}
               />
               {walletError && (
                 <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{walletError}</p>
@@ -183,7 +250,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                 type="text"
                 className="payout__input"
                 name="amount"
-                placeholder={t('withdraw.placeholderAmount')}
+                placeholder={amountTickets === '' ? t('withdraw.placeholderAmount') : undefined}
                 value={amountTickets}
                 onChange={handleAmountChange}
                 onBlur={handleAmountBlur}
@@ -196,7 +263,9 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
 
             <div className="payout__field payout__field--result">
               <p className="payout__label">{t('withdraw.youWillReceive')}</p>
-              <p className="payout__result" id="calc">{youWillReceive}</p>
+              <p className="payout__result" id="calc">
+                {youWillReceiveDisplay}
+              </p>
             </div>
 
             {submitError && (
@@ -210,7 +279,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
           </div>
         </form>
 
-        <p className="payout__note">{t('withdraw.networkFee', { amount: NETWORK_FEE_USD })}</p>
+        <p className="payout__note">{t('withdraw.networkFee', { amount: networkFeeAmount })}</p>
         <p className="payout__text">{t('withdraw.networkFeeNote')}</p>
 
         <div className="payout__history">

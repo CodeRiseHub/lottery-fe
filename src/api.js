@@ -330,6 +330,17 @@ export async function fetchWithdrawalMethods() {
 }
 
 /**
+ * Fetches withdrawal method details (rateUsd, totalFeeUsd) from external API for the given way_id.
+ * Call when Payout Confirmation screen opens to show network fee and compute "You will receive".
+ * @param {number} wayId - way_id of the selected payout method
+ * @returns {Promise<{ wayId: number, name: string, ticker: string, rateUsd: number, totalFeeUsd: number }|null>}
+ */
+export async function fetchWithdrawalMethodDetails(wayId) {
+  const data = await authFetch(`/api/payments/withdrawal-method-details?wayId=${encodeURIComponent(wayId)}`, { method: "GET" });
+  return data || null;
+}
+
+/**
  * Requests a crypto deposit address from the API (no payment record is created).
  * Call when user selects a payment method on Payment Options screen.
  * @param {number} pid - Deposit method PID from deposit-methods

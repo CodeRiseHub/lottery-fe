@@ -369,6 +369,7 @@ function App() {
             onBalanceUpdate={handleBalanceUpdate}
             onUserDataUpdate={setUserData}
             userData={userData}
+            selectedOption={screenProps.selectedOption}
           />
         )}
         {/* Gift Payout Confirmation: kept in codebase but routing removed (no longer used) */}
