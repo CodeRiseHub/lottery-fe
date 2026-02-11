@@ -16,6 +16,9 @@ const translations = {
         "common.enterAmount": "Enter amount",
         "common.loading": "Loading...",
 
+        // Auth
+        "auth.error.accessRestricted": "Application access restricted.",
+
         // Navigation
         "nav.store": "Store",
         "nav.earn": "Earn",
@@ -413,6 +416,9 @@ const translations = {
         "common.enterAmount": "Введите сумму",
         "common.loading": "Загрузка...",
 
+        // Auth
+        "auth.error.accessRestricted": "Доступ к приложению ограничен.",
+
         // Navigation
         "nav.store": "Магазин",
         "nav.earn": "Заработок",
@@ -791,6 +797,9 @@ const translations = {
         "common.copyWallet": "WALLET KOPIEREN",
         "common.enterAmount": "Betrag eingeben",
         "common.loading": "Laden...",
+
+        // Auth
+        "auth.error.accessRestricted": "Zugriff auf die Anwendung eingeschränkt.",
 
         // Navigation
         "nav.store": "Shop",
@@ -1191,6 +1200,9 @@ const translations = {
         "common.enterAmount": "Inserisci importo",
         "common.loading": "Caricamento...",
 
+        // Auth
+        "auth.error.accessRestricted": "Accesso all'applicazione limitato.",
+
         // Navigation
         "nav.store": "Negozio",
         "nav.earn": "Guadagna",
@@ -1582,6 +1594,9 @@ const translations = {
         "common.enterAmount": "Voer bedrag in",
         "common.loading": "Laden...",
 
+        // Auth
+        "auth.error.accessRestricted": "Toegang tot de applicatie beperkt.",
+
         // Navigation
         "nav.store": "Winkel",
         "nav.earn": "Verdienen",
@@ -1969,6 +1984,9 @@ const translations = {
         "common.enterAmount": "Wprowadź kwotę",
         "common.loading": "Ładowanie...",
 
+        // Auth
+        "auth.error.accessRestricted": "Dostęp do aplikacji ograniczony.",
+
         // Navigation
         "nav.store": "Sklep",
         "nav.earn": "Zarabiaj",
@@ -2323,6 +2341,9 @@ const translations = {
         "common.copyWallet": "COPIER LE PORTEFEUILLE",
         "common.enterAmount": "Entrez le montant",
         "common.loading": "Chargement...",
+
+        // Auth
+        "auth.error.accessRestricted": "Accès à l'application restreint.",
 
         // Navigation
         "nav.store": "Boutique",
@@ -2687,6 +2708,9 @@ const translations = {
         "common.copyWallet": "COPIAR BILLETERA",
         "common.enterAmount": "Ingresa el monto",
         "common.loading": "Cargando...",
+
+        // Auth
+        "auth.error.accessRestricted": "Acceso a la aplicación restringido.",
 
         // Navigation
         "nav.store": "Tienda",
@@ -3077,6 +3101,9 @@ const translations = {
         "common.enterAmount": "Masukkan jumlah",
         "common.loading": "Memuat...",
 
+        // Auth
+        "auth.error.accessRestricted": "Akses aplikasi dibatasi.",
+
         // Navigation
         "nav.store": "Toko",
         "nav.earn": "Dapatkan",
@@ -3425,6 +3452,9 @@ const translations = {
         "common.copyWallet": "CÜZDANI KOPYALA",
         "common.enterAmount": "Tutarı girin",
         "common.loading": "Yükleniyor...",
+
+        // Auth
+        "auth.error.accessRestricted": "Uygulama erişimi kısıtlandı.",
 
         // Navigation
         "nav.store": "Mağaza",
