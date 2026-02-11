@@ -368,6 +368,7 @@ function App() {
             onBack={() => handleNavigate('payout')}
             onBalanceUpdate={handleBalanceUpdate}
             onUserDataUpdate={setUserData}
+            userData={userData}
           />
         )}
         {/* Gift Payout Confirmation: kept in codebase but routing removed (no longer used) */}

@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
-import { fetchCurrentUser, fetchPayoutHistory } from '../api'
+import { fetchPayoutHistory } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
 const NETWORK_FEE_USD = '0.01'
 const MIN_WITHDRAW_USD = '0.05'
 
-export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate }) {
+export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate, onUserDataUpdate, userData }) {
   const [wallet, setWallet] = useState('')
   const [amountTickets, setAmountTickets] = useState('')
-  const [balanceTickets, setBalanceTickets] = useState(null) // user balance in tickets (bigint scale)
+  // Use balance from parent (userData.balanceA) to avoid /current on every open; still validated on submit
+  const balanceTickets = userData?.balanceA != null ? userData.balanceA : null
   const [walletError, setWalletError] = useState('')
   const [amountError, setAmountError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -36,20 +37,6 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
       footer.removeEventListener('touchmove', handleTouchMove)
       footer.removeEventListener('touchstart', handleTouchStart)
     }
-  }, [])
-
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const userData = await fetchCurrentUser()
-        if (userData != null && userData.balanceA != null) {
-          setBalanceTickets(userData.balanceA)
-        }
-      } catch (error) {
-        console.error('Failed to load user data:', error)
-      }
-    }
-    loadUserData()
   }, [])
 
   useEffect(() => {
