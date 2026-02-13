@@ -8,9 +8,11 @@ Object.keys(cryptoIconModules).forEach((path) => {
   const match = path.match(/(\d+)\.png$/)
   if (match) cryptoIconMap[match[1]] = cryptoIconModules[path]
 })
-function getCryptoIconUrl(pid) {
-  const url = cryptoIconMap[String(pid)]
-  return url != null ? url : `/assets/crypto_new/${pid}.png`
+// Icon filename is from API iconId (e.g. 30.png, 130.png), not pid (1.png, 2.png).
+function getCryptoIconUrl(iconId) {
+  const key = iconId != null ? String(iconId) : ''
+  const url = key ? cryptoIconMap[key] : null
+  return url != null ? url : `/assets/crypto_new/${key || '0'}.png`
 }
 
 export default function PayoutScreen({ onBack, onNavigate }) {
@@ -27,8 +29,8 @@ export default function PayoutScreen({ onBack, onNavigate }) {
           pid: m.pid,
           name: m.name,
           minUsd: m.minWithdrawal != null ? String(m.minWithdrawal) : '0.10',
-          wayId: m.wayId,
-          network: m.network
+          network: m.network,
+          iconId: m.iconId != null ? String(m.iconId) : ''
         })))
       })
       .catch(() => {
@@ -88,7 +90,7 @@ export default function PayoutScreen({ onBack, onNavigate }) {
                 onClick={() => handleSelectCrypto(option)}
               >
                 <img
-                  src={getCryptoIconUrl(option.pid)}
+                  src={getCryptoIconUrl(option.iconId != null ? option.iconId : '')}
                   alt={option.name}
                   width={61}
                   height={60}

@@ -37,13 +37,13 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   const [payoutHistory, setPayoutHistory] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(true)
 
-  const wayId = selectedOption?.wayId
+  const pid = selectedOption?.pid
 
   useEffect(() => {
-    if (wayId == null) return
+    if (pid == null) return
     let cancelled = false
     setLoadingMethod(true)
-    fetchWithdrawalMethodDetails(wayId)
+    fetchWithdrawalMethodDetails(pid)
       .then((data) => {
         if (cancelled) return
         setMethodDetails(data || null)
@@ -56,7 +56,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
         if (!cancelled) setLoadingMethod(false)
       })
     return () => { cancelled = true }
-  }, [wayId])
+  }, [pid])
 
   useEffect(() => {
     const footer = document.querySelector('.footer')
@@ -197,7 +197,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
 
     setIsSubmitting(true)
     try {
-      // TODO: call crypto withdraw API when backend supports it (wallet, amount, wayId)
+      // TODO: call crypto withdraw API when backend supports it (wallet, amount, pid)
       if (onBalanceUpdate && balanceTickets != null) {
         const after = (balanceTickets - ticketsBigint) / 1_000_000
         onBalanceUpdate(after.toFixed(2))

@@ -323,20 +323,20 @@ export async function fetchDepositMethods() {
 /**
  * Fetches crypto withdrawal methods from DB (synced every 30 min by backend cron).
  * Call when Payout screen opens.
- * @returns {Promise<{ methods: Array<{ pid: number, name: string, network: string, wayId: number, minWithdrawal: number }> }>}
+ * @returns {Promise<{ methods: Array<{ pid: number, name: string, network: string, iconId: string, minWithdrawal: number }> }>}
  */
 export async function fetchWithdrawalMethods() {
   return authFetch("/api/payments/withdrawal-methods", { method: "GET" });
 }
 
 /**
- * Fetches withdrawal method details (rateUsd, totalFeeUsd) from external API for the given way_id.
+ * Fetches withdrawal method details (rateUsd, totalFeeUsd) from external API for the given pid.
  * Call when Payout Confirmation screen opens to show network fee and compute "You will receive".
- * @param {number} wayId - way_id of the selected payout method
- * @returns {Promise<{ wayId: number, name: string, ticker: string, rateUsd: number, totalFeeUsd: number }|null>}
+ * @param {number} pid - pid of the selected payout method
+ * @returns {Promise<{ pid: number, name: string, ticker: string, rateUsd: number, mishaFeeUsd: number }|null>}
  */
-export async function fetchWithdrawalMethodDetails(wayId) {
-  const data = await authFetch(`/api/payments/withdrawal-method-details?wayId=${encodeURIComponent(wayId)}`, { method: "GET" });
+export async function fetchWithdrawalMethodDetails(pid) {
+  const data = await authFetch(`/api/payments/withdrawal-method-details?pid=${encodeURIComponent(pid)}`, { method: "GET" });
   return data || null;
 }
 
