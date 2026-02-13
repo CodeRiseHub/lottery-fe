@@ -207,6 +207,7 @@ const translations = {
         "payout.status.processing": "Processing",
         "payout.status.completed": "Completed",
         "payout.status.cancelled": "Cancelled",
+        "payout.status.waiting": "Waiting",
         "payout.minUsd": "Min. {amount} USD",
         "payout.noMethods": "No payout methods available",
 
@@ -616,6 +617,7 @@ const translations = {
         "payout.status.processing": "В обработке",
         "payout.status.completed": "Завершено",
         "payout.status.cancelled": "Отменено",
+        "payout.status.waiting": "В ожидании",
         "payout.minUsd": "Мин. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -1006,6 +1008,7 @@ const translations = {
         "payout.status.processing": "In Bearbeitung",
         "payout.status.completed": "Abgeschlossen",
         "payout.status.cancelled": "Abgebrochen",
+        "payout.status.waiting": "Warte",
         "payout.minUsd": "Mind. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -1408,6 +1411,7 @@ const translations = {
         "payout.status.processing": "In elaborazione",
         "payout.status.completed": "Completato",
         "payout.status.cancelled": "Annullato",
+        "payout.status.waiting": "In attesa",
         "payout.minUsd": "Min. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -1810,6 +1814,7 @@ const translations = {
         "payout.status.processing": "In elaborazione",
         "payout.status.completed": "Completato",
         "payout.status.cancelled": "Annullato",
+        "payout.status.waiting": "In wachtrij",
         "payout.minUsd": "Min. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -2207,6 +2212,7 @@ const translations = {
         "payout.status.processing": "W trakcie",
         "payout.status.completed": "Zakończono",
         "payout.status.cancelled": "Anulowano",
+        "payout.status.waiting": "Oczekiwanie",
         "payout.minUsd": "Min. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -2581,6 +2587,7 @@ const translations = {
         "payout.status.processing": "En cours",
         "payout.status.completed": "Terminé",
         "payout.status.cancelled": "Annulé",
+        "payout.status.waiting": "En attente",
         "payout.minUsd": "Min. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -2949,6 +2956,7 @@ const translations = {
         "payout.status.processing": "En proceso",
         "payout.status.completed": "Completado",
         "payout.status.cancelled": "Cancelado",
+        "payout.status.waiting": "En espera",
         "payout.minUsd": "Mín. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -3341,6 +3349,7 @@ const translations = {
         "payout.status.processing": "Sedang diproses",
         "payout.status.completed": "Selesai",
         "payout.status.cancelled": "Dibatalkan",
+        "payout.status.waiting": "Menunggu",
         "payout.minUsd": "Min. {amount} USD",
 
         // Withdraw (Payout Confirmation)
@@ -3714,6 +3723,7 @@ const translations = {
         "payout.status.processing": "İşleniyor",
         "payout.status.completed": "Tamamlandı",
         "payout.status.cancelled": "İptal edildi",
+        "payout.status.waiting": "Beklemede",
         "payout.minUsd": "Min. {amount} USD",
 
         // Withdraw (Payout Confirmation)
