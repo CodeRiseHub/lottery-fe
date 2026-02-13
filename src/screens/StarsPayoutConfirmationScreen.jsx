@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchPayoutHistory, fetchWithdrawalMethodDetails } from '../api'
+import { fetchPayoutHistory, fetchWithdrawalMethodDetails, createCryptoWithdrawal } from '../api'
 import { t, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
@@ -195,17 +195,29 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
       return
     }
 
+    if (selectedOption?.pid == null) {
+      setSubmitError(t('withdraw.error.tryLater'))
+      return
+    }
+
     setIsSubmitting(true)
     try {
-      // TODO: call crypto withdraw API when backend supports it (wallet, amount, pid)
+      await createCryptoWithdrawal({
+        pid: selectedOption.pid,
+        wallet: walletTrimmed,
+        total: ticketsBigint
+      })
       if (onBalanceUpdate && balanceTickets != null) {
         const after = (balanceTickets - ticketsBigint) / 1_000_000
         onBalanceUpdate(after.toFixed(2))
       }
+      if (onUserDataUpdate && userData) {
+        onUserDataUpdate({ ...userData, balanceA: balanceTickets - ticketsBigint })
+      }
       alert(t('withdraw.success'))
       if (onBack) onBack()
     } catch (error) {
-      const msg = error.response?.message || error.message || 'Failed to submit withdrawal'
+      const msg = error.response?.message || error.message || t('withdraw.error.tryLater')
       setSubmitError(msg)
     } finally {
       setIsSubmitting(false)

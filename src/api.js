@@ -341,6 +341,18 @@ export async function fetchWithdrawalMethodDetails(pid) {
 }
 
 /**
+ * Creates a crypto withdrawal. On success creates payout and deducts balance.
+ * @param {{ pid: number, wallet: string, total: number }} payload - pid from withdrawal method, wallet address, total tickets in bigint (tickets * 1e6)
+ * @returns {Promise<{ id: number, status: string, ... }>} payout response
+ */
+export async function createCryptoWithdrawal(payload) {
+  return authFetch("/api/payments/crypto-withdrawal", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+/**
  * Requests a crypto deposit address from the API (no payment record is created).
  * Call when user selects a payment method on Payment Options screen.
  * @param {number} pid - Deposit method PID from deposit-methods
