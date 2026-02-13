@@ -231,6 +231,7 @@ const translations = {
         "withdraw.error.walletRequired": "Please enter the wallet address",
         "withdraw.error.walletMaxLength": "Wallet address must be at most {max} characters",
         "withdraw.error.invalidAmount": "Please enter a valid amount",
+        "withdraw.error.maxTwoDecimals": "Amount must have at most 2 decimal places (e.g. 125.25). Values like 125.125 are not supported.",
         "withdraw.error.minTickets": "Minimum {min} tickets",
         "withdraw.error.maxTickets": "Maximum {max} tickets",
         "withdraw.error.insufficientBalance": "Insufficient balance",

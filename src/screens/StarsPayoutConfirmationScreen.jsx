@@ -122,6 +122,12 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   const validateAmount = (value) => {
     setAmountError('')
     if (value == null || value === '') return
+    const str = String(value).trim()
+    const decPart = str.split('.')[1]
+    if (decPart != null && decPart.length > 2) {
+      setAmountError(t('withdraw.error.maxTwoDecimals'))
+      return
+    }
     const num = parseFloat(value)
     if (Number.isNaN(num) || num <= 0) {
       setAmountError(t('withdraw.error.invalidAmount'))
@@ -151,7 +157,15 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
   }
 
   const handleAmountChange = (e) => {
-    const v = e.target.value
+    let v = e.target.value.replace(/[^0-9.]/g, '')
+    const parts = v.split('.')
+    if (parts.length > 2) {
+      v = parts[0] + '.' + parts.slice(1).join('')
+    }
+    const dotIndex = v.indexOf('.')
+    if (dotIndex !== -1 && v.length - dotIndex - 1 > 2) {
+      v = v.slice(0, dotIndex + 3)
+    }
     setAmountTickets(v)
     validateAmount(v)
   }
@@ -179,6 +193,11 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
     const num = parseFloat(amountTickets)
     if (Number.isNaN(num) || num <= 0) {
       setAmountError(t('withdraw.error.invalidAmount'))
+      return
+    }
+    const decPart = String(amountTickets).trim().split('.')[1]
+    if (decPart != null && decPart.length > 2) {
+      setAmountError(t('withdraw.error.maxTwoDecimals'))
       return
     }
     if (num < MIN_TICKETS) {
