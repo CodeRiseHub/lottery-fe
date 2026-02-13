@@ -66,6 +66,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Too many requests. Please wait a moment before trying again.",
         "store.error.failedToCreate": "Failed to create payment. Please try again.",
+        "feature.depositsUnavailable": "Deposits are temporarily unavailable. We apologise for the inconvenience. Please try again later.",
+        "feature.payoutsUnavailable": "Withdrawals are temporarily unavailable. We apologise for the inconvenience. Please try again later.",
         "paymentOptions.back": "Back",
         "paymentOptions.network": "Network: {network}",
         "paymentError.minForNetwork": "The minimum deposit amount for this network is {amount}",
@@ -488,6 +490,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Слишком много запросов. Пожалуйста, подождите немного перед повторной попыткой.",
         "store.error.failedToCreate": "Не удалось создать платеж. Пожалуйста, попробуйте снова.",
+        "feature.depositsUnavailable": "Пополнения временно недоступны. Приносим извинения за неудобства. Пожалуйста, попробуйте позже.",
+        "feature.payoutsUnavailable": "Выводы временно недоступны. Приносим извинения за неудобства. Пожалуйста, попробуйте позже.",
         "store.error.minimumStars": "Минимум: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL счета не получен от сервера",
 
@@ -880,6 +884,8 @@ const translations = {
             "Zu viele Anfragen. Bitte warten Sie einen Moment, bevor Sie es erneut versuchen.",
         "store.error.failedToCreate":
             "Zahlung konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+        "feature.depositsUnavailable": "Einzahlungen sind vorübergehend nicht verfügbar. Wir entschuldigen uns für die Unannehmlichkeiten. Bitte versuchen Sie es später erneut.",
+        "feature.payoutsUnavailable": "Auszahlungen sind vorübergehend nicht verfügbar. Wir entschuldigen uns für die Unannehmlichkeiten. Bitte versuchen Sie es später erneut.",
         "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Rechnungs-URL wurde nicht vom Server erhalten",
 
@@ -1291,6 +1297,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Troppe richieste. Si prega di attendere un momento prima di riprovare.",
         "store.error.failedToCreate": "Impossibile creare il pagamento. Si prega di riprovare.",
+        "feature.depositsUnavailable": "I depositi sono temporaneamente non disponibili. Ci scusiamo per il disagio. Si prega di riprovare più tardi.",
+        "feature.payoutsUnavailable": "I prelievi sono temporaneamente non disponibili. Ci scusiamo per il disagio. Si prega di riprovare più tardi.",
         "store.error.minimumStars": "Minimo: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL della fattura non ricevuto dal server",
 
@@ -1693,6 +1701,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Te veel verzoeken. Wacht even voordat u het opnieuw probeert.",
         "store.error.failedToCreate": "Betaling kon niet worden gemaakt. Probeer het opnieuw.",
+        "feature.depositsUnavailable": "Stortingen zijn tijdelijk niet beschikbaar. Onze excuses voor het ongemak. Probeer het later opnieuw.",
+        "feature.payoutsUnavailable": "Opnames zijn tijdelijk niet beschikbaar. Onze excuses voor het ongemak. Probeer het later opnieuw.",
         "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Factuur-URL niet ontvangen van server",
 
@@ -2091,6 +2101,8 @@ const translations = {
         "store.success.purchased": "Pomyślnie zakupiono {tickets} biletów!",
         "store.error.tooManyRequests": "Zbyt wiele żądań. Poczekaj chwilę przed ponowną próbą.",
         "store.error.failedToCreate": "Nie udało się utworzyć płatności. Spróbuj ponownie.",
+        "feature.depositsUnavailable": "Wpłaty są tymczasowo niedostępne. Przepraszamy za niedogodności. Proszę spróbować później.",
+        "feature.payoutsUnavailable": "Wypłaty są tymczasowo niedostępne. Przepraszamy za niedogodności. Proszę spróbować później.",
         "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL faktury nie został otrzymany z serwera",
 
@@ -2459,6 +2471,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Trop de demandes. Veuillez attendre un moment avant de réessayer.",
         "store.error.failedToCreate": "Impossible de créer le paiement. Veuillez réessayer.",
+        "feature.depositsUnavailable": "Les dépôts sont temporairement indisponibles. Nous nous excusons pour la gêne occasionnée. Veuillez réessayer plus tard.",
+        "feature.payoutsUnavailable": "Les retraits sont temporairement indisponibles. Nous nous excusons pour la gêne occasionnée. Veuillez réessayer plus tard.",
         "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL de facture non reçue du serveur",
 
@@ -2835,6 +2849,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Demasiadas solicitudes. Por favor, espere un momento antes de intentar de nuevo.",
         "store.error.failedToCreate": "No se pudo crear el pago. Por favor, inténtelo de nuevo.",
+        "feature.depositsUnavailable": "Los depósitos no están disponibles temporalmente. Nos disculpamos por las molestias. Por favor, inténtelo de nuevo más tarde.",
+        "feature.payoutsUnavailable": "Los retiros no están disponibles temporalmente. Nos disculpamos por las molestias. Por favor, inténtelo de nuevo más tarde.",
         "store.error.minimumStars": "Mínimo: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL de factura no recibida del servidor",
 
@@ -3236,6 +3252,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Terlalu banyak permintaan. Silakan tunggu sebentar sebelum mencoba lagi.",
         "store.error.failedToCreate": "Gagal membuat pembayaran. Silakan coba lagi.",
+        "feature.depositsUnavailable": "Setoran untuk sementara tidak tersedia. Kami minta maaf atas ketidaknyamanannya. Silakan coba lagi nanti.",
+        "feature.payoutsUnavailable": "Penarikan untuk sementara tidak tersedia. Kami minta maaf atas ketidaknyamanannya. Silakan coba lagi nanti.",
         "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "URL faktur tidak diterima dari server",
 
@@ -3596,6 +3614,8 @@ const translations = {
         "store.error.tooManyRequests":
             "Projemizin her katılımcısı için günlük oyun bonusu mevcuttur.",
         "store.error.failedToCreate": "Ödeme oluşturulamadı. Lütfen tekrar deneyin.",
+        "feature.depositsUnavailable": "Yatırımlar geçici olarak kullanılamıyor. Verdiğimiz rahatsızlıktan dolayı özür dileriz. Lütfen daha sonra tekrar deneyin.",
+        "feature.payoutsUnavailable": "Çekimler geçici olarak kullanılamıyor. Verdiğimiz rahatsızlıktan dolayı özür dileriz. Lütfen daha sonra tekrar deneyin.",
         "store.error.minimumStars": "Minimum: {min} USD",
         "store.error.invoiceUrlNotReceived": "Fatura URL'si sunucudan alınamadı",
 

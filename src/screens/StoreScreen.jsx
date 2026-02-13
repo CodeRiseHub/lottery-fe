@@ -10,7 +10,7 @@ const MAX_DECIMAL_PLACES = 2
 // More than 2 digits after dot -> invalid (show error). "2." or "2.4" or "2.45" are valid.
 const HAS_MORE_THAN_TWO_DECIMALS = /\.\d{3,}$/
 
-export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate }) {
+export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUserDataUpdate, userData }) {
   const [amount, setAmount] = useState('2')
   const [tickets, setTickets] = useState('---')
   const [textError, setTextError] = useState('')
@@ -106,6 +106,10 @@ export default function StoreScreen({ onBack, onNavigate, onBalanceUpdate, onUse
   }
 
   const handleBuyTickets = () => {
+    if (userData?.paymentEnabled === false) {
+      alert(t('feature.depositsUnavailable'))
+      return
+    }
     if (!amount || amount === '') return
 
     const normalized = amount.replace(',', '.')

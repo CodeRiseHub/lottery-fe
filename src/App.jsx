@@ -338,6 +338,7 @@ function App() {
             onNavigate={handleNavigate}
             onBalanceUpdate={handleBalanceUpdate}
             onUserDataUpdate={setUserData}
+            userData={userData}
           />
         )}
         {currentScreen === 'paymentOptions' && (
@@ -379,7 +380,7 @@ function App() {
             onUserDataUpdate={setUserData}
           />
         )}
-        {currentScreen === 'payout' && <PayoutScreen onBack={handleBack} onNavigate={handleNavigate} />}
+        {currentScreen === 'payout' && <PayoutScreen onBack={handleBack} onNavigate={handleNavigate} userData={userData} />}
         {currentScreen === 'starsPayoutConfirmation' && (
           <StarsPayoutConfirmationScreen
             onBack={() => handleNavigate('payout')}

@@ -15,7 +15,7 @@ function getCryptoIconUrl(iconId) {
   return url != null ? url : `/assets/crypto_new/${key || '0'}.png`
 }
 
-export default function PayoutScreen({ onBack, onNavigate }) {
+export default function PayoutScreen({ onBack, onNavigate, userData }) {
   const [methods, setMethods] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -64,6 +64,10 @@ export default function PayoutScreen({ onBack, onNavigate }) {
   }, [])
 
   const handleSelectCrypto = (option) => {
+    if (userData?.payoutEnabled === false) {
+      alert(t('feature.payoutsUnavailable'))
+      return
+    }
     if (onNavigate) {
       onNavigate('starsPayoutConfirmation', { selectedOption: option })
     }
