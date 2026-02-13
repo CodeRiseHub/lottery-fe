@@ -272,6 +272,23 @@ function App() {
     window.scrollTo(0, 0)
   }, [currentScreen])
 
+  // Refresh user data (balance) when switching between footer tabs so balance stays up to date
+  const footerTabScreens = ['main', 'store', 'referral', 'tasks', 'payout']
+  useEffect(() => {
+    if (!authInitialized || !footerTabScreens.includes(currentScreen)) return
+    let cancelled = false
+    fetchCurrentUser()
+      .then((user) => {
+        if (cancelled) return
+        setUserData(user)
+        if (user.balanceA !== undefined) {
+          setBalance(formatBalance(user.balanceA))
+        }
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [currentScreen, authInitialized])
+
   // Show home screen for "/" path
   if (isHomeScreen) {
     return <HomeScreen />

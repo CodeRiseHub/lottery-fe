@@ -278,7 +278,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                 maxLength={WALLET_MAX_LENGTH}
               />
               {walletError && (
-                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{walletError}</p>
+                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px', fontWeight: 'bold' }}>{walletError}</p>
               )}
             </div>
 
@@ -295,7 +295,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
                 style={{ height: '42px', fontSize: '22px', textAlign: 'center' }}
               />
               {amountError && (
-                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px' }}>{amountError}</p>
+                <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '5px', fontWeight: 'bold' }}>{amountError}</p>
               )}
             </div>
 
@@ -307,7 +307,7 @@ export default function StarsPayoutConfirmationScreen({ onBack, onBalanceUpdate,
             </div>
 
             {submitError && (
-              <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '10px', textAlign: 'center' }}>
+              <p style={{ color: '#dc3545', fontSize: '14px', marginTop: '10px', textAlign: 'center', fontWeight: 'bold' }}>
                 {submitError}
               </p>
             )}
