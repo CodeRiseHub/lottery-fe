@@ -11,7 +11,7 @@ import ticketIcon from '../assets/images/header/ticket_horizontal.png'
 import RoomDropdown from '../components/RoomDropdown'
 import CustomKeyboard from '../components/CustomKeyboard'
 import { gameWebSocket } from '../services/gameWebSocket'
-import { formatBalance } from '../utils/balanceFormatter'
+import { formatBalance, formatTicketsDisplay } from '../utils/balanceFormatter'
 import { fetchCompletedRounds } from '../api'
 import '../utils/modals'
 
@@ -1756,7 +1756,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         width: '100%'
                       }}>
                         <div style={{ fontSize: '16px', textAlign: 'center', marginBottom: '8px' }}>
-                          {t('game.betLabel')}: {winner.b ? winner.b.toFixed(2) : '0.00'}
+                          {t('game.betLabel')}: {formatTicketsDisplay(winner.b ?? 0)}
                         </div>
                         <div style={{ fontSize: '16px', color: '#6cc5a1', textAlign: 'center', marginBottom: '8px' }}>
                           {t('game.winLabel')}: {formatBalance(winner.pO)}
