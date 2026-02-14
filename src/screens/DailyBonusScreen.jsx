@@ -230,7 +230,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
             )}
 
             {/* Recent Claims Table */}
-            <div style={{ marginTop: '30px' }}>
+            <div className="daily-bonus__claims" style={{ marginTop: '30px' }}>
               <h3 style={{
                 fontSize: '18px',
                 fontWeight: 'bold',
