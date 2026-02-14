@@ -1120,7 +1120,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       return
     }
 
-    const totalSeconds = 30 // Match backend COUNTDOWN_DURATION_SECONDS
+    const totalSeconds = 20 // Match backend COUNTDOWN_DURATION_SECONDS
     const endTime = countdownEndTimeRef.current
     const startTime = Date.now()
     

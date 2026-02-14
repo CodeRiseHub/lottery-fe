@@ -141,16 +141,14 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
           }
         }
 
-        // Reload tasks to update claimed status
+        // Mark task as claimed in local state only (no refetch - task will disappear on next open/refresh)
+        const markClaimed = (tasks) => (tasks || []).map(t => t.id === taskId ? { ...t, claimed: true, progress: t('tasks.claimed') } : t)
         if (activeTab === 'referral') {
-          const tasks = await fetchTasks('referral')
-          setReferralTasks(tasks || [])
+          setReferralTasks(prev => markClaimed(prev))
         } else if (activeTab === 'follow') {
-          const tasks = await fetchTasks('follow')
-          setFollowTasks(tasks || [])
+          setFollowTasks(prev => markClaimed(prev))
         } else if (activeTab === 'other') {
-          const tasks = await fetchTasks('other')
-          setOtherTasks(tasks || [])
+          setOtherTasks(prev => markClaimed(prev))
         }
         // Close modal
         if (typeof window.closeModal === 'function') {
