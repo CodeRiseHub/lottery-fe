@@ -135,10 +135,10 @@ export default function HomeScreen() {
 
         <section className="investment-info container">
           <div className="investment-info__content">
-            <p className="investment-info__text">Minimum deposit - 50 Stars</p>
-            <p className="investment-info__text">Minimum withdrawal - 15 Stars</p>
+            <p className="investment-info__text">Minimum deposit - 2.5 USD</p>
+            <p className="investment-info__text">Minimum withdrawal - 0.1 USD</p>
             <p className="investment__text">
-              Use Telegram in-app virtual currency.
+              Over 30 cryptocurrencies are available for deposit.
             </p>
             <div className="investment-info__icons">
               {INVESTMENT_CRYPTO_ICONS.map((iconId) => (
