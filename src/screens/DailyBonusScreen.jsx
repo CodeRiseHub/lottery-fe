@@ -250,7 +250,7 @@ export default function DailyBonusScreen({ onBack, onNavigate, onBalanceUpdate, 
                   {t('dailyBonus.recentClaims.noData')}
                 </div>
               ) : (
-                <div className="transaction__table" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                <div className="transaction__table">
                   {recentClaims.map((claim, index) => (
                     <div key={`claim-${index}-${claim.claimedAt}`} className="transaction__row">
                       <div className="transaction__main" style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
