@@ -20,7 +20,7 @@ const translations = {
         "auth.error.accessRestricted": "Application access restricted.",
 
         // Navigation
-        "nav.store": "Store",
+        "nav.store": "Cashier",
         "nav.earn": "Earn",
         "nav.game": "Game",
         "nav.tasks": "Tasks",
@@ -40,14 +40,14 @@ const translations = {
         "header.account.back": "Back",
 
         // Store Screen
-        "store.title": "Store",
+        "store.title": "Cashier",
         "store.chooseStars": "Choose the amount (USD):",
         "store.chooseUsd": "Choose the USD amount:",
         "store.minimum": "Minimum: {min} USD",
         "store.maximum": "Maximum: {max} USD",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
-        "store.ticketsStore": "Tickets store",
+        "store.ticketsStore": "Cashier",
         "store.youWillReceive": "You will receive:",
         "store.tickets": "Tickets",
         "store.buyTickets": "BUY TICKETS",
@@ -433,7 +433,7 @@ const translations = {
         "auth.error.accessRestricted": "Доступ к приложению ограничен.",
 
         // Navigation
-        "nav.store": "Магазин",
+        "nav.store": "Касса",
         "nav.earn": "Заработок",
         "nav.game": "Игра",
         "nav.tasks": "Задачи",
@@ -453,12 +453,12 @@ const translations = {
         "header.account.back": "Назад",
 
         // Store Screen
-        "store.title": "Магазин",
+        "store.title": "Касса",
         "store.chooseStars": "Выберите сумму (USD):",
         "store.chooseUsd": "Выберите сумму в USD:",
         "store.minimumUsd": "Минимум: {min} USD",
         "store.maximumUsd": "Максимум: {max} USD",
-        "store.ticketsStore": "Магазин билетов",
+        "store.ticketsStore": "Касса",
         "store.error.minimumUsd": "Минимум: {min} USD",
         "store.error.maxTwoDecimals": "Введите сумму не более чем с 2 знаками после запятой (например, 2.45).",
         "paymentOptions.back": "Назад",
@@ -827,7 +827,7 @@ const translations = {
         "auth.error.accessRestricted": "Zugriff auf die Anwendung eingeschränkt.",
 
         // Navigation
-        "nav.store": "Shop",
+        "nav.store": "Kasse",
         "nav.earn": "Verdienen",
         "nav.game": "Spiel",
         "nav.tasks": "Aufgaben",
@@ -847,12 +847,12 @@ const translations = {
         "header.account.back": "Zurück",
 
         // Store Screen
-        "store.title": "Shop",
+        "store.title": "Kasse",
         "store.chooseStars": "Wählen Sie den Betrag (USD):",
         "store.chooseUsd": "Wählen Sie den USD-Betrag:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
-        "store.ticketsStore": "Ticket-Shop",
+        "store.ticketsStore": "Kasse",
         "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.maxTwoDecimals": "Bitte geben Sie den Betrag mit höchstens 2 Nachkommastellen ein (z. B. 2,45).",
         "paymentOptions.back": "Zurück",
@@ -1241,7 +1241,7 @@ const translations = {
         "auth.error.accessRestricted": "Accesso all'applicazione limitato.",
 
         // Navigation
-        "nav.store": "Negozio",
+        "nav.store": "Cassa",
         "nav.earn": "Guadagna",
         "nav.game": "Gioco",
         "nav.tasks": "Attività",
@@ -1261,12 +1261,12 @@ const translations = {
         "header.account.back": "Indietro",
 
         // Store Screen
-        "store.title": "Negozio",
+        "store.title": "Cassa",
         "store.chooseStars": "Scegli l'importo (USD):",
         "store.chooseUsd": "Scegli l'importo in USD:",
         "store.minimumUsd": "Minimo: {min} USD",
         "store.maximumUsd": "Massimo: {max} USD",
-        "store.ticketsStore": "Negozio biglietti",
+        "store.ticketsStore": "Cassa",
         "store.error.minimumUsd": "Minimo: {min} USD",
         "store.error.maxTwoDecimals": "Inserisci l'importo con al massimo 2 decimali (es. 2,45).",
         "paymentOptions.back": "Indietro",
@@ -1647,7 +1647,7 @@ const translations = {
         "auth.error.accessRestricted": "Toegang tot de applicatie beperkt.",
 
         // Navigation
-        "nav.store": "Winkel",
+        "nav.store": "Kassa",
         "nav.earn": "Verdienen",
         "nav.game": "Spel",
         "nav.tasks": "Taken",
@@ -1667,12 +1667,12 @@ const translations = {
         "header.account.back": "Terug",
 
         // Store Screen
-        "store.title": "Winkel",
+        "store.title": "Kassa",
         "store.chooseStars": "Kies het bedrag (USD):",
         "store.chooseUsd": "Kies het USD-bedrag:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
-        "store.ticketsStore": "Ticketwinkel",
+        "store.ticketsStore": "Kassa",
         "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.maxTwoDecimals": "Voer het bedrag in met maximaal 2 decimalen (bijv. 2,45).",
         "paymentOptions.back": "Terug",
@@ -2049,7 +2049,7 @@ const translations = {
         "auth.error.accessRestricted": "Dostęp do aplikacji ograniczony.",
 
         // Navigation
-        "nav.store": "Sklep",
+        "nav.store": "Kasa",
         "nav.earn": "Zarabiaj",
         "nav.game": "Gra",
         "nav.tasks": "Zadania",
@@ -2069,12 +2069,12 @@ const translations = {
         "header.account.back": "Wstecz",
 
         // Store Screen
-        "store.title": "Sklep",
+        "store.title": "Kasa",
         "store.chooseStars": "Wybierz kwotę (USD):",
         "store.chooseUsd": "Wybierz kwotę w USD:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maksimum: {max} USD",
-        "store.ticketsStore": "Sklep biletów",
+        "store.ticketsStore": "Kasa",
         "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.maxTwoDecimals": "Wprowadź kwotę z maksymalnie 2 miejscami po przecinku (np. 2,45).",
         "paymentOptions.back": "Wstecz",
@@ -2419,7 +2419,7 @@ const translations = {
         "auth.error.accessRestricted": "Accès à l'application restreint.",
 
         // Navigation
-        "nav.store": "Boutique",
+        "nav.store": "Caisse",
         "nav.earn": "Gagner",
         "nav.game": "Jeu",
         "nav.tasks": "Tâches",
@@ -2439,12 +2439,12 @@ const translations = {
         "header.account.back": "Retour",
 
         // Store Screen
-        "store.title": "Boutique",
+        "store.title": "Caisse",
         "store.chooseStars": "Choisissez le montant (USD):",
         "store.chooseUsd": "Choisissez le montant en USD:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maximum: {max} USD",
-        "store.ticketsStore": "Boutique de billets",
+        "store.ticketsStore": "Caisse",
         "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.maxTwoDecimals": "Veuillez saisir un montant avec au plus 2 décimales (ex. 2,45).",
         "paymentOptions.back": "Retour",
@@ -2798,7 +2798,7 @@ const translations = {
         "auth.error.accessRestricted": "Acceso a la aplicación restringido.",
 
         // Navigation
-        "nav.store": "Tienda",
+        "nav.store": "Caja",
         "nav.earn": "Ganar",
         "nav.game": "Juego",
         "nav.tasks": "Tareas",
@@ -2818,12 +2818,12 @@ const translations = {
         "header.account.back": "Atrás",
 
         // Store Screen
-        "store.title": "Tienda",
+        "store.title": "Caja",
         "store.chooseStars": "Elija la cantidad (USD):",
         "store.chooseUsd": "Elija el importe en USD:",
         "store.minimumUsd": "Mínimo: {min} USD",
         "store.maximumUsd": "Máximo: {max} USD",
-        "store.ticketsStore": "Tienda de tickets",
+        "store.ticketsStore": "Caja",
         "store.error.minimumUsd": "Mínimo: {min} USD",
         "store.error.maxTwoDecimals": "Introduzca el importe con como máximo 2 decimales (ej. 2,45).",
         "paymentOptions.back": "Atrás",
@@ -3202,7 +3202,7 @@ const translations = {
         "auth.error.accessRestricted": "Akses aplikasi dibatasi.",
 
         // Navigation
-        "nav.store": "Toko",
+        "nav.store": "Loket",
         "nav.earn": "Dapatkan",
         "nav.game": "Permainan",
         "nav.tasks": "Tugas",
@@ -3222,12 +3222,12 @@ const translations = {
         "header.account.back": "Kembali",
 
         // Store Screen
-        "store.title": "Toko",
+        "store.title": "Loket",
         "store.chooseStars": "Pilih jumlah (USD):",
         "store.chooseUsd": "Pilih jumlah USD:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maksimum: {max} USD",
-        "store.ticketsStore": "Toko tiket",
+        "store.ticketsStore": "Loket",
         "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.maxTwoDecimals": "Masukkan jumlah dengan maksimal 2 desimal (mis. 2,45).",
         "paymentOptions.back": "Kembali",
@@ -3566,7 +3566,7 @@ const translations = {
         "auth.error.accessRestricted": "Uygulama erişimi kısıtlandı.",
 
         // Navigation
-        "nav.store": "Mağaza",
+        "nav.store": "Kasa",
         "nav.earn": "Kazan",
         "nav.game": "Oyun",
         "nav.tasks": "Görevler",
@@ -3586,12 +3586,12 @@ const translations = {
         "header.account.back": "Geri",
 
         // Store Screen
-        "store.title": "Mağaza",
+        "store.title": "Kasa",
         "store.chooseStars": "Stars miktarını seçin:",
         "store.chooseUsd": "USD tutarını seçin:",
         "store.minimumUsd": "Minimum: {min} USD",
         "store.maximumUsd": "Maksimum: {max} USD",
-        "store.ticketsStore": "Bilet mağazası",
+        "store.ticketsStore": "Kasa",
         "store.error.minimumUsd": "Minimum: {min} USD",
         "store.error.maxTwoDecimals": "Lütfen en fazla 2 ondalık basamaklı bir tutar girin (örn. 2,45).",
         "paymentOptions.back": "Geri",
