@@ -3,9 +3,15 @@ import Swiper from 'swiper'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
-import starIcon from '../assets/purchase/star_1.png'
-import giftIcon from '../assets/purchase/gift_1.png'
 import powerIcon from '../assets/images/power.png'
+
+// Crypto icons from assets/crypto_new (same as PayoutScreen/PaymentOptionsScreen)
+const cryptoIconModules = import.meta.glob('../assets/crypto_new/*.png', { eager: true, query: '?url', import: 'default' })
+function getCryptoIconUrl(iconId) {
+  const key = Object.keys(cryptoIconModules).find((path) => path.endsWith(`/${iconId}.png`))
+  return key ? cryptoIconModules[key] : `/assets/crypto_new/${iconId}.png`
+}
+const INVESTMENT_CRYPTO_ICONS = ['30', '130', '90', '235']
 import arrowRightIcon from '../assets/images/arrow-right.png'
 import arrowLeftIcon from '../assets/images/arrow-left.png'
 
@@ -135,20 +141,16 @@ export default function HomeScreen() {
               Use Telegram in-app virtual currency.
             </p>
             <div className="investment-info__icons">
-              <img
-                className="investment-info__icon"
-                src={starIcon}
-                alt="Star"
-                width="41"
-                height="41"
-              />
-              <img
-                className="investment-info__icon"
-                src={giftIcon}
-                alt="Gift"
-                width="41"
-                height="41"
-              />
+              {INVESTMENT_CRYPTO_ICONS.map((iconId) => (
+                <img
+                  key={iconId}
+                  className="investment-info__icon"
+                  src={getCryptoIconUrl(iconId)}
+                  alt=""
+                  width="41"
+                  height="41"
+                />
+              ))}
             </div>
           </div>
         </section>
