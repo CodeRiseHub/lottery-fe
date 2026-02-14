@@ -623,6 +623,7 @@ const translations = {
         "payout.status.cancelled": "Отменено",
         "payout.status.waiting": "В ожидании",
         "payout.minUsd": "Мин. {amount} USD",
+        "payout.noMethods": "Нет доступных способов вывода",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Вывод",
@@ -1016,6 +1017,7 @@ const translations = {
         "payout.status.cancelled": "Abgebrochen",
         "payout.status.waiting": "Warte",
         "payout.minUsd": "Mind. {amount} USD",
+        "payout.noMethods": "Keine Auszahlungsmethoden verfügbar",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Auszahlung",
@@ -1421,6 +1423,7 @@ const translations = {
         "payout.status.cancelled": "Annullato",
         "payout.status.waiting": "In attesa",
         "payout.minUsd": "Min. {amount} USD",
+        "payout.noMethods": "Nessun metodo di prelievo disponibile",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Prelievo",
@@ -1826,6 +1829,7 @@ const translations = {
         "payout.status.cancelled": "Annullato",
         "payout.status.waiting": "In wachtrij",
         "payout.minUsd": "Min. {amount} USD",
+        "payout.noMethods": "Geen uitbetalingsmethoden beschikbaar",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Opname",
@@ -2226,6 +2230,7 @@ const translations = {
         "payout.status.cancelled": "Anulowano",
         "payout.status.waiting": "Oczekiwanie",
         "payout.minUsd": "Min. {amount} USD",
+        "payout.noMethods": "Brak dostępnych metod wypłaty",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Wypłata",
@@ -2603,6 +2608,7 @@ const translations = {
         "payout.status.cancelled": "Annulé",
         "payout.status.waiting": "En attente",
         "payout.minUsd": "Min. {amount} USD",
+        "payout.noMethods": "Aucun mode de retrait disponible",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Retrait",
@@ -2974,6 +2980,7 @@ const translations = {
         "payout.status.cancelled": "Cancelado",
         "payout.status.waiting": "En espera",
         "payout.minUsd": "Mín. {amount} USD",
+        "payout.noMethods": "No hay métodos de retiro disponibles",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Retiro",
@@ -3369,6 +3376,7 @@ const translations = {
         "payout.status.cancelled": "Dibatalkan",
         "payout.status.waiting": "Menunggu",
         "payout.minUsd": "Min. {amount} USD",
+        "payout.noMethods": "Tidak ada metode penarikan yang tersedia",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Tarik",
@@ -3745,6 +3753,7 @@ const translations = {
         "payout.status.cancelled": "İptal edildi",
         "payout.status.waiting": "Beklemede",
         "payout.minUsd": "Min. {amount} USD",
+        "payout.noMethods": "Çekim yöntemi mevcut değil",
 
         // Withdraw (Payout Confirmation)
         "withdraw.title": "Çekim",
