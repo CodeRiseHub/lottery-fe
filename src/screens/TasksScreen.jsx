@@ -142,23 +142,26 @@ export default function TasksScreen({ onBack, onNavigate, onBalanceUpdate, onUse
         }
 
         // Mark task as claimed in local state only (no refetch - task will disappear on next open/refresh)
-        const markClaimed = (tasks) => (tasks || []).map(t => t.id === taskId ? { ...t, claimed: true, progress: t('tasks.claimed') } : t)
+        const markClaimed = (tasks) => (tasks || []).map(task => task.id === taskId ? { ...task, claimed: true, progress: t('tasks.claimed') } : task)
+        const safeMarkClaimed = (prev) => (prev == null || !Array.isArray(prev) ? prev : markClaimed(prev))
         if (activeTab === 'referral') {
-          setReferralTasks(prev => markClaimed(prev))
+          setReferralTasks(safeMarkClaimed)
         } else if (activeTab === 'follow') {
-          setFollowTasks(prev => markClaimed(prev))
+          setFollowTasks(safeMarkClaimed)
         } else if (activeTab === 'other') {
-          setOtherTasks(prev => markClaimed(prev))
+          setOtherTasks(safeMarkClaimed)
         }
-        // Close modal
-        if (typeof window.closeModal === 'function') {
-          document.querySelectorAll('[data-modal^="task"]').forEach(modal => {
-            const modalId = modal.getAttribute('data-modal')
-            if (modalId) {
-              window.closeModal(modalId)
-            }
-          })
-        }
+        // Close modal after React has applied the state update (avoids black screen)
+        setTimeout(() => {
+          if (typeof window.closeModal === 'function') {
+            document.querySelectorAll('[data-modal^="task"]').forEach(modal => {
+              const modalId = modal.getAttribute('data-modal')
+              if (modalId) {
+                window.closeModal(modalId)
+              }
+            })
+          }
+        }, 0)
       } else {
         // Task not completed or already claimed
         alert(response.message || t('tasks.error.notCompleted'))
