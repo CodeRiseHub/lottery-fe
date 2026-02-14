@@ -59,6 +59,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   const remainingBetCapacityPerRoomRef = useRef(new Map()) // Map<roomNumber, remainingCapacity>
   // Track which rooms were just initialized (for app reopen case) vs reset (after round ended)
   const justInitializedRoomsRef = useRef(new Set()) // Set<roomNumber>
+  // Track last room we received state for (so we can detect room switch and reset bet state)
+  const lastStateRoomRef = useRef(null)
   const [registeredUsers, setRegisteredUsers] = useState(0)
   const [totalBet, setTotalBet] = useState(0)
   const [currentRoom, setCurrentRoom] = useState({ number: getInitialRoomNumber(), users: 0 })
@@ -722,10 +724,20 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         if (state.mB !== undefined && state.mX !== undefined) {
           const newMinBet = state.mB
           const newMaxBet = state.mX
-          const roomChanged = currentRoom.number !== state.rN
+          // Detect room switch: state is for a different room than the last state we processed.
+          // When user switches room, currentRoom is updated first, so currentRoom.number === state.rN
+          // and we'd never get roomChanged. Using lastStateRoomRef fixes that.
+          const roomChanged = lastStateRoomRef.current !== null && lastStateRoomRef.current !== state.rN
 
           setMinBet(newMinBet)
           setMaxBet(newMaxBet)
+
+          // When switching rooms: user has no bet in the new room's round — reset and give full capacity.
+          if (roomChanged) {
+            setUserTotalPendingBet(0)
+            remainingBetCapacityPerRoomRef.current.set(state.rN, newMaxBet)
+            justInitializedRoomsRef.current.delete(state.rN)
+          }
 
           // Initialize remaining capacity for this room if not set (user enters room or app reopened)
           if (!remainingBetCapacityPerRoomRef.current.has(state.rN)) {
@@ -800,6 +812,8 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
           if (currentBet < newMinBet || currentBet > newMaxBet || roomChanged) {
             setCurrentBet(newMinBet)
           }
+
+          lastStateRoomRef.current = state.rN
         }
 
         // Update participants with optimized incremental merge
