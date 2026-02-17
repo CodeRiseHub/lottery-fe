@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getDailyBonusStatus, claimTask, fetchCurrentUser, getRecentDailyBonusClaims } from '../api'
-import ticketIcon from '../assets/images/header/ticket_horizontal.png'
+import ticketIcon from '../assets/images/header/ticket_horizontal_1.png'
 import ParticipantAvatar from '../components/ParticipantAvatar'
 import { t, subscribeToLanguageChange } from '../i18n'
 

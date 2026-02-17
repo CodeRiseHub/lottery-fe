@@ -127,7 +127,7 @@ export default function HomeScreen() {
                   width="25"
                   height="25"
                 />
-                <span className="tg-link__button">START SPINNING</span>
+                <span className="tg-link__button">START GAME</span>
               </span>
             </button>
           </div>
@@ -157,7 +157,7 @@ export default function HomeScreen() {
 
         <div className="container footer">
           <a href="#" className="tg-link__button" onClick={handleTelegramLink}>
-            Start Spinning
+            Start Game
           </a>
           <p>© 2026 Win Spin. All rights reserved worldwide.</p>
         </div>
