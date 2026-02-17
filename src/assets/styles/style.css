@@ -208,6 +208,9 @@ font {
     color: var(--color-text);
     text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
 }
+#balance_top {
+    font-weight: bold;
+}
 .header__currency {
     color: #ffffffb3;
     font-weight: 300;
@@ -4702,7 +4705,7 @@ section.payout .upgrade__currencies {
 
 .lottery-stats__value {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: bold;
     color: #fff;
     font-family: "Chakra Petch", sans-serif;
 }
