@@ -153,7 +153,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             <span>${ticketCount}</span>
             <img src="${ticketIcon}" alt="" width="14" height="10" style="display: inline-block; vertical-align: middle;" />
           </div>
-          <img src="${avatarUrl}" alt="avatar" width="65" height="65" style="border-radius: 50%; margin-bottom: 4px; border: 3px solid #374B60;" />
+          <img src="${avatarUrl}" alt="avatar" width="65" height="65" style="border-radius: 15%; margin-bottom: 4px; border: 3px solid #374B60;" />
           <div style="text-align: center; color: #fff; font-size: 12px; font-family: 'Chakra Petch', sans-serif; line-height: 1.2;">
             ${winChance.toFixed(2)}%
           </div>
@@ -398,7 +398,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
       const isMiddle = index === middleIndex
       items.push(
         `<div class='spin__game-item' ${isMiddle ? "id='middleQ'" : ''}>
-          <img src="${item.avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 50%;" />
+          <img src="${item.avatarUrl}" alt="avatar" width="56" height="56" style="border-radius: 15%;" />
         </div>`
       )
     })
