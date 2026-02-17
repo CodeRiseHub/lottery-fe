@@ -143,9 +143,16 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
         avatarUrl = avatars[avatarIndex]
       }
 
-      // Create block with avatar and chance below
+      // Ticket count: backend sends participant.b already in tickets (not bigint)
+      const ticketCount = Math.floor(Number(participant.b) || 0)
+
+      // Create block with tickets above avatar, then avatar, then chance below (all centered)
       items.push(
         `<div class='spin__game-item' style="flex-direction: column; padding: 8px;">
+          <div style="text-align: center; color: #fff; font-size: 11px; font-family: 'Chakra Petch', sans-serif; line-height: 1.2; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 3px;">
+            <span>${ticketCount}</span>
+            <img src="${ticketIcon}" alt="" width="14" height="10" style="display: inline-block; vertical-align: middle;" />
+          </div>
           <img src="${avatarUrl}" alt="avatar" width="65" height="65" style="border-radius: 50%; margin-bottom: 4px; border: 3px solid #374B60;" />
           <div style="text-align: center; color: #fff; font-size: 12px; font-family: 'Chakra Petch', sans-serif; line-height: 1.2;">
             ${winChance.toFixed(2)}%
