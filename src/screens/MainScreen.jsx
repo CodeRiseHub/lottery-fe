@@ -1755,7 +1755,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                         style={{
                           width: '90px',
                           height: '90px',
-                          borderRadius: '50%',
+                          borderRadius: '15%',
                           objectFit: 'cover'
                         }}
                       />
