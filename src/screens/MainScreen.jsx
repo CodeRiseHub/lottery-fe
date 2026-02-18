@@ -42,6 +42,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   }
 
   const [currentBet, setCurrentBet] = useState(1) // Will be updated from state
+  const currentBetRef = useRef(1) // Always latest value so WebSocket handler doesn't use stale closure
   const [gameStarted, setGameStarted] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
   const [showKeyboardModal, setShowKeyboardModal] = useState(false)
@@ -426,6 +427,11 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
   useEffect(() => {
     onBalanceUpdateRef.current = onBalanceUpdate
   }, [onBalanceUpdate])
+
+  // Keep currentBetRef in sync so WebSocket handler always sees latest bet (avoids stale closure reset)
+  useEffect(() => {
+    currentBetRef.current = currentBet
+  }, [currentBet])
 
   // Set user ID and balance from userData prop (fetched by App.jsx) - only run when userData changes
   useEffect(() => {
@@ -815,9 +821,12 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             setUserTotalPendingBet(restoredUserTotalBet)
           }
 
-          // Update currentBet to minBet if it's outside the new limits or if room changed
-          if (currentBet < newMinBet || currentBet > newMaxBet || roomChanged) {
+          // Update currentBet to minBet only if actual current bet is outside limits or room changed
+          // Use ref to avoid stale closure (handler was created on room connect, not on every bet change)
+          const actualCurrentBet = currentBetRef.current
+          if (actualCurrentBet < newMinBet || actualCurrentBet > newMaxBet || roomChanged) {
             setCurrentBet(newMinBet)
+            currentBetRef.current = newMinBet
           }
 
           lastStateRoomRef.current = state.rN
