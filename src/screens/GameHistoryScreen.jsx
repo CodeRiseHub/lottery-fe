@@ -103,7 +103,7 @@ export default function GameHistoryScreen({ onBack, roomNumber }) {
   }
 
   return (
-    <section className="transaction">
+    <section className="transaction game-history-screen">
       <div className="transaction__container container">
         <div className="transaction__title-wrap" style={{ textAlign: 'center' }}>
           <h1 className="transaction__title title">{t('winHistory.title')}</h1>

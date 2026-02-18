@@ -466,7 +466,8 @@ font {
 }
 
 /* Universal footer clearance for all screens - add margin to last scrollable containers */
-section:last-child .container:last-child > *:last-child:not(.footer):not(.header) {
+/* Exclude game-history-screen: its .transaction__container already has margin; last child is pagination and must not get extra margin */
+section:last-child:not(.game-history-screen) .container:last-child > *:last-child:not(.footer):not(.header) {
     margin-bottom: 100px !important;
 }
 
