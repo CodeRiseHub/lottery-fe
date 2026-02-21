@@ -2002,7 +2002,7 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
                 {t('game.rules.realMode')}
               </span>
               <span> {t('game.rules.setBet')}</span>
-              <span> {t('game.room')} 1: 1-50 {t('game.ticket')}</span>
+              <span> {t('game.room')} 1: 1-200 {t('game.ticket')}</span>
               <span> {t('game.room')} 2: 10-5000 {t('game.ticket')}</span>
               <span> {t('game.room')} 3: 1000-50000 {t('game.ticket')}</span>
             </p>
