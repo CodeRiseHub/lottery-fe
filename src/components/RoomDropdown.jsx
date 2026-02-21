@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { t } from '../i18n'
 
-// Displayed count = real WebSocket-connected users + DISPLAY_OFFSET (e.g. to avoid showing 0)
-const DISPLAY_OFFSET = 2
+// Displayed count = real WebSocket-connected users + offset per room (to avoid showing 0)
+const DISPLAY_OFFSET_BY_ROOM = { 1: 1, 2: 3, 3: 2 }
 
 export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
-  const displayCount = (count) => (count ?? 0) + DISPLAY_OFFSET
+  const displayCount = (count, roomNumber) => (count ?? 0) + (DISPLAY_OFFSET_BY_ROOM[roomNumber] ?? 2)
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -43,7 +43,7 @@ export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
         <span className="room-dropdown__text">{t('game.room')} {currentRoom.number}</span>
         <span className="room-dropdown__spacer"></span>
         <span className="room-dropdown__users">
-          {displayCount(currentRoom.users)} 👤
+          {displayCount(currentRoom.users, currentRoom.number)} 👤
         </span>
         <span className="room-dropdown__arrow">{isOpen ? '▲' : '▼'}</span>
       </button>
@@ -57,7 +57,7 @@ export default function RoomDropdown({ currentRoom, rooms, onRoomChange }) {
               onClick={() => handleRoomSelect(room)}
             >
               <span className="room-dropdown__item-text">{t('game.room')} {room.number}</span>
-              <span className="room-dropdown__item-users">{displayCount(room.users)} 👤</span>
+              <span className="room-dropdown__item-users">{displayCount(room.users, room.number)} 👤</span>
             </button>
           ))}
         </div>
