@@ -171,7 +171,7 @@ export default function PromotionDetailScreen({ promotionId, onBack, onNavigate 
 
         <h3 style={{ fontSize: '18px', marginBottom: '12px', color: 'var(--text-primary, #fff)', ...centerStyle }}>{t('promo.detail.leaderboard')}</h3>
         <div className="transaction__table">
-          <div className="transaction__row" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+          <div className="transaction__row" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
             <div style={{ flex: '0 0 50px', textAlign: 'center' }} title={t('promo.detail.place')} aria-label={t('promo.detail.place')}>🏆</div>
             <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>{t('promo.detail.user')}</div>
             <div style={{ flex: '0 0 70px', textAlign: 'center' }}>{t('promo.detail.points')}</div>

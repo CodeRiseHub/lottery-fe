@@ -2820,6 +2820,24 @@ section.payout .upgrade__currencies {
     margin-bottom: 0 !important;
 }
 
+/* Promotion detail: table has no extra bottom margin (container already has footer clearance) */
+.promotion-detail .transaction__table {
+    margin-bottom: 0 !important;
+}
+
+/* Promotion detail: no border on first table row (header row) */
+.promotion-detail .transaction__table .transaction__row:first-child {
+    border-bottom: none !important;
+}
+
+/* Promotion detail: center text inside faq__list sections */
+.promotion-detail .faq__list {
+    text-align: center;
+}
+.promotion-detail .faq__list .faq__question {
+    text-align: center;
+}
+
 .transaction__head {
     margin-bottom: 16px;
     display: flex;
