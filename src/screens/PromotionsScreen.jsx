@@ -58,7 +58,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
           <div className="faq__list">
             {active.length > 0 && (
               <>
-                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.activeHeading')}
                 </h2>
                 {active.map((p) => (
@@ -71,7 +71,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                     role="button"
                     tabIndex={0}
                   >
-                    <p className="faq__question" style={{ marginBottom: 0 }}>{getShortDescription(p)}</p>
+                    <p className="faq__question" style={{ marginBottom: 0, marginBottom: '20px', fontWeight: 500 }}>{getShortDescription(p)}</p>
                   </div>
                 ))}
               </>
@@ -91,7 +91,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                     role="button"
                     tabIndex={0}
                   >
-                    <p className="faq__question" style={{ marginBottom: 0 }}>{getShortDescription(p)}</p>
+                    <p className="faq__question" style={{ marginBottom: 0, marginBottom: '20px', fontWeight: 500 }}>{getShortDescription(p)}</p>
                   </div>
                 ))}
               </>
@@ -111,7 +111,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                     role="button"
                     tabIndex={0}
                   >
-                    <p className="faq__question" style={{ marginBottom: 0 }}>{getShortDescription(p)}</p>
+                    <p className="faq__question" style={{ marginBottom: 0, marginBottom: '20px', fontWeight: 500 }}>{getShortDescription(p)}</p>
                   </div>
                 ))}
               </>
