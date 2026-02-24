@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getPromotions } from '../api'
 import { t } from '../i18n'
+import backIcon from '../assets/images/back.png'
 
 const STATUS_ACTIVE = 'ACTIVE'
 const STATUS_PLANNED = 'PLANNED'
@@ -43,9 +44,9 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
   const finished = list.filter((p) => p.status === STATUS_FINISHED)
 
   return (
-    <section className="faq">
-      <div className="container">
-        <h1 className="title">{t('promo.button')}</h1>
+    <section className="faq promotions">
+      <div className="container" style={{ marginBottom: '150px' }}>
+        <h1 className="title" style={{ textAlign: 'center' }}>{t('promo.title')}</h1>
 
         {loading ? (
           <p style={{ textAlign: 'center', color: 'var(--text-secondary, #ccc)' }}>{t('promo.loading')}</p>
@@ -57,7 +58,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
           <div className="faq__list">
             {active.length > 0 && (
               <>
-                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)' }}>
+                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.activeHeading')}
                 </h2>
                 {active.map((p) => (
@@ -77,7 +78,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
             )}
             {planned.length > 0 && (
               <>
-                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)' }}>
+                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.plannedHeading')}
                 </h2>
                 {planned.map((p) => (
@@ -97,7 +98,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
             )}
             {finished.length > 0 && (
               <>
-                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)' }}>
+                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.finishedHeading')}
                 </h2>
                 {finished.map((p) => (
@@ -118,15 +119,16 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
           </div>
         )}
 
-        <div className="faq__actions" style={{ marginTop: '24px' }}>
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); onBack && onBack(); }}
-            className="faq__button"
-          >
-            {t('header.account.back')}
-          </a>
-        </div>
+      </div>
+      <div className="upgrade__footer">
+        <button
+          type="button"
+          className="upgrade__back-button"
+          onClick={() => onBack && onBack()}
+        >
+          {t('header.account.back')}
+          <img src={backIcon} alt="back" width={29} height={21} />
+        </button>
       </div>
     </section>
   )

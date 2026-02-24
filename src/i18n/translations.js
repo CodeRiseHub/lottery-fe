@@ -140,6 +140,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Promotions and competitions ⭐",
+        "promo.title": "Promotions",
         "promo.activeHeading": "Active promotions",
         "promo.plannedHeading": "Planned promotions",
         "promo.finishedHeading": "Finished promotions",
@@ -578,6 +579,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Акции и конкурсы ⭐",
+        "promo.title": "Акции",
         "promo.activeHeading": "Активные акции",
         "promo.plannedHeading": "Запланированные акции",
         "promo.finishedHeading": "Завершённые акции",
@@ -998,6 +1000,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Aktionen und Wettbewerbe ⭐",
+        "promo.title": "Aktionen",
         "promo.activeHeading": "Aktive Aktionen",
         "promo.plannedHeading": "Geplante Aktionen",
         "promo.finishedHeading": "Abgeschlossene Aktionen",
@@ -1430,6 +1433,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Promozioni e concorsi ⭐",
+        "promo.title": "Promozioni",
         "promo.activeHeading": "Promozioni attive",
         "promo.plannedHeading": "Promozioni pianificate",
         "promo.finishedHeading": "Promozioni terminate",
@@ -1862,6 +1866,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Acties en wedstrijden ⭐",
+        "promo.title": "Acties",
         "promo.activeHeading": "Actieve acties",
         "promo.plannedHeading": "Geplande acties",
         "promo.finishedHeading": "Afgelopen acties",
@@ -2289,6 +2294,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Promocje i konkursy ⭐",
+        "promo.title": "Promocje",
         "promo.activeHeading": "Aktywne promocje",
         "promo.plannedHeading": "Planowane promocje",
         "promo.finishedHeading": "Zakończone promocje",
@@ -2693,6 +2699,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Promotions et concours ⭐",
+        "promo.title": "Promotions",
         "promo.activeHeading": "Promotions actives",
         "promo.plannedHeading": "Promotions prévues",
         "promo.finishedHeading": "Promotions terminées",
@@ -3091,6 +3098,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Promociones y concursos ⭐",
+        "promo.title": "Promociones",
         "promo.activeHeading": "Promociones activas",
         "promo.plannedHeading": "Promociones planificadas",
         "promo.finishedHeading": "Promociones finalizadas",
@@ -3524,6 +3532,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Promosi dan kompetisi ⭐",
+        "promo.title": "Promosi",
         "promo.activeHeading": "Promosi aktif",
         "promo.plannedHeading": "Promosi yang direncanakan",
         "promo.finishedHeading": "Promosi selesai",
@@ -3916,6 +3925,7 @@ const translations = {
 
         // Promotions
         "promo.button": "⭐ Promosyonlar ve yarışmalar ⭐",
+        "promo.title": "Promosyonlar",
         "promo.activeHeading": "Aktif promosyonlar",
         "promo.plannedHeading": "Planlanan promosyonlar",
         "promo.finishedHeading": "Tamamlanan promosyonlar",
