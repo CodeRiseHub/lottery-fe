@@ -274,6 +274,14 @@ function App() {
     window.scrollTo(0, 0)
   }, [currentScreen])
 
+  // When promotions feature is disabled, redirect away from promotions screens (e.g. restored from localStorage)
+  useEffect(() => {
+    if (!userData || userData.promotionsEnabled !== false) return
+    if (currentScreen === 'promotions' || currentScreen === 'promotionDetail') {
+      handleNavigate('main')
+    }
+  }, [userData, currentScreen])
+
   // Refresh user data (balance) when switching between footer tabs so balance stays up to date
   const footerTabScreens = ['main', 'store', 'referral', 'tasks', 'payout']
   useEffect(() => {

@@ -1594,27 +1594,29 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
             </button>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '8px 0' }}>
-            <button
-              type="button"
-              onClick={() => onNavigate && onNavigate('promotions')}
-              className="spin__button spin__button--promo"
-              style={{
-                padding: '8px 16px',
-                fontSize: 'clamp(13px, 3vw, 16px)',
-                fontWeight: 700,
-                color: '#fff',
-                background: 'linear-gradient(135deg, #f5b042 0%, #e89b2a 50%, #d4851e 100%)',
-                border: 'none',
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(232, 155, 42, 0.5)',
-                textAlign: 'center',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {t('promo.button')}
-            </button>
-          </div>
+          {userData?.promotionsEnabled && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => onNavigate && onNavigate('promotions')}
+                className="spin__button spin__button--promo"
+                style={{
+                  padding: '4px 16px',
+                  fontSize: 'clamp(13px, 3vw, 16px)',
+                  fontWeight: 700,
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, #f5b042 0%, #e89b2a 50%, #d4851e 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(232, 155, 42, 0.5)',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {t('promo.button')}
+              </button>
+            </div>
+          )}
 
           <div className="lottery-stats">
             {/* Left half - registered users centered */}

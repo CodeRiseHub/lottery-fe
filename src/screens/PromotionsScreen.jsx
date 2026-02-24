@@ -65,7 +65,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                   <div
                     key={p.id}
                     className="faq__item"
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                     onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                     onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                     role="button"
@@ -85,7 +85,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                   <div
                     key={p.id}
                     className="faq__item"
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                     onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                     onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                     role="button"
@@ -105,7 +105,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                   <div
                     key={p.id}
                     className="faq__item"
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                     onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                     onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                     role="button"
