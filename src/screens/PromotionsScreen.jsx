@@ -4,7 +4,6 @@ import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
 const STATUS_ACTIVE = 'ACTIVE'
-const STATUS_PLANNED = 'PLANNED'
 const STATUS_FINISHED = 'FINISHED'
 
 function getShortDescription(promo) {
@@ -40,7 +39,6 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
   }, [load])
 
   const active = list.filter((p) => p.status === STATUS_ACTIVE)
-  const planned = list.filter((p) => p.status === STATUS_PLANNED)
   const finished = list.filter((p) => p.status === STATUS_FINISHED)
 
   return (
@@ -52,21 +50,20 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
           <p style={{ textAlign: 'center', color: 'var(--text-secondary, #ccc)' }}>{t('promo.loading')}</p>
         ) : error ? (
           <p style={{ textAlign: 'center', color: 'var(--error, #e74c3c)' }}>{error}</p>
-        ) : active.length === 0 && planned.length === 0 && finished.length === 0 ? (
+        ) : active.length === 0 && finished.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--text-secondary, #ccc)' }}>{t('promo.noPromotions')}</p>
         ) : (
           <>
             {active.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '32px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.activeHeading')}
                 </h2>
-                <div className="faq__list">
-                  {active.map((p) => (
+                {active.map((p) => (
+                  <div key={p.id} className="faq__list" style={{ marginBottom: '8px' }}>
                     <div
-                      key={p.id}
                       className="faq__item"
-                      style={{ cursor: 'pointer', textAlign: 'center' }}
+                      style={{ cursor: 'pointer', textAlign: 'center', border: 'none', paddingTop: 0 }}
                       onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                       onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                       role="button"
@@ -74,30 +71,8 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                     >
                       <p className="faq__question" style={{ marginBottom: 0, fontWeight: 400 }}>{getShortDescription(p)}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {planned.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
-                  {t('promo.plannedHeading')}
-                </h2>
-                <div className="faq__list">
-                  {planned.map((p) => (
-                    <div
-                      key={p.id}
-                      className="faq__item"
-                      style={{ cursor: 'pointer', textAlign: 'center' }}
-                      onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                      onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <p className="faq__question" style={{ marginBottom: 0, fontWeight: 400 }}>{getShortDescription(p)}</p>
-                    </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             )}
             {finished.length > 0 && (
@@ -105,12 +80,11 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                 <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.finishedHeading')}
                 </h2>
-                <div className="faq__list">
-                  {finished.map((p) => (
+                {finished.map((p) => (
+                  <div key={p.id} className="faq__list" style={{ marginBottom: '8px' }}>
                     <div
-                      key={p.id}
                       className="faq__item"
-                      style={{ cursor: 'pointer', textAlign: 'center' }}
+                      style={{ cursor: 'pointer', textAlign: 'center', border: 'none', paddingTop: 0 }}
                       onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                       onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
                       role="button"
@@ -118,8 +92,8 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                     >
                       <p className="faq__question" style={{ marginBottom: 0, fontWeight: 400 }}>{getShortDescription(p)}</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             )}
           </>

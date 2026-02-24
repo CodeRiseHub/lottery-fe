@@ -133,47 +133,49 @@ export default function PromotionDetailScreen({ promotionId, onBack, onNavigate 
   const userPoints = detail.userPoints != null ? Number(detail.userPoints) : 0
 
   const centerStyle = { textAlign: 'center' }
+  const yellowColor = '#f5d076'
   return (
     <section className="faq promotion-detail">
       <div className="container" style={{ marginBottom: '150px' }}>
         <h1 className="title" style={centerStyle}>{title}</h1>
 
         {description && (
-          <div style={{ whiteSpace: 'pre-wrap', marginBottom: '20px', color: 'var(--text-primary, #fff)', ...centerStyle }}>
-            {description}
+          <div className="faq__list" style={{ marginBottom: '16px' }}>
+            <div className="faq__item" style={{ border: 'none', paddingTop: 0 }}>
+              <p className="faq__question" style={{ marginBottom: 0, fontWeight: 400, whiteSpace: 'pre-wrap' }}>{description}</p>
+            </div>
           </div>
         )}
 
-        {status === STATUS_ACTIVE && timeLeft != null && (
-          <div style={{ marginBottom: '20px', ...centerStyle }}>
-            <p style={{ marginBottom: '6px', color: 'var(--text-secondary, #ccc)' }}>{t('promo.detail.timeLeftEnd')}</p>
-            <p style={{ fontWeight: 'bold', color: 'var(--text-primary, #fff)' }}>{timeLeft.str}</p>
+        {(status === STATUS_ACTIVE && timeLeft != null) || (status === STATUS_PLANNED && timeLeft != null) || status === STATUS_FINISHED ? (
+          <div className="faq__list" style={{ marginBottom: '20px' }}>
+            <div className="faq__item" style={{ border: 'none', paddingTop: 0, ...centerStyle }}>
+              {status === STATUS_ACTIVE && timeLeft != null && (
+                <>
+                  <p style={{ marginBottom: '8px', fontSize: '24px', color: 'var(--text-secondary, #ccc)' }}>{t('promo.detail.timeLeftEnd')}</p>
+                  <p style={{ fontWeight: 'bold', fontSize: '28px', color: 'var(--text-primary, #fff)' }}>{timeLeft.str}</p>
+                </>
+              )}
+              {status === STATUS_PLANNED && timeLeft != null && (
+                <>
+                  <p style={{ marginBottom: '8px', fontSize: '24px', color: 'var(--text-secondary, #ccc)' }}>{t('promo.detail.timeLeftStart')}</p>
+                  <p style={{ fontWeight: 'bold', fontSize: '28px', color: 'var(--text-primary, #fff)' }}>{timeLeft.str}</p>
+                </>
+              )}
+              {status === STATUS_FINISHED && (
+                <p style={{ margin: 0, fontSize: '22px', color: 'var(--text-primary, #fff)' }}>{t('promo.detail.ended')}</p>
+              )}
+            </div>
           </div>
-        )}
-
-        {status === STATUS_PLANNED && timeLeft != null && (
-          <div style={{ marginBottom: '20px', ...centerStyle }}>
-            <p style={{ marginBottom: '6px', color: 'var(--text-secondary, #ccc)' }}>{t('promo.detail.timeLeftStart')}</p>
-            <p style={{ fontWeight: 'bold', color: 'var(--text-primary, #fff)' }}>{timeLeft.str}</p>
-          </div>
-        )}
-
-        {status === STATUS_FINISHED && (
-          <p style={{ marginBottom: '20px', color: 'var(--text-primary, #fff)', ...centerStyle }}>{t('promo.detail.ended')}</p>
-        )}
-
-        <div style={{ marginBottom: '16px', ...centerStyle }}>
-          <p style={{ marginBottom: '8px', fontWeight: 'bold', color: 'var(--text-primary, #fff)' }}>{t('promo.detail.yourPosition', { x: userPosition, y: userTotal })}</p>
-          <p style={{ margin: 0, color: 'var(--text-primary, #fff)' }}>{t('promo.detail.youHavePoints', { amount: userPoints.toLocaleString() })}</p>
-        </div>
+        ) : null}
 
         <h3 style={{ fontSize: '18px', marginBottom: '12px', color: 'var(--text-primary, #fff)', ...centerStyle }}>{t('promo.detail.leaderboard')}</h3>
         <div className="transaction__table">
-          <div className="transaction__row" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', borderBottom: '1px rgba(255,255,255,0.2)' }}>
-            <div style={{ flex: '0 0 50px', textAlign: 'center' }}>{t('promo.detail.place')}</div>
+          <div className="transaction__row" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+            <div style={{ flex: '0 0 50px', textAlign: 'center' }} title={t('promo.detail.place')} aria-label={t('promo.detail.place')}>🏆</div>
             <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>{t('promo.detail.user')}</div>
             <div style={{ flex: '0 0 70px', textAlign: 'center' }}>{t('promo.detail.points')}</div>
-            <div style={{ flex: '0 0 90px', textAlign: 'center' }}>{t('promo.detail.possiblePrize')}</div>
+            <div style={{ flex: '0 0 90px', textAlign: 'center' }}>{t('promo.detail.prize')}</div>
           </div>
           {leaderboard.slice(0, 30).map((row, idx) => (
             <div key={`${row.place}-${idx}`} className="transaction__row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -183,6 +185,11 @@ export default function PromotionDetailScreen({ promotionId, onBack, onNavigate 
               <div style={{ flex: '0 0 90px', textAlign: 'center' }}>{formatRewardTickets(row.rewardTickets)}</div>
             </div>
           ))}
+        </div>
+
+        <div style={{ marginTop: '20px', padding: '14px', borderRadius: '12px', background: 'rgba(245, 208, 118, 0.15)', border: '1px solid rgba(245, 208, 118, 0.4)', ...centerStyle }}>
+          <p style={{ marginBottom: '8px', fontWeight: 'bold', color: yellowColor, fontSize: '18px' }}>{t('promo.detail.yourPosition', { x: userPosition, y: userTotal })}</p>
+          <p style={{ margin: 0, color: yellowColor, fontSize: '16px' }}>{t('promo.detail.youHavePoints', { amount: userPoints.toLocaleString() })}</p>
         </div>
       </div>
       <div className="upgrade__footer">

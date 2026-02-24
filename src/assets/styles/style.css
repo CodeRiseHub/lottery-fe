@@ -2742,6 +2742,14 @@ section.payout .upgrade__currencies {
     backdrop-filter: blur(4px);
     box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.25);
 }
+/* Promotions screen: each promo in its own faq__list with small gap; section container handles footer clearance */
+.promotions .faq__list {
+    margin-bottom: 8px !important;
+}
+/* Promotion detail screen: description and timer in faq__list sections with normal margin */
+.promotion-detail .faq__list {
+    margin-bottom: 20px !important;
+}
 .faq__item {
     margin-bottom: 10px;
 }
