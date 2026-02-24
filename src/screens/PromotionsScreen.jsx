@@ -55,68 +55,74 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
         ) : active.length === 0 && planned.length === 0 && finished.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--text-secondary, #ccc)' }}>{t('promo.noPromotions')}</p>
         ) : (
-          <div className="faq__list">
+          <>
             {active.length > 0 && (
-              <>
+              <div style={{ marginBottom: '24px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.activeHeading')}
                 </h2>
-                {active.map((p) => (
-                  <div
-                    key={p.id}
-                    className="faq__item"
-                    style={{ cursor: 'pointer', textAlign: 'center' }}
-                    onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                    onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <p className="faq__question" style={{ marginBottom: 0, marginBottom: '20px', fontWeight: 500 }}>{getShortDescription(p)}</p>
-                  </div>
-                ))}
-              </>
+                <div className="faq__list">
+                  {active.map((p) => (
+                    <div
+                      key={p.id}
+                      className="faq__item"
+                      style={{ cursor: 'pointer', textAlign: 'center' }}
+                      onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
+                      onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <p className="faq__question" style={{ marginBottom: 0, fontWeight: 400 }}>{getShortDescription(p)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {planned.length > 0 && (
-              <>
-                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.plannedHeading')}
                 </h2>
-                {planned.map((p) => (
-                  <div
-                    key={p.id}
-                    className="faq__item"
-                    style={{ cursor: 'pointer', textAlign: 'center' }}
-                    onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                    onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <p className="faq__question" style={{ marginBottom: 0, marginBottom: '20px', fontWeight: 500 }}>{getShortDescription(p)}</p>
-                  </div>
-                ))}
-              </>
+                <div className="faq__list">
+                  {planned.map((p) => (
+                    <div
+                      key={p.id}
+                      className="faq__item"
+                      style={{ cursor: 'pointer', textAlign: 'center' }}
+                      onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
+                      onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <p className="faq__question" style={{ marginBottom: 0, fontWeight: 400 }}>{getShortDescription(p)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {finished.length > 0 && (
-              <>
-                <h2 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary, #fff)', textAlign: 'center' }}>
                   {t('promo.finishedHeading')}
                 </h2>
-                {finished.map((p) => (
-                  <div
-                    key={p.id}
-                    className="faq__item"
-                    style={{ cursor: 'pointer', textAlign: 'center' }}
-                    onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                    onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <p className="faq__question" style={{ marginBottom: 0, marginBottom: '20px', fontWeight: 500 }}>{getShortDescription(p)}</p>
-                  </div>
-                ))}
-              </>
+                <div className="faq__list">
+                  {finished.map((p) => (
+                    <div
+                      key={p.id}
+                      className="faq__item"
+                      style={{ cursor: 'pointer', textAlign: 'center' }}
+                      onClick={() => onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
+                      onKeyDown={(e) => e.key === 'Enter' && onNavigate && onNavigate('promotionDetail', { promotionId: p.id })}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <p className="faq__question" style={{ marginBottom: 0, fontWeight: 400 }}>{getShortDescription(p)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
-          </div>
+          </>
         )}
 
       </div>
