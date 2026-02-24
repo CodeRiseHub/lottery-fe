@@ -94,7 +94,7 @@ export default function HomeScreen() {
                 <div className="swiper-slide">
                   <div className="swiper-img">
                     <video autoPlay muted loop playsInline className="hero__image">
-                      <source src="https://rufus-api.biz/win_spin/miner_index_page.mp4" type="video/mp4" />
+                      <source src="https://win-spin.live/videos/winspin_intro.mp4" type="video/mp4" />
                     </video>
                   </div>
                 </div>
