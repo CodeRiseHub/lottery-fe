@@ -168,6 +168,20 @@ export async function fetchCompletedRounds(roomNumber) {
 }
 
 /**
+ * Fetches promotions list for app (ACTIVE, PLANNED, FINISHED).
+ */
+export async function getPromotions() {
+  return authFetch("/api/promotions", { method: "GET" });
+}
+
+/**
+ * Fetches promotion detail with leaderboard and user progress. 404 if INACTIVE.
+ */
+export async function getPromotionDetail(id) {
+  return authFetch(`/api/promotions/${id}`, { method: "GET" });
+}
+
+/**
  * Deposits stars to user's balance.
  * @param {number} stars - Number of stars to deposit (will be converted to bigint: stars * 1,000,000)
  */

@@ -1587,6 +1587,30 @@ export default function MainScreen({ onNavigate, onBalanceUpdate, userData, room
               onRoomChange={handleRoomChange}
             />
             <button
+              type="button"
+              onClick={() => onNavigate && onNavigate('promotions')}
+              className="spin__button spin__button--promo"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                margin: '0 6px',
+                padding: '6px 10px',
+                fontSize: 'clamp(12px, 2.8vw, 15px)',
+                fontWeight: 700,
+                color: '#fff',
+                background: 'linear-gradient(135deg, #f5b042 0%, #e89b2a 50%, #d4851e 100%)',
+                border: 'none',
+                borderRadius: '12px',
+                boxShadow: '0 2px 8px rgba(232, 155, 42, 0.5)',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {t('promo.button')}
+            </button>
+            <button
               onClick={() => onNavigate && onNavigate('gameHistory', { roomNumber: currentRoom.number })}
               className="spin__button"
             >
