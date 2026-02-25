@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { getPromotionDetail } from '../api'
 import { t } from '../i18n'
 import backIcon from '../assets/images/back.png'
+import ticketIcon from '../assets/images/header/ticket_horizontal_1.png'
 
 const STATUS_ACTIVE = 'ACTIVE'
 const STATUS_PLANNED = 'PLANNED'
@@ -175,7 +176,10 @@ export default function PromotionDetailScreen({ promotionId, onBack, onNavigate 
             <div style={{ flex: '0 0 50px', textAlign: 'center' }} title={t('promo.detail.place')} aria-label={t('promo.detail.place')}>🏆</div>
             <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>{t('promo.detail.user')}</div>
             <div style={{ flex: '0 0 70px', textAlign: 'center' }}>{t('promo.detail.points')}</div>
-            <div style={{ flex: '0 0 90px', textAlign: 'center' }}>{t('promo.detail.prize')}</div>
+            <div style={{ flex: '0 0 90px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              {t('promo.detail.prize')}
+              <img src={ticketIcon} alt="" width="14" height="10" style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+            </div>
           </div>
           {leaderboard.slice(0, 30).map((row, idx) => (
             <div key={`${row.place}-${idx}`} className="transaction__row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
