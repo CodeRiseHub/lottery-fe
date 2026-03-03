@@ -17,12 +17,16 @@ function formatRewardTickets(value) {
 function getDetailTitle(type) {
   const upper = (type || '').toUpperCase()
   if (upper === 'NET_WIN') return t('promo.detail.net_win.title')
+  if (upper === 'NET_WIN_MAX_BET') return t('promo.detail.net_win_max_bet.title')
+  if (upper === 'REF_COUNT') return t('promo.detail.ref_count.title')
   return type || ''
 }
 
 function getDetailDescription(type) {
   const upper = (type || '').toUpperCase()
   if (upper === 'NET_WIN') return t('promo.detail.net_win.description')
+  if (upper === 'NET_WIN_MAX_BET') return t('promo.detail.net_win_max_bet.description')
+  if (upper === 'REF_COUNT') return t('promo.detail.ref_count.description')
   return ''
 }
 

@@ -8,10 +8,11 @@ const STATUS_FINISHED = 'FINISHED'
 
 function getShortDescription(promo) {
   const type = (promo.type || '').toUpperCase()
-  if (type === 'NET_WIN') {
-    const reward = promo.totalReward != null ? Math.round(Number(promo.totalReward) / 1_000_000) : 0
-    return t('promo.net_win.short', { reward: reward.toLocaleString() })
-  }
+  const reward = promo.totalReward != null ? Math.round(Number(promo.totalReward) / 1_000_000) : 0
+  const rewardStr = reward.toLocaleString()
+  if (type === 'NET_WIN') return t('promo.net_win.short', { reward: rewardStr })
+  if (type === 'NET_WIN_MAX_BET') return t('promo.net_win_max_bet.short', { reward: rewardStr })
+  if (type === 'REF_COUNT') return t('promo.ref_count.short', { reward: rewardStr })
   return promo.name || String(promo.id)
 }
 
