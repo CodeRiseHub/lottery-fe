@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getPromotions } from '../api'
-import { t } from '../i18n'
+import { t, getCurrentLanguage, subscribeToLanguageChange } from '../i18n'
 import backIcon from '../assets/images/back.png'
 
 const STATUS_ACTIVE = 'ACTIVE'
@@ -20,6 +20,15 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
   const [list, setList] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  // Force re-render when language changes so all promotion descriptions use the new locale (fixes Telegram desktop/mobile)
+  const [lang, setLang] = useState(() => getCurrentLanguage())
+
+  useEffect(() => {
+    const unsubscribe = subscribeToLanguageChange(() => {
+      setLang(getCurrentLanguage())
+    })
+    return unsubscribe
+  }, [])
 
   const load = useCallback(async () => {
     try {
@@ -61,7 +70,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                   {t('promo.activeHeading')}
                 </h2>
                 {active.map((p) => (
-                  <div key={p.id} className="faq__list" style={{ marginBottom: '8px' }}>
+                  <div key={`${p.id}-${lang}`} className="faq__list" style={{ marginBottom: '8px' }}>
                     <div
                       className="faq__item"
                       style={{ cursor: 'pointer', textAlign: 'center', border: 'none', paddingTop: 0 }}
@@ -82,7 +91,7 @@ export default function PromotionsScreen({ onBack, onNavigate }) {
                   {t('promo.finishedHeading')}
                 </h2>
                 {finished.map((p) => (
-                  <div key={p.id} className="faq__list" style={{ marginBottom: '8px' }}>
+                  <div key={`${p.id}-${lang}`} className="faq__list" style={{ marginBottom: '8px' }}>
                     <div
                       className="faq__item"
                       style={{ cursor: 'pointer', textAlign: 'center', border: 'none', paddingTop: 0 }}
